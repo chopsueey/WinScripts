@@ -167,7 +167,8 @@ class App(tk.Tk):
         tab_index = event.widget.index(selected_tab)
 
         if tab_index == 0:
-            self.get_system_status()
+            print("0 tab")
+            # self.get_system_status()
         elif tab_index == 1:
             print("1 tab opened")
         elif tab_index == 2:
@@ -237,6 +238,12 @@ class App(tk.Tk):
         return os.path.join(
             self.current_script_dir, self.script_dir_relative, script_name
         )
+    
+    def bring_to_front(self):
+        self.lift()
+        self.attributes('-topmost', True)
+        self.attributes('-topmost', False)
+        self.focus_force() # Force keyboard focus to this window
 
     def run(self):
         self.update_idletasks()
@@ -244,6 +251,6 @@ class App(tk.Tk):
         self.height = self.winfo_reqheight()
 
         center_window(self, self.width, self.height)
-
+        self.after(100, self.bring_to_front)
         self.deiconify()
         self.mainloop()

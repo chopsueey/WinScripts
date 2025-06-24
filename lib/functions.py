@@ -24,7 +24,10 @@ def center_window(window, width, height):
 
 def run_ps1_cmd(cmd: str) -> str:
     result = subprocess.run(
-        ["powershell", "-Command", cmd], capture_output=True, text=True
+        ["powershell", "-Command", cmd],
+        capture_output=True,
+        text=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
     )
 
     if result.returncode == 0:
@@ -33,12 +36,18 @@ def run_ps1_cmd(cmd: str) -> str:
         return result.stderr
 
 
-def run_ps1_script(script_path: str, ps_args: list = None) -> None: 
+def run_ps1_script(script_path: str, ps_args: list = None) -> None:
     if ps_args is None:
         ps_args = []
-    
-    script_argument_list = ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', script_path]
-    
+
+    script_argument_list = [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        script_path,
+    ]
+
     script_argument_list.extend(ps_args)
 
     formatted_args_for_powershell = []
@@ -47,8 +56,8 @@ def run_ps1_script(script_path: str, ps_args: list = None) -> None:
         # For simplicity, we'll just wrap each argument in single quotes.
         # This handles spaces but assumes arguments don't contain literal single quotes themselves.
         formatted_args_for_powershell.append(f"'{arg}'")
-        
-    argument_list_string = ', '.join(formatted_args_for_powershell)
+
+    argument_list_string = ", ".join(formatted_args_for_powershell)
 
     command_to_execute = (
         f"Start-Process powershell.exe "
@@ -57,5 +66,7 @@ def run_ps1_script(script_path: str, ps_args: list = None) -> None:
     )
 
     subprocess.Popen(
-        ["powershell.exe", "-NoProfile", "-Command", command_to_execute], shell=True
+        ["powershell.exe", "-NoProfile", "-Command", command_to_execute],
+        shell=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
     )
