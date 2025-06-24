@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv
+venv/
+
+# VSCode
+.vscode/
+
+# macOS/Linux
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Pyinstaller
+build/
+dist/
+main.spec
+
+# Personal
+notes.md
