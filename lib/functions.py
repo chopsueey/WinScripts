@@ -33,10 +33,26 @@ def run_ps1_cmd(cmd: str) -> str:
         return result.stderr
 
 
-def run_ps1_script(script_path: str) -> None:
+def run_ps1_script(script_path: str, ps_args: list = None) -> None: 
+    if ps_args is None:
+        ps_args = []
+    
+    script_argument_list = ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', script_path]
+    
+    script_argument_list.extend(ps_args)
+
+    formatted_args_for_powershell = []
+    for arg in script_argument_list:
+        # If the argument contains spaces, or is a quoted string itself, we need to handle it.
+        # For simplicity, we'll just wrap each argument in single quotes.
+        # This handles spaces but assumes arguments don't contain literal single quotes themselves.
+        formatted_args_for_powershell.append(f"'{arg}'")
+        
+    argument_list_string = ', '.join(formatted_args_for_powershell)
+
     command_to_execute = (
         f"Start-Process powershell.exe "
-        f"-ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', '{script_path}' "
+        f"-ArgumentList {argument_list_string} "
         f"-Verb RunAs -WindowStyle Hidden"
     )
 
