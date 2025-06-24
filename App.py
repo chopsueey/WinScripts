@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from style import init_style
 from components.State import State
-from lib.functions import center_window, run_ps1_script
+from lib.functions import center_window, run_ps1_cmd, run_ps1_script
 import socket, platform, getpass, subprocess, os, sys, psutil, time, datetime
 
 
@@ -27,6 +27,10 @@ class App(tk.Tk):
         icon_path = resource_path("favicon.ico")
         self.iconbitmap(icon_path)
         # self.iconbitmap(r"./favicon.ico")
+
+        # State
+        self.script_dir_relative = "scripts"
+        self.current_script_dir = os.path.dirname(os.path.abspath(__file__))
 
         init_style()
 
@@ -60,10 +64,28 @@ class App(tk.Tk):
 
         # General Tab (Tab 0)
         self.general_tab = ttk.Frame(self.notebook)
-        self.general_tab_label = ttk.Label(
-            self.general_tab, text="test-tab", anchor="center"
+        # self.general_tab_label = ttk.Label(
+        #     self.general_tab, text="test-tab", anchor="center"
+        # )
+        # self.general_tab_label.pack(expand=True, fill="both")
+        self.open_standard_pwsh = ttk.Button(
+            self.general_tab,
+            text="Open PowerShell",
+            command=lambda: run_ps1_cmd("Start-Process powershell.exe -Verb RunAs"),
         )
-        self.general_tab_label.pack(expand=True, fill="both")
+        self.open_standard_pwsh.pack()
+        self.open_new_pwsh = ttk.Button(
+            self.general_tab,
+            text="Open PowerShell 7",
+            command=lambda: run_ps1_cmd("Start-Process pwsh.exe -Verb RunAs"),
+        )
+        self.open_new_pwsh.pack()
+        self.RDP_button = ttk.Button(
+            self.general_tab,
+            text="Activate RDP",
+            command=lambda: run_ps1_script(self._construct_path("activateRDP.ps1")),
+        )
+        self.RDP_button.pack()
 
         # Shell Tab (Tab 1)
         self.shell_tab = ttk.Frame(self.notebook)
@@ -115,23 +137,23 @@ class App(tk.Tk):
         tab_index = event.widget.index(selected_tab)
 
         if tab_index == 0:
-            print("Overview tab opened")
+            self.get_system_status()
         elif tab_index == 1:
-            print("Network tab opened")
+            print("1 tab opened")
         elif tab_index == 2:
-            print("Network tab opened")
+            print("2 tab opened")
         elif tab_index == 3:
-            print("Shell tab opened")
+            print("3 tab opened")
             self.script_input.focus()
 
     def run_script_and_display_output(self):
-        output = run_ps1_script(self.script_input.get())
+        output = run_ps1_cmd(self.script_input.get())
         self.script_output_text.delete("1.0", tk.END)
         self.script_output_text.insert(tk.END, output)
 
     def get_system_status(self) -> list[str]:
         try:
-            hostname = socket.gethostname()
+            # hostname = socket.gethostname()
             user = getpass.getuser()
             os_version = platform.platform()
 
@@ -161,9 +183,9 @@ class App(tk.Tk):
             domain = os.environ.get("USERDOMAIN", "Unknown")
 
             return [
-                f"User: {user}",
-                f"Host: {hostname}",
-                f"Domain: {domain}",
+                f"Domain\\User: {domain}\\{user}",
+                # f"Host: {hostname}",
+                # f"Domain: {domain}",
                 rdp_status,
                 f"OS: {os_version}",
                 f"Uptime: {uptime_str}",
@@ -180,6 +202,11 @@ class App(tk.Tk):
                 for ip in ipv4s:
                     nic_data.append(f"{nic}: {ip}")
         return nic_data
+
+    def _construct_path(self, script_name: str) -> str:
+        return os.path.join(
+            self.current_script_dir, self.script_dir_relative, script_name
+        )
 
     def run(self):
         self.update_idletasks()
