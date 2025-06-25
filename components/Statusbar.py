@@ -9,8 +9,8 @@ class Statusbar(ttk.Frame):
         super().__init__(master, **kwargs)
 
         self._create_labels()
-
-        self.refresh_image = tk.PhotoImage(file=r"./icons/refresh-ccw.png")
+        self.image_path = master.resource_path(r"./icons/refresh-ccw.png")
+        self.refresh_image = tk.PhotoImage(file=self.image_path)
         self.refresh_button = ttk.Button(self, image=self.refresh_image, command=self._create_labels)
         self.refresh_button.configure(padding=2)
         self.refresh_button.grid(row=1, column=4)
@@ -48,6 +48,7 @@ class Statusbar(ttk.Frame):
                 ],
                 capture_output=True,
                 text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW,
             )
             rdp_status = "RDP: Unknown"
             if "0x0" in result.stdout:
