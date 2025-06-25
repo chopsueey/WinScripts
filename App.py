@@ -1,10 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from style import init_style
-from components.State import State
+from components import Menubar, Statusbar
 from lib.functions import center_window, run_ps1_cmd, run_ps1_script
-import socket, platform, getpass, subprocess, os, sys, psutil, time, datetime
-
+import sys, os
 
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller"""
@@ -35,27 +34,12 @@ class App(tk.Tk):
         init_style()
 
         # Menubar
-        menubar = tk.Menu(self)
-        self.config(menu=menubar)
-
-        file_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="File", menu=file_menu)
+        self.menubar = Menubar(self)
+        self.config(menu=self.menubar)
 
         # Statusbar
-        self.status_bar = ttk.Frame(self, relief="groove", padding=4, border=4)
+        self.status_bar = Statusbar(self, relief="groove", padding=4, border=4)
         self.status_bar.pack(fill="x", padx=4, pady=4)
-
-        sys_info = self.get_system_status()
-        for i, info in enumerate(sys_info):
-            label = ttk.Label(self.status_bar, text=info, anchor="w")
-            label.grid(row=0, column=i, padx=4, sticky="we")
-            self.status_bar.columnconfigure(i, weight=1)
-
-        nic_info = self.get_nic_info()
-        for i, nic in enumerate(nic_info):
-            label = ttk.Label(self.status_bar, text=nic, anchor="w")
-            label.grid(row=1, column=i, padx=5, sticky="we")
-            self.status_bar.columnconfigure(i, weight=1)
 
         # Notebook
         self.notebook = ttk.Notebook(self, name="test123", padding=4)
@@ -182,64 +166,13 @@ class App(tk.Tk):
         self.script_output_text.delete("1.0", tk.END)
         self.script_output_text.insert(tk.END, output)
 
-    def get_system_status(self) -> list[str]:
-        try:
-            # hostname = socket.gethostname()
-            user = getpass.getuser()
-            os_version = platform.platform()
-
-            # Get uptime (in seconds)
-            uptime_seconds = time.time() - psutil.boot_time()
-            uptime_str = str(datetime.timedelta(seconds=int(uptime_seconds)))
-
-            # Remote Desktop enabled?
-            result = subprocess.run(
-                [
-                    "reg",
-                    "query",
-                    r"HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server",
-                    "/v",
-                    "fDenyTSConnections",
-                ],
-                capture_output=True,
-                text=True,
-            )
-            rdp_status = "RDP: Unknown"
-            if "0x0" in result.stdout:
-                rdp_status = "RDP: ON"
-            elif "0x1" in result.stdout:
-                rdp_status = "RDP: OFF"
-
-            # Get domain/workgroup
-            domain = os.environ.get("USERDOMAIN", "Unknown")
-
-            return [
-                f"Domain\\User: {domain}\\{user}",
-                # f"Host: {hostname}",
-                # f"Domain: {domain}",
-                rdp_status,
-                f"OS: {os_version}",
-                f"Uptime: {uptime_str}",
-            ]
-        except Exception as e:
-            return [f"Error: {e}"]
-
-    def get_nic_info(self) -> list[str]:
-        nic_data = []
-        net_if_addrs = psutil.net_if_addrs()
-        for nic, addrs in net_if_addrs.items():
-            ipv4s = [a.address for a in addrs if a.family.name == "AF_INET"]
-            if ipv4s:
-                for ip in ipv4s:
-                    nic_data.append(f"{nic}: {ip}")
-        return nic_data
 
     def _construct_path(self, script_name: str) -> str:
         return os.path.join(
             self.current_script_dir, self.script_dir_relative, script_name
         )
     
-    def bring_to_front(self):
+    def _bring_to_front(self):
         self.lift()
         self.attributes('-topmost', True)
         self.attributes('-topmost', False)
@@ -251,6 +184,6 @@ class App(tk.Tk):
         self.height = self.winfo_reqheight()
 
         center_window(self, self.width, self.height)
-        self.after(100, self.bring_to_front)
+        self.after(100, self._bring_to_front)
         self.deiconify()
         self.mainloop()
