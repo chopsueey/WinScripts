@@ -34,7 +34,7 @@ def run_ps1_cmd(cmd: str) -> str:
         return result.stderr
 
 
-def run_ps1_script(script_path: str, ps_args: list = None) -> None:
+def run_ps1_script(script_path: str, window=False, ps_args: list = None) -> None:
     if ps_args is None:
         ps_args = []
 
@@ -60,7 +60,7 @@ def run_ps1_script(script_path: str, ps_args: list = None) -> None:
     command_to_execute = (
         f"Start-Process powershell.exe "
         f"-ArgumentList {argument_list_string} "
-        f"-Verb RunAs -WindowStyle Hidden"
+        f"-Verb RunAs {"" if window else "-WindowStyle Hidden"}"
     )
 
     subprocess.Popen(

@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from lib.functions import run_ps1_cmd, run_ps1_script
 from .GeneralTab import GeneralTab
-from .QuickShell import QuickShell
+from .AdvancedTab import AdvancedTab
+from .QuickShellTab import QuickShellTab
 
 
 class Notebook(ttk.Notebook):
@@ -12,21 +13,20 @@ class Notebook(ttk.Notebook):
         self.bind("<<NotebookTabChanged>>", self._on_tab_change)
 
         # Tab 0
-        self.general_tab = GeneralTab(self)
+        self.general_tab = GeneralTab(self, app=master)
 
         # Tab 1
-        self.shell_tab = QuickShell(self)
+        self.advanced = AdvancedTab(self, app=master)
 
         # Tab 2
-        self.other_tab = ttk.Frame(self)
+        # self.another_tab = ttk.Frame(self)
 
         # Tab 3
-        self.another_tab = ttk.Frame(self)
+        self.quick_shell = QuickShellTab(self, app=master)
 
         self.add(self.general_tab, text="General")
-        self.add(self.other_tab, text="Stuff")
-        self.add(self.another_tab, text="Advanced")
-        self.add(self.shell_tab, text="QuickShell")
+        self.add(self.advanced, text="Advanced")
+        self.add(self.quick_shell, text="QuickShell")
 
         # Template for getting user input for script parameters
 
@@ -68,7 +68,6 @@ class Notebook(ttk.Notebook):
             print("1 tab opened")
         elif tab_index == 2:
             print("2 tab opened")
+            self.quick_shell.script_input.focus()
         elif tab_index == 3:
             print("3 tab opened")
-            self.shell_tab.script_input.focus()
-

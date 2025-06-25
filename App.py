@@ -38,7 +38,7 @@ class App(tk.Tk):
 
     # move construct_path and resource_path to ./lib/functions.py?
 
-    # construct_path is for getting the right path for the specified script
+    # construct_path is for getting the right path for the specified scriptname in ./scripts
     def construct_path(self, script_name: str) -> str:
         return os.path.join(
             self.current_script_dir, self.script_dir_relative, script_name
