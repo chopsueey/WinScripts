@@ -1,7 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox as mb
-from tkinter import filedialog as fd
-import subprocess, os
+import subprocess
 
 
 def increment(var: tk.IntVar):
