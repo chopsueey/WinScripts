@@ -35,6 +35,10 @@ class App(tk.Tk):
         self.notebook.pack(expand=True, fill="both")
 
     # METHODS
+    def get_root_path(self):
+        path_to_main = os.path.abspath(sys.modules["__main__"].__file__)
+        root_dir = os.path.dirname(path_to_main)
+        return root_dir
 
     # move construct_path and resource_path to ./lib/functions.py?
 

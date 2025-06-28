@@ -4,6 +4,7 @@ from lib.functions import run_ps1_cmd, run_ps1_script
 from .GeneralTab import GeneralTab
 from .AdvancedTab import AdvancedTab
 from .QuickShellTab import QuickShellTab
+from .CreateVMTab import CreateVMTab
 
 
 class Notebook(ttk.Notebook):
@@ -16,16 +17,17 @@ class Notebook(ttk.Notebook):
         self.general_tab = GeneralTab(self, app=master)
 
         # Tab 1
-        self.advanced = AdvancedTab(self, app=master)
+        self.advanced_tab = AdvancedTab(self, app=master)
 
         # Tab 2
-        # self.another_tab = ttk.Frame(self)
+        self.create_vm_tab = CreateVMTab(self, app=master)
 
         # Tab 3
         self.quick_shell = QuickShellTab(self, app=master)
 
         self.add(self.general_tab, text="General")
-        self.add(self.advanced, text="Advanced")
+        self.add(self.advanced_tab, text="Advanced")
+        self.add(self.create_vm_tab, text="Create VM")
         self.add(self.quick_shell, text="QuickShell")
 
         # Template for getting user input for script parameters

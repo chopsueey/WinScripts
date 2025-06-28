@@ -1,10 +1,17 @@
 $isoFile = 'C:\ISOs\Windows-Server-2025.iso'
-$vmName = 'W-Server2025'
+$vmName = 'ServerTest'
 $pass = 'P@ssw0rd'
+
+param(
+    [string]$isoFile,
+    [string]$vmName,
+    [string]$pass,
+    [string]$edition
+)
 
 .\New-VMFromWindowsImage.ps1 `
     -SourcePath $isoFile `
-    -Edition 'Windows Server 2025 Standard Evaluation (Desktopdarstellung)' `
+    -Edition $edition `
     -VMName $vmName `
     -VHDXSizeBytes 60GB `
     -AdministratorPassword $pass `
@@ -19,7 +26,7 @@ $sess = .\New-VMSession.ps1 -VMName $vmName -AdministratorPassword $pass
     -IPAddress 10.0.0.10 `
     -PrefixLength 8 `
     -DefaultGateway 10.0.0.10 `
-    -DnsAddresses '8.8.8.8','8.8.4.4' `
+    -DnsAddresses '8.8.8.8', '8.8.4.4' `
     -NetworkCategory 'Public'
 
 .\Enable-RemoteManagementViaSession.ps1 -Session $sess

@@ -1,5 +1,5 @@
 import tkinter as tk
-import subprocess
+import subprocess, os, time
 
 
 def increment(var: tk.IntVar):
@@ -25,6 +25,7 @@ def run_ps1_cmd(cmd: str) -> str:
         ["powershell", "-Command", cmd],
         capture_output=True,
         text=True,
+        check=True,
         creationflags=subprocess.CREATE_NO_WINDOW,
     )
 
@@ -60,10 +61,13 @@ def run_ps1_script(script_path: str, window=False, ps_args: list = None) -> None
     command_to_execute = (
         f"Start-Process powershell.exe "
         f"-ArgumentList {argument_list_string} "
+        f"-Wait " # remove for non-blocking
         f"-Verb RunAs {"" if window else "-WindowStyle Hidden"}"
     )
 
-    subprocess.Popen(
+    # changed to .run to block python execution, as it takes a while to create the json file
+    # was .Popen
+    subprocess.run(
         ["powershell.exe", "-NoProfile", "-Command", command_to_execute],
         shell=True,
         creationflags=subprocess.CREATE_NO_WINDOW,
