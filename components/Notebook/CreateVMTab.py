@@ -28,30 +28,35 @@ class CreateVMTab(tk.Frame):
             self, textvariable=self.selected_edition, state="readonly"
         )
         self.edition_combobox.pack(pady=5)
-        self.edition_combobox.set("Load self.image_names first...")  # Default text
+        self.edition_combobox.set("Choose an iso first...")
         self.edition_combobox.bind("<<ComboboxSelected>>", self.on_edition_selected)
 
         self.info_label = ttk.Label(self, text="")
         self.info_label.pack(pady=10)
 
-        # --- Example 1: Basic LabelFrame ---
-        # Create a LabelFrame with a text title
-        options_frame = tk.LabelFrame(self, text="User Options", padx=10, pady=10)
-        options_frame.pack(padx=20, pady=20, fill="both", expand=True)
+        self.create_vm_button = ttk.Button(
+            self, text="Create VM", command=self.create_vm
+        )
+        self.create_vm_button.pack()
 
-        # Add widgets inside the LabelFrame
-        tk.Checkbutton(options_frame, text="Enable Feature A").pack(anchor="w")
-        tk.Checkbutton(options_frame, text="Enable Feature B").pack(anchor="w")
-        tk.Entry(options_frame, width=30).pack(pady=5)
+        # Simple example for LabelFrames and options (May add later)
 
-        # --- Example 2: LabelFrame with a custom label position ---
-        settings_frame = tk.LabelFrame(
-            self, text="Application Settings", padx=10, pady=10, labelanchor="n"
-        )  # "n" for North (top center)
-        settings_frame.pack(padx=20, pady=10, fill="both", expand=True)
+        # options_frame = tk.LabelFrame(self, text="User Options", padx=10, pady=10)
+        # options_frame.pack(padx=20, pady=20, fill="both", expand=True)
 
-        tk.Radiobutton(settings_frame, text="Option 1", value=1).pack(anchor="w")
-        tk.Radiobutton(settings_frame, text="Option 2", value=2).pack(anchor="w")
+        # # Add widgets inside the LabelFrame
+        # tk.Checkbutton(options_frame, text="Enable Feature A").pack(anchor="w")
+        # tk.Checkbutton(options_frame, text="Enable Feature B").pack(anchor="w")
+        # tk.Entry(options_frame, width=30).pack(pady=5)
+
+        # # --- Example 2: LabelFrame with a custom label position ---
+        # settings_frame = tk.LabelFrame(
+        #     self, text="Application Settings", padx=10, pady=10, labelanchor="n"
+        # )  # "n" for North (top center)
+        # settings_frame.pack(padx=20, pady=10, fill="both", expand=True)
+
+        # tk.Radiobutton(settings_frame, text="Option 1", value=1).pack(anchor="w")
+        # tk.Radiobutton(settings_frame, text="Option 2", value=2).pack(anchor="w")
 
     def get_windows_image_editions(self):
         isopath = filedialog.askopenfilename()
@@ -70,32 +75,53 @@ class CreateVMTab(tk.Frame):
 
         json_file_path = os.path.join(self.app.get_root_path(), "image_names.json")
 
-        # Get image names created from above script
+        # Above script creates a json file with the image edition names of the iso.
+        # Now we want to get them into here.
+        # Python itself cannot access data from a powershell process with elevated rights (which is needed for above script).
+        # Maybe all of this is not necessary if the app itself is run with admin rights from the beginning?
+
         with open(json_file_path, "r", encoding="utf-8-sig") as file:
             self.editions = json.loads(file.read())
-
-        print(self.editions)
 
         self.load_editions()
 
     def load_editions(self):
         if self.editions:
-            self.edition_combobox["values"] = self.editions
-            self.edition_combobox.set(
-                self.editions[0]
-            )  # Select the first one by default
-            self.info_label.config(
-                text=f"Loaded {len(self.editions)} self.image_names."
-            )
+            # self.editions is a single string if the iso just has one available edition
+            # else it is a list
+            if type(self.editions) == str:
+                self.edition_combobox["values"] = [self.editions]
+                self.edition_combobox.set(self.editions)
+            else:
+                self.edition_combobox["values"] = self.editions
+                self.edition_combobox.set(self.editions[0])
+
+            self.info_label.config(text=f"Loaded {len(self.editions)} editions.")
         else:
             self.edition_combobox["values"] = []
-            self.edition_combobox.set("No self.image_names found.")
-            self.info_label.config(
-                text="No self.image_names found or an error occurred."
-            )
+            self.edition_combobox.set("No editions found.")
+            self.info_label.config(text="No editions found or an error occurred.")
 
     def on_edition_selected(self, event):
         selected = self.selected_edition.get()
         self.info_label.config(text=f"You selected: {selected}")
         print(f"Selected edition: {selected}")
-        # Here you would typically store the selected edition for further processing
+
+    def create_vm(self):
+        print(self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"))
+        run_ps1_script(
+            self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"),
+            window=True,
+            ps_args=[
+                "-isoFile",
+                f"{self.iso_path.get()}",
+                "-vmName",
+                f"{'test123'}",
+                "-pass",
+                f"P@ssw0rd",
+                "-iso_edition",
+                f"{self.selected_edition.get()}",
+                "-script_path",
+                f"{self.app.construct_path(r'.\\Hyper-V-Automation\\')}",
+            ],
+        )

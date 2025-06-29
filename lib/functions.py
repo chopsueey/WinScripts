@@ -49,20 +49,20 @@ def run_ps1_script(script_path: str, window=False, ps_args: list = None) -> None
 
     script_argument_list.extend(ps_args)
 
-    formatted_args_for_powershell = []
-    for arg in script_argument_list:
-        # If the argument contains spaces, or is a quoted string itself, we need to handle it.
-        # For simplicity, we'll just wrap each argument in single quotes.
-        # This handles spaces but assumes arguments don't contain literal single quotes themselves.
-        formatted_args_for_powershell.append(f"'{arg}'")
-
-    argument_list_string = ", ".join(formatted_args_for_powershell)
+    # Build a single string: each argument quoted and joined with spaces (NOT commas)
+    argument_list_string = " ".join(
+        [
+            f'"{arg}"' if " " in arg or "(" in arg or ")" in arg else arg
+            for arg in script_argument_list
+        ]
+    )
 
     command_to_execute = (
         f"Start-Process powershell.exe "
-        f"-ArgumentList {argument_list_string} "
-        f"-Wait " # remove for non-blocking
-        f"-Verb RunAs {"" if window else "-WindowStyle Hidden"}"
+        f"-ArgumentList '{argument_list_string}' "
+        f"-Wait "  # remove for non-blocking
+        f"-Verb RunAs "
+        f"{'-WindowStyle Hidden' if not window else ''}"
     )
 
     # changed to .run to block python execution, as it takes a while to create the json file
@@ -70,5 +70,7 @@ def run_ps1_script(script_path: str, window=False, ps_args: list = None) -> None
     subprocess.run(
         ["powershell.exe", "-NoProfile", "-Command", command_to_execute],
         shell=True,
+        capture_output=True,
+        text=True,
         creationflags=subprocess.CREATE_NO_WINDOW,
     )

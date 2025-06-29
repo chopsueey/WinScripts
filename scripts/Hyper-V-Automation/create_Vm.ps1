@@ -1,17 +1,23 @@
-$isoFile = 'C:\ISOs\Windows-Server-2025.iso'
-$vmName = 'ServerTest'
-$pass = 'P@ssw0rd'
-
-param(
+param (
     [string]$isoFile,
     [string]$vmName,
     [string]$pass,
-    [string]$edition
+    [string]$iso_edition,
+    [string]$script_path
 )
+
+# $isoFile = 'C:\ISOs\Windows-Server-2025.iso'
+# $vmName = 'ServerTest'
+# $pass = 'P@ssw0rd'
+
+# Will see if this still works as .exe file
+Set-Location $script_path
+
+write-host "Installing $iso_edition..."
 
 .\New-VMFromWindowsImage.ps1 `
     -SourcePath $isoFile `
-    -Edition $edition `
+    -Edition $iso_edition `
     -VMName $vmName `
     -VHDXSizeBytes 60GB `
     -AdministratorPassword $pass `
