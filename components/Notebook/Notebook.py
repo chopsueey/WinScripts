@@ -3,6 +3,7 @@ from tkinter import ttk
 from lib.functions import run_ps1_cmd, run_ps1_script
 from .GeneralTab import GeneralTab
 from .AdvancedTab import AdvancedTab
+from .ADTab import ADTab
 from .QuickShellTab import QuickShellTab
 from .CreateVMTab import CreateVMTab
 
@@ -20,13 +21,17 @@ class Notebook(ttk.Notebook):
         self.advanced_tab = AdvancedTab(self, app=master)
 
         # Tab 2
-        self.create_vm_tab = CreateVMTab(self, app=master)
+        self.active_directory_tab = ADTab(self, app=master)
 
         # Tab 3
+        self.create_vm_tab = CreateVMTab(self, app=master)
+
+        # Tab 4
         self.quick_shell = QuickShellTab(self, app=master)
 
         self.add(self.general_tab, text="General")
         self.add(self.advanced_tab, text="Advanced")
+        self.add(self.active_directory_tab, text="Active Directory")
         self.add(self.create_vm_tab, text="Create VM")
         self.add(self.quick_shell, text="QuickShell")
 

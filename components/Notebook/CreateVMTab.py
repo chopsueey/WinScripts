@@ -38,7 +38,7 @@ class CreateVMTab(tk.Frame):
         self.edition_combobox.set("Choose an iso first...")
         self.edition_combobox.bind("<<ComboboxSelected>>", self.on_edition_selected)
 
-        self.edition_info_label = ttk.Label(self, text="")
+        self.edition_info_label = ttk.Label(self, text="No edition selected yet.")
         self.edition_info_label.pack(pady=10)
 
         # Get all current virtual switches in Hyper-V
@@ -50,7 +50,7 @@ class CreateVMTab(tk.Frame):
         self.vm_switches_combobox.bind(
             "<<ComboboxSelected>>", self.on_vm_switch_selected
         )
-        self.vm_switches_info_label = ttk.Label(self, text="")
+        self.vm_switches_info_label = ttk.Label(self, text="No switch selected yet.")
         self.vm_switches_info_label.pack(pady=10)
 
         # Create VM
@@ -137,7 +137,6 @@ class CreateVMTab(tk.Frame):
         print(f"Selected edition: {selected}", self.version_name)
 
     def load_switches(self):
-
         self.vm_switches = run_ps1_script(
             self.app.construct_path("getVMSwitches.ps1"),
             ps_args=[
@@ -159,13 +158,13 @@ class CreateVMTab(tk.Frame):
                 self.vm_switches_combobox.set(self.vm_switches[0])
 
             self.vm_switches_info_label.config(
-                text=f"Loaded {len(self.vm_switches)} editions."
+                text=f"Loaded {len(self.vm_switches)} switches."
             )
         else:
             self.vm_switches_combobox["values"] = []
-            self.vm_switches_combobox.set("No editions found.")
+            self.vm_switches_combobox.set("No switches found.")
             self.vm_switches_info_label.config(
-                text="No editions found or an error occurred."
+                text="No switches found or an error occurred."
             )
 
     def on_vm_switch_selected(self, event):
