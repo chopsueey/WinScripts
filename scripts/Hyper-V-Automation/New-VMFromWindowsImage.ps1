@@ -40,7 +40,7 @@ param(
 
     [int64]$VMProcessorCount = 2,
 
-    [string]$VMSwitchName = 'LAN',
+    [string]$VMSwitchName,
 
     [string]$VMMacAddress,
 

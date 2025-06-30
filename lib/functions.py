@@ -1,5 +1,5 @@
 import tkinter as tk
-import subprocess, os, time
+import subprocess, json
 
 
 def increment(var: tk.IntVar):
@@ -35,7 +35,9 @@ def run_ps1_cmd(cmd: str) -> str:
         return result.stderr
 
 
-def run_ps1_script(script_path: str, window=False, ps_args: list = None) -> None:
+def run_ps1_script_elevated(
+    script_path: str, window=False, ps_args: list = None
+) -> None:
     if ps_args is None:
         ps_args = []
 
@@ -66,7 +68,7 @@ def run_ps1_script(script_path: str, window=False, ps_args: list = None) -> None
     )
 
     # changed to .run to block python execution, as it takes a while to create the json file
-    # was .Popen
+    # in CreateVMTab.py (see self.get_windows_image_editions). Was subprocess.Popen before.
     subprocess.run(
         ["powershell.exe", "-NoProfile", "-Command", command_to_execute],
         shell=True,
@@ -74,3 +76,92 @@ def run_ps1_script(script_path: str, window=False, ps_args: list = None) -> None
         text=True,
         creationflags=subprocess.CREATE_NO_WINDOW,
     )
+
+
+def run_ps1_script(script_path: str, ps_args: list = None) -> list:
+    if ps_args is None:
+        ps_args = []
+
+    powershell_command_args = [
+        "powershell.exe",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        script_path,
+    ]
+    powershell_command_args.extend(ps_args)
+
+    try:
+        result = subprocess.run(
+            powershell_command_args,
+            capture_output=True,  # Capture stdout and stderr
+            text=True,  # Decode stdout/stderr as text
+            check=True,  # Raise CalledProcessError for non-zero exit codes
+            # creationflags=subprocess.CREATE_NO_WINDOW # Optional: If you want to hide the PowerShell window
+        )
+
+        json_output = result.stdout.strip()
+
+        if not json_output:
+            print(
+                f"Warning: PowerShell script '{script_path}' returned no output to stdout."
+            )
+            # Even if no output, check stderr in case there was a non-fatal warning
+            if result.stderr:
+                print(f"PowerShell STDERR: {result.stderr.strip()}")
+            return []  # Return an empty list if no output, assuming no error
+
+        return json.loads(json_output)
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing PowerShell script '{script_path}':")
+        print(f"Return code: {e.returncode}")
+        print(
+            f"STDOUT (if any): {e.stdout.strip()}"
+        )  # Show any partial output before error
+        print(f"STDERR: {e.stderr.strip()}")
+        return None
+    except json.JSONDecodeError as e:
+        print(
+            f"Error decoding JSON from PowerShell output for script '{script_path}': {e}"
+        )
+        print(f"Raw PowerShell output (STDOUT): '{json_output}'")
+        # Include stderr if available, as it might explain malformed JSON
+        if result.stderr:
+            print(f"PowerShell STDERR: {result.stderr.strip()}")
+        return None
+    except FileNotFoundError:
+        print(
+            f"Error: 'powershell.exe' or script '{script_path}' not found. Make sure PowerShell is in your PATH."
+        )
+        return None
+
+
+# --- Example Usage ---
+# Ensure you have a 'get_image_data.ps1' file with the content above
+# and a valid ISO path for testing.
+
+# script_path = "C:\\path\\to\\your\\get_image_data.ps1" # Adjust to your actual .ps1 file path
+# iso_path_example = "D:\\path\\to\\your\\windows.iso" # Replace with a real ISO path on your system
+
+# if __name__ == "__main__":
+#     # IMPORTANT: This Python script must be run with Administrator privileges
+#     # for Mount-DiskImage and Get-WindowsImage to work.
+#     # Open Command Prompt or PowerShell as Administrator and run:
+#     # python your_main_script.py
+
+#     ps_script_arguments = ["-IsoPath", iso_path_example]
+#
+#     print(f"Attempting to get image names from ISO: {iso_path_example}")
+#     image_names_list = run_ps1_script_elevated_context(script_path, ps_script_arguments)
+
+#     if image_names_list is not None: # Check for None to indicate a definite error
+#         if image_names_list:
+#             print("\nReceived image names from PowerShell:")
+#             for name in image_names_list:
+#                 print(f"- {name}")
+#         else:
+#             print("\nNo image names found in the ISO.")
+#     else:
+#         print("\nFailed to retrieve image names due to an error.")

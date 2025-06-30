@@ -3,6 +3,8 @@ param (
     [string]$vmName,
     [string]$pass,
     [string]$iso_edition,
+    [string]$version_name,
+    [string]$VMSwitch,
     [string]$script_path
 )
 
@@ -21,9 +23,10 @@ write-host "Installing $iso_edition..."
     -VMName $vmName `
     -VHDXSizeBytes 60GB `
     -AdministratorPassword $pass `
-    -Version 'Server2025Standard' `
+    -Version $version_name `
     -MemoryStartupBytes 4GB `
-    -VMProcessorCount 2
+    -VMProcessorCount 2 `
+    -VMSwitchName $VMSwitch
 
 $sess = .\New-VMSession.ps1 -VMName $vmName -AdministratorPassword $pass
 

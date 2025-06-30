@@ -3,7 +3,6 @@ from tkinter import ttk
 import platform, getpass, subprocess, os, psutil, time, datetime
 
 
-
 class Statusbar(ttk.Frame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
@@ -11,9 +10,11 @@ class Statusbar(ttk.Frame):
         self._create_labels()
         self.image_path = master.resource_path(r"./icons/refresh-ccw.png")
         self.refresh_image = tk.PhotoImage(file=self.image_path)
-        self.refresh_button = ttk.Button(self, image=self.refresh_image, command=self._create_labels)
+        self.refresh_button = ttk.Button(
+            self, image=self.refresh_image, command=self._create_labels
+        )
         self.refresh_button.configure(padding=2)
-        self.refresh_button.grid(row=1, column=4)
+        self.refresh_button.grid(row=2, column=4)
 
     def _create_labels(self):
         self.sys_info = self._get_system_status()
@@ -23,9 +24,18 @@ class Statusbar(ttk.Frame):
             self.columnconfigure(i, weight=1)
 
         self.nic_info = self._get_nic_info()
+
+        label_row = 1
+        label_column = 0
         for i, nic in enumerate(self.nic_info):
+            label_column = i
             label = ttk.Label(self, text=nic, anchor="w")
-            label.grid(row=1, column=i, padx=5, sticky="we")
+            if i % 4 == 0:
+                label_row += 1
+                label_column = 0
+                label.grid(row=label_row, column=label_column, padx=5, sticky="we")
+            else:
+                label.grid(row=label_row, column=label_column, padx=5, sticky="we")
             self.columnconfigure(i, weight=1)
 
     def _get_system_status(self) -> list[str]:
