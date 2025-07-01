@@ -78,7 +78,7 @@ def run_ps1_script_elevated(
     )
 
 
-def run_ps1_script(script_path: str, ps_args: list = None) -> list:
+def run_ps1_script(script_path: str, window: bool = False, ps_args: list = None) -> list:
     if ps_args is None:
         ps_args = []
 
@@ -92,13 +92,15 @@ def run_ps1_script(script_path: str, ps_args: list = None) -> list:
     ]
     powershell_command_args.extend(ps_args)
 
+    creationflags = subprocess.CREATE_NO_WINDOW if not window else 0
+
     try:
         result = subprocess.run(
             powershell_command_args,
             capture_output=True,  # Capture stdout and stderr
             text=True,  # Decode stdout/stderr as text
             check=True,  # Raise CalledProcessError for non-zero exit codes
-            # creationflags=subprocess.CREATE_NO_WINDOW # Optional: If you want to hide the PowerShell window
+            creationflags=creationflags,  # Control window visibility
         )
 
         json_output = result.stdout.strip()
@@ -128,7 +130,7 @@ def run_ps1_script(script_path: str, ps_args: list = None) -> list:
         )
         print(f"Raw PowerShell output (STDOUT): '{json_output}'")
         # Include stderr if available, as it might explain malformed JSON
-        if result.stderr:
+        if "result" in locals() and result.stderr:  # Check if result is defined
             print(f"PowerShell STDERR: {result.stderr.strip()}")
         return None
     except FileNotFoundError:
@@ -136,6 +138,7 @@ def run_ps1_script(script_path: str, ps_args: list = None) -> list:
             f"Error: 'powershell.exe' or script '{script_path}' not found. Make sure PowerShell is in your PATH."
         )
         return None
+
 
 
 # --- Example Usage ---

@@ -216,6 +216,8 @@ class CreateVMTab(tk.Frame):
             ],
         )
 
+        print(self.vm_switches)
+
         if self.vm_switches:
             # self.editions is a single string if the iso just has one available edition
             # else it is a list
@@ -291,17 +293,18 @@ class CreateVMTab(tk.Frame):
     def create_vm(self):
         print(self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"))
 
-        # Get all user input
-        # self.vm_name_entry
-        # self.password_entry
-        # self.ram_entry
-        # self.processor_count_entry
-        # self.vhdx_size_entry
-        # self.ip_entry
-        # self.prefix_length_entry
-        # self.gateway_entry
-        # self.dns_entry
-        # self.selected_network_category
+        # Get all user input from your entry widgets
+        vm_name = self.vm_name_entry.get()
+        password = self.password_entry.get()
+        ram_gb = self.ram_entry.get() # e.g., "4" for 4GB
+        processor_count = self.processor_count_entry.get() # e.g., "2"
+        vhdx_size_gb = self.vhdx_size_entry.get() # e.g., "60" for 60GB
+        ip_address = self.ip_entry.get()
+        prefix_length = self.prefix_length_entry.get()
+        gateway = self.gateway_entry.get()
+        dns = self.dns_entry.get() # Assuming this might be a comma-separated string
+        network_category = self.selected_network_category.get()
+
 
         run_ps1_script_elevated(
             self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"),
@@ -310,16 +313,32 @@ class CreateVMTab(tk.Frame):
                 "-isoFile",
                 f"{self.iso_path.get()}",
                 "-vmName",
-                f"{'test123'}",
+                f"{vm_name}", # Use the actual variable here
                 "-pass",
-                f"P@ssw0rd",
+                f"{password}", # Use the actual variable here
                 "-iso_edition",
                 f"{self.selected_edition.get()}",
                 "-version_name",
                 f"{self.version_name}",
-                "-VMSwitch",
+                "-nameSwitch",
                 f"{self.selected_vm_switch.get()}",
                 "-script_path",
                 f"{self.app.construct_path(r'.\\Hyper-V-Automation\\')}",
+                "-MemoryStartupGB", # New parameter for RAM
+                f"{ram_gb}",
+                "-VMProcessorCount", # New parameter for processor count
+                f"{processor_count}",
+                "-VHDXSizeGB", # New parameter for VHDX size
+                f"{vhdx_size_gb}",
+                "-IPAddress",
+                f"{ip_address}",
+                "-PrefixLength",
+                f"{prefix_length}",
+                "-DefaultGateway",
+                f"{gateway}",
+                "-DnsAddresses",
+                f"{dns}", # Pass as string, PowerShell will handle splitting
+                "-NetworkCategory",
+                f"{network_category}",
             ],
         )

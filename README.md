@@ -2,6 +2,10 @@
 
 This app uses the Hyper-V-Automation repository: https://github.com/fdcastel/Hyper-V-Automation
 
+
+Run Editor (like VS Code) and main.exe as Adminstrator for creating VMs.
+
+
 ## Install packages
 
 pip install -r requirements.txt
