@@ -1,3 +1,7 @@
+## Info
+
+This app uses the Hyper-V-Automation repository: https://github.com/fdcastel/Hyper-V-Automation
+
 ## Install packages
 
 pip install -r requirements.txt

@@ -1,16 +1,20 @@
 from tkinter import ttk
+import tkinter as tk
 
-# --- Define a Modern Color Palette ---
+# --- Define a Modern Slightly Darker Light Mode Color Palette ---
 PALETTE = {
     "primary": "#007bff",  # Blue for main actions
     "primary_dark": "#0056b3",  # Darker blue for active states
-    "accent": "#6c757d",  # Gray for secondary elements
-    "accent_dark": "#5a6268",  # Darker gray
-    "background": "#f8f9fa",  # Light gray for general background
-    "surface": "#ffffff",  # White for widget backgrounds
-    "text": "#343a40",  # Dark gray for general text
-    "text_light": "#e9ecef",  # Very light gray for text on dark backgrounds
-    "border": "#ced4da",  # Light gray-blue for borders
+    "accent": "#5a6268",  # Slightly darker gray for secondary elements
+    "accent_dark": "#495057",  # Darker gray for active accent states
+
+    # Adjusted for a slightly darker light mode look
+    "background": "#e9ecef",  # Deeper light gray for general background
+    "surface": "#f0f2f5",  # Subtle off-white for widget backgrounds
+    "text": "#343a40",  # Dark gray for general text (unchanged, good contrast)
+    "text_light": "#6c757d",  # More prominent light text for better readability on darker light backgrounds
+    "border": "#adb5bd",  # Darker light gray-blue for borders
+
     "success": "#28a745",  # Green for success
     "danger": "#dc3545",  # Red for danger
     "warning": "#ffc107",  # Yellow for warning
@@ -20,17 +24,13 @@ PALETTE = {
 
 # --- Styling Function ---
 def init_style():
-    """Initializes and configures modern-looking ttk.Style for base widgets."""
+    """Initializes and configures modern-looking ttk.Style for slightly darker light mode widgets."""
     style = ttk.Style()
 
-    # Set the overall theme if desired (e.g., 'clam', 'alt', 'default', 'classic')
-    # 'clam' is often a good base for custom modern styles as it's quite neutral.
     style.theme_use("clam")
 
     # --- General Font Configuration ---
-    # Using a common font family and base size for consistency
-    base_font = ("Segoe UI", 10)  # 'Segoe UI' is a good modern system font.
-    # Fallback to 'Helvetica' or 'Arial' if not available.
+    base_font = ("Segoe UI", 10)
     heading_font = ("Segoe UI", 12, "bold")
     large_font = ("Segoe UI", 12)
 
@@ -38,9 +38,9 @@ def init_style():
     style.configure(
         "TFrame",
         background=PALETTE["background"],
-        relief="flat",  # No 3D effect
-        borderwidth=0,  # No border by default
-        padding=10,  # Some internal padding
+        relief="flat",
+        borderwidth=0,
+        padding=10,
     )
     # A specific style for panels or cards
     style.configure(
@@ -57,7 +57,7 @@ def init_style():
         "TLabel",
         font=base_font,
         foreground=PALETTE["text"],
-        background=PALETTE["background"],  # Matches frame background for blend
+        background=PALETTE["background"],
         relief="flat",
     )
     # Heading Label
@@ -80,11 +80,11 @@ def init_style():
     style.configure(
         "TButton",  # Default TButton style
         font=large_font,
-        foreground=PALETTE["text_light"],  # White text on primary button
+        foreground=PALETTE["surface"],  # Very light text for contrast on primary button
         background=PALETTE["primary"],
         relief="flat",
         borderwidth=0,
-        padding=[15, 8],  # [left/right, top/bottom]
+        padding=[15, 8],
     )
     style.map(
         "TButton",
@@ -92,7 +92,7 @@ def init_style():
             ("active", PALETTE["primary_dark"]),
             ("pressed", PALETTE["primary_dark"]),
         ],
-        foreground=[("active", PALETTE["text_light"])],
+        foreground=[("active", PALETTE["surface"])], # Maintain light text on active state
         relief=[("pressed", "flat"), ("!pressed", "flat")],  # Ensure flat on press
     )
 
@@ -122,7 +122,7 @@ def init_style():
     style.configure(
         "Danger.TButton",
         font=large_font,
-        foreground=PALETTE["text_light"],
+        foreground=PALETTE["surface"],  # Very light text for contrast on danger button
         background=PALETTE["danger"],
         relief="flat",
         borderwidth=0,
@@ -134,7 +134,7 @@ def init_style():
             ("active", "#c82333"),
             ("pressed", "#bd2130"),
         ],  # Darker red on hover
-        foreground=[("active", PALETTE["text_light"])],
+        foreground=[("active", PALETTE["surface"])], # Maintain light text on active state
         relief=[("pressed", "flat"), ("!pressed", "flat")],
     )
 
@@ -166,7 +166,7 @@ def init_style():
         fieldbackground=PALETTE["surface"],
         foreground=PALETTE["text"],
         selectbackground=PALETTE["primary"],  # Background of selected item in dropdown
-        selectforeground=PALETTE["text_light"],  # Text of selected item
+        selectforeground=PALETTE["text_light"],  # Text of selected item (default)
         bordercolor=PALETTE["border"],
         borderwidth=1,
         relief="solid",
@@ -180,6 +180,17 @@ def init_style():
             ("hover", PALETTE["primary_dark"])
         ],  # Background of the dropdown button
     )
+    # Styles for the dropdown list itself
+    style.configure("TCombobox.Border",
+                    foreground=PALETTE["border"],
+                    background=PALETTE["surface"])
+    style.configure("TCombobox.Listbox",
+                    font=base_font,
+                    foreground=PALETTE["text"],
+                    background=PALETTE["surface"],
+                    selectforeground=PALETTE["surface"], # ***CHANGED: Light text on primary selected item***
+                    selectbackground=PALETTE["primary"])
+
 
     # --- TCheckbutton and TRadiobutton ---
     style.configure(
@@ -199,6 +210,7 @@ def init_style():
         indicatorcolor=[
             ("selected", PALETTE["primary"]),
             ("disabled", PALETTE["accent"]),
+            ("!selected", PALETTE["surface"]) # Unselected indicator background
         ],
     )
 
@@ -217,6 +229,7 @@ def init_style():
         indicatorcolor=[
             ("selected", PALETTE["primary"]),
             ("disabled", PALETTE["accent"]),
+            ("!selected", PALETTE["surface"]) # Unselected indicator background
         ],
     )
 
@@ -243,9 +256,51 @@ def init_style():
             ("selected", PALETTE["primary"]),
             ("active", PALETTE["border"]),
         ],  # Selected tab is primary, hover is border
-        foreground=[("selected", PALETTE["text_light"]), ("active", PALETTE["text"])],
+        foreground=[
+            ("selected", PALETTE["surface"]), # ***CHANGED: Light text on selected (primary) tab***
+            ("active", PALETTE["text"])
+        ],
         expand=[("selected", [0, 0, 0, 0])],  # No expansion on selected tab
     )
     style.configure(
         "TNotebook.Client", background=PALETTE["surface"], borderwidth=0
     )  # Background of the tab content area
+
+    # --- TLabelframe Style (Modern Look) ---
+    style.configure(
+        "TLabelframe",
+        background=PALETTE["surface"],  # Background of the Labelframe's content area
+        foreground=PALETTE["text"],  # Color of the label text
+        font=base_font,
+        relief="solid",  # A subtle solid border
+        borderwidth=1,
+        bordercolor=PALETTE["border"],
+        padding=[10, 10, 10, 10],  # Padding around the content inside the frame
+    )
+    style.configure(
+        "TLabelframe.Label",
+        background=PALETTE["surface"],  # Matches the Labelframe background
+        foreground=PALETTE["text"],  # Label text color
+        font=heading_font,  # Use heading font for the label for prominence
+        padding=[5, 2],  # Padding around the label itself
+    )
+    style.map(
+        "TLabelframe",
+        bordercolor=[("active", PALETTE["accent"])], # Border color change on active/hover
+    )
+
+    # --- TProgressbar Style ---
+    style.configure(
+        "TProgressbar",
+        background=PALETTE["primary"],      # Color of the filled portion
+        troughcolor=PALETTE["border"],      # Color of the empty portion (trough)
+        bordercolor=PALETTE["border"],      # Border around the trough
+        thickness=15,                       # Height/width of the bar
+        relief="flat",                      # Flat appearance
+        borderwidth=1,                      # Subtle border
+    )
+    # Map for indeterminate mode (if used)
+    style.map(
+        "TProgressbar",
+        background=[("active", PALETTE["primary_dark"])], # Slightly darker when active
+    )

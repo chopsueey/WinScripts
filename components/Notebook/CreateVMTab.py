@@ -9,76 +9,147 @@ class CreateVMTab(tk.Frame):
         super().__init__(master, **kwargs)
 
         # State
-
         self.app = app
+        self.iso_path = tk.StringVar(value="No ISO choosen yet.")
         self.editions = []
-        self.selected_edition = tk.StringVar(self)
+        self.selected_edition = tk.StringVar(value="No edition selected.")
         self.version_name = ""
         self.vm_switches = []
-        self.selected_vm_switch = tk.StringVar(self)
+        self.selected_vm_switch = tk.StringVar(value="No switch selected.")
+        self.selected_network_category = tk.StringVar()
+        self.selected_network_category.set("Private")  # default
+        self.network_category_options = ["Public", "Private", "Domain"]
 
-        # Get ISOpath and get image names of that ISO
-        self.iso_path = tk.StringVar(value="")
+        # Topframe (ISO, Edition and VMSwitches)
+        self.top_frame = ttk.Frame(self)
+        self.top_frame.pack(expand=True, fill="both")
 
-        self.iso_path_label = ttk.Label(self, textvariable=self.iso_path)
-        self.iso_path_label.pack(pady=5)
-
+        self.iso_frame = ttk.Labelframe(self.top_frame, text="ISO")
+        self.iso_frame.pack(
+            expand=True, fill="both", padx=4
+        )  # anchor='center' without fill, to center children
+        self.iso_path_label = ttk.Label(self.iso_frame, textvariable=self.iso_path)
+        self.iso_path_label.pack(side="left", padx=4)
         self.choose_iso = ttk.Button(
-            self, text="Choose ISO", command=self.get_windows_image_editions
+            self.iso_frame, text="Choose ISO", command=self.get_windows_image_editions
         )
-        self.choose_iso.pack()
+        self.choose_iso.pack(side="left", padx=4)
 
-        self.edition_label = ttk.Label(self, text="Select Edition:")
-        self.edition_label.pack(pady=5)
-
+        self.edition_frame = ttk.Labelframe(self.top_frame, text="Edition")
+        self.edition_frame.pack(expand=True, fill="both", padx=4)
+        self.edition_info_label = ttk.Label(
+            self.edition_frame, textvariable=self.selected_edition
+        )
+        self.edition_info_label.pack(side="left", padx=4)
         self.edition_combobox = ttk.Combobox(
-            self, textvariable=self.selected_edition, state="readonly"
+            self.edition_frame, textvariable=self.selected_edition, state="readonly"
         )
-        self.edition_combobox.pack(pady=5)
+        self.edition_combobox.pack(side="left", padx=4)
         self.edition_combobox.set("Choose an iso first...")
         self.edition_combobox.bind("<<ComboboxSelected>>", self.on_edition_selected)
 
-        self.edition_info_label = ttk.Label(self, text="No edition selected yet.")
-        self.edition_info_label.pack(pady=10)
-
-        # Get all current virtual switches in Hyper-V
-        self.vm_switches_combobox = ttk.Combobox(
-            self, textvariable=self.selected_vm_switch, state="readonly"
+        self.vm_switches_frame = ttk.Labelframe(self.top_frame, text="Virtual switch")
+        self.vm_switches_frame.pack(expand=True, fill="both", padx=4)
+        self.vm_switches_info_label = ttk.Label(
+            self.vm_switches_frame, text="No switch selected yet."
         )
-        self.vm_switches_combobox.pack(pady=5)
+        self.vm_switches_info_label.pack(side="left", padx=4)
+        self.vm_switches_combobox = ttk.Combobox(
+            self.vm_switches_frame,
+            textvariable=self.selected_vm_switch,
+            state="readonly",
+        )
+        self.vm_switches_combobox.pack(side="left", padx=4)
         self.vm_switches_combobox.set("Choose a switch...")
         self.vm_switches_combobox.bind(
             "<<ComboboxSelected>>", self.on_vm_switch_selected
         )
-        self.vm_switches_info_label = ttk.Label(self, text="No switch selected yet.")
-        self.vm_switches_info_label.pack(pady=10)
 
-        # Create VM
+        # Bottomframe
+        self.bottom_frame = ttk.Frame(self)
+        self.bottom_frame.pack(expand=True, fill="both")
+
+        self.name_pass_frame = ttk.Labelframe(
+            self.bottom_frame, text="Name and password"
+        )
+        self.name_pass_frame.pack(expand=True, fill="both", padx=4)
+        self.vm_name_label = ttk.Label(self.name_pass_frame, text="VM Name: ")
+        self.vm_name_label.pack(side="left", padx=4)
+        self.vm_name_entry = ttk.Entry(self.name_pass_frame)
+        self.vm_name_entry.pack(side="left", padx=4)
+        self.password_label = ttk.Label(self.name_pass_frame, text="Password: ")
+        self.password_label.pack(side="left", padx=4)
+        self.password_entry = ttk.Entry(self.name_pass_frame)
+        self.password_entry.pack(side="left", padx=4)
+
+        # -MemoryStartupBytes 4GB `
+        # -VMProcessorCount 2 `
+        # -VHDXSizeBytes 60GB `
+        self.resources_frame = ttk.Labelframe(self.bottom_frame, text="Resources")
+        self.resources_frame.pack(expand=True, fill="both", padx=4)
+        self.ram_label = ttk.Label(self.resources_frame, text="RAM in GB: ")
+        self.ram_label.pack(side="left", padx=4)
+        self.ram_entry = ttk.Entry(self.resources_frame)
+        self.ram_entry.pack(side="left", padx=4)
+        self.processor_count_label = ttk.Label(
+            self.resources_frame, text="Processor count: "
+        )
+        self.processor_count_label.pack(side="left", padx=4)
+        self.processor_count_entry = ttk.Entry(self.resources_frame)
+        self.processor_count_entry.pack(side="left", padx=4)
+        self.vhdx_size_label = ttk.Label(self.resources_frame, text="VHDX Size: ")
+        self.vhdx_size_label.pack(side="left", padx=4)
+        self.vhdx_size_entry = ttk.Entry(self.resources_frame)
+        self.vhdx_size_entry.pack(side="left", padx=4)
+
+        # -IPAddress 10.0.0.10 `
+        # -PrefixLength 8 `
+        # -DefaultGateway 10.0.0.10 `
+        # -DnsAddresses '8.8.8.8', '8.8.4.4' `
+        # -NetworkCategory 'Public', 'Private', 'Domain'?
+        self.network_settings_frame = ttk.Labelframe(
+            self.bottom_frame, text="Network settings"
+        )
+        self.network_settings_frame.pack(expand=True, fill="both", padx=4)
+        self.ip_label = ttk.Label(self.network_settings_frame, text="IPv4 address: ")
+        self.ip_label.pack(side="left", padx=4)
+        self.ip_entry = ttk.Entry(self.network_settings_frame)
+        self.ip_entry.pack(side="left", padx=4)
+        self.prefix_length_label = ttk.Label(
+            self.network_settings_frame, text="Prefix length (CIDR): "
+        )
+        self.prefix_length_label.pack(side="left", padx=4)
+        self.prefix_length_entry = ttk.Entry(self.network_settings_frame)
+        self.prefix_length_entry.pack(side="left", padx=4)
+        self.gateway_label = ttk.Label(
+            self.network_settings_frame, text="Default gateway: "
+        )
+        self.gateway_label.pack(side="left", padx=4)
+        self.gateway_entry = ttk.Entry(self.network_settings_frame)
+        self.gateway_entry.pack(side="left", padx=4)
+        self.dns_label = ttk.Label(self.network_settings_frame, text="DNS Addresses: ")
+        self.dns_label.pack(side="left", padx=4)
+        self.dns_entry = ttk.Entry(self.network_settings_frame)
+        self.dns_entry.pack(side="left", padx=4)
+        self.network_category_option_menu = ttk.OptionMenu(
+            self.network_settings_frame,
+            self.selected_network_category,
+            self.selected_network_category.get(),
+            *self.network_category_options,
+            # command=self.on_network_category_selected,
+        )
+        self.network_category_option_menu.pack(side="left", padx=4)
+
+        # Create VM (TODO: Show all choosen options for the VM and ask for the user to accept them, and only then start the script)
         self.create_vm_button = ttk.Button(
             self, text="Create VM", command=self.create_vm
         )
         self.create_vm_button.pack()
 
-        # Simple example for LabelFrames and options (May add later)
-
-        # options_frame = tk.LabelFrame(self, text="User Options", padx=10, pady=10)
-        # options_frame.pack(padx=20, pady=20, fill="both", expand=True)
-
-        # # Add widgets inside the LabelFrame
-        # tk.Checkbutton(options_frame, text="Enable Feature A").pack(anchor="w")
-        # tk.Checkbutton(options_frame, text="Enable Feature B").pack(anchor="w")
-        # tk.Entry(options_frame, width=30).pack(pady=5)
-
-        # # --- Example 2: LabelFrame with a custom label position ---
-        # settings_frame = tk.LabelFrame(
-        #     self, text="Application Settings", padx=10, pady=10, labelanchor="n"
-        # )  # "n" for North (top center)
-        # settings_frame.pack(padx=20, pady=10, fill="both", expand=True)
-
-        # tk.Radiobutton(settings_frame, text="Option 1", value=1).pack(anchor="w")
-        # tk.Radiobutton(settings_frame, text="Option 2", value=2).pack(anchor="w")
-
     # METHODS
+    # def on_network_category_selected(self, network_category):
+    # self.status_label.config(text=f"Choosen network category: {network_category}")
+    # print(self.selected_network_category.get())
 
     def get_windows_image_editions(self):
         isopath = filedialog.askopenfilename()
@@ -98,9 +169,7 @@ class CreateVMTab(tk.Frame):
         json_file_path = os.path.join(self.app.get_root_path(), "image_names.json")
 
         # Above script creates a json file with the image edition names of the iso.
-        # Now we want to get them into here.
-        # Python itself cannot access data from a powershell process with elevated rights (which is needed for above script).
-        # Maybe all of this is not necessary if the app itself is run with admin rights from the beginning?
+        # Note: This step is not necessary when app run as administrator (see self.load_switches)
 
         with open(json_file_path, "r", encoding="utf-8-sig") as file:
             self.editions = json.loads(file.read())
@@ -222,17 +291,17 @@ class CreateVMTab(tk.Frame):
     def create_vm(self):
         print(self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"))
 
-        # Get userinput for:
-        # -MemoryStartupBytes 4GB `
-        # -VMProcessorCount 2 `
-        #     -VMName $vmName `
-        # -pass
-        # -VHDXSizeBytes 60GB `
-        # -IPAddress 10.0.0.10 `
-        # -PrefixLength 8 `
-        # -DefaultGateway 10.0.0.10 `
-        # -DnsAddresses '8.8.8.8', '8.8.4.4' `
-        # -NetworkCategory 'Public', 'Private', 'Domain'?
+        # Get all user input
+        # self.vm_name_entry
+        # self.password_entry
+        # self.ram_entry
+        # self.processor_count_entry
+        # self.vhdx_size_entry
+        # self.ip_entry
+        # self.prefix_length_entry
+        # self.gateway_entry
+        # self.dns_entry
+        # self.selected_network_category
 
         run_ps1_script_elevated(
             self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"),
