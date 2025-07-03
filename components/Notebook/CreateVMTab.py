@@ -38,7 +38,8 @@ class CreateVMTab(tk.Frame):
         self.edition_frame = ttk.Labelframe(self.top_frame, text="Edition")
         self.edition_frame.pack(expand=True, fill="both", padx=4)
         self.edition_info_label = ttk.Label(
-            self.edition_frame, textvariable=self.selected_edition
+            self.edition_frame, 
+            textvariable=self.selected_edition, 
         )
         self.edition_info_label.pack(side="left", padx=4)
         self.edition_combobox = ttk.Combobox(
@@ -187,7 +188,6 @@ class CreateVMTab(tk.Frame):
             else:
                 self.edition_combobox["values"] = self.editions
                 self.edition_combobox.set(self.editions[0])
-
             self.edition_info_label.config(
                 text=f"Loaded {len(self.editions)} editions."
             )
@@ -305,6 +305,7 @@ class CreateVMTab(tk.Frame):
         dns = self.dns_entry.get() # Assuming this might be a comma-separated string
         network_category = self.selected_network_category.get()
 
+        print(self.selected_vm_switch, self.selected_vm_switch.get())
 
         run_ps1_script_elevated(
             self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"),

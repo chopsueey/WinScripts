@@ -32,7 +32,7 @@ Write-Host "AdministratorPassword: $pass"
 Write-Host "Version: $version_name"
 Write-Host "MemoryStartupBytes: $($MemoryStartupGB * 1GB)"
 Write-Host "VMProcessorCount: $VMProcessorCount"
-Write-Host "VMSwitchName: '$nameSwitch'"
+Write-Host "VMSwitchName: $nameSwitch"
 
 write-host "Installing $iso_edition..."
 
@@ -45,7 +45,7 @@ write-host "Installing $iso_edition..."
     -Version $version_name `
     -MemoryStartupBytes ($MemoryStartupGB * 1GB) ` # Convert GB to bytes for RAM
     -VMProcessorCount $VMProcessorCount `
-    -VMSwitchName $nameSwitch
+    -VMSwitchName 'Internet'
 
 # Split DNS addresses if they come as a comma-separated string
 $dnsArray = $DnsAddresses -split ',' | ForEach-Object { $_.Trim() }
