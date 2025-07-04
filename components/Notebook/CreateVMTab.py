@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from lib.functions import run_ps1_script_elevated, run_ps1_script_2
+from lib.functions import run_ps1_script_elevated, run_ps1_script_2, run_ps1_script
 import os, json
 
 
@@ -207,7 +207,7 @@ class CreateVMTab(tk.Frame):
         print(f"Selected edition: {selected}", self.version_name)
 
     def load_switches(self):
-        self.vm_switches = run_ps1_script_2(
+        self.vm_switches = run_ps1_script(
             self.app.construct_path("getVMSwitches.ps1"),
             ps_args=[
                 "-IsoPath",

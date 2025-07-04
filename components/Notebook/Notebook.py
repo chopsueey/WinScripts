@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from lib.functions import run_ps1_cmd, run_ps1_script
+from lib.functions import run_ps1_cmd
 from .GeneralTab import GeneralTab
 from .AdvancedTab import AdvancedTab
 from .ADTab import ADTab
