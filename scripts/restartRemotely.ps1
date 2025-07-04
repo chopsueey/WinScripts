@@ -9,6 +9,8 @@ $Password = "P@ssw0rd"
 $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
 $Cred = New-Object System.Management.Automation.PSCredential ($Username, $SecurePassword)
 
+Read-Host "Press enter to exit"
+
 Restart-Computer -ComputerName $VMNameOrIP -Credential $Cred -Force 
 
 
@@ -26,4 +28,3 @@ Restart-Computer -ComputerName $VMNameOrIP -Credential $Cred -Force
 # else {
 #     Write-Host "VM is not reachable. Check network or IP address." -ForegroundColor Yellow
 # }
-Set-ExecutionPolicy 

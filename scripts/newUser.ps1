@@ -16,3 +16,5 @@ New-LocalUser -Name $Username `
 # Add-LocalGroupMember -Group "Administrators" -Member $Username
 
 write-Host "User '$Username' created successfully."
+
+Read-Host "Press enter to exit"

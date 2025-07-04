@@ -7,14 +7,12 @@ PALETTE = {
     "primary_dark": "#0056b3",  # Darker blue for active states
     "accent": "#5a6268",  # Slightly darker gray for secondary elements
     "accent_dark": "#495057",  # Darker gray for active accent states
-
     # Adjusted for a slightly darker light mode look
     "background": "#e9ecef",  # Deeper light gray for general background
     "surface": "#f0f2f5",  # Subtle off-white for widget backgrounds
     "text": "#343a40",  # Dark gray for general text (unchanged, good contrast)
     "text_light": "#6c757d",  # More prominent light text for better readability on darker light backgrounds
     "border": "#adb5bd",  # Darker light gray-blue for borders
-
     "success": "#28a745",  # Green for success
     "danger": "#dc3545",  # Red for danger
     "warning": "#ffc107",  # Yellow for warning
@@ -92,7 +90,9 @@ def init_style():
             ("active", PALETTE["primary_dark"]),
             ("pressed", PALETTE["primary_dark"]),
         ],
-        foreground=[("active", PALETTE["surface"])], # Maintain light text on active state
+        foreground=[
+            ("active", PALETTE["surface"])
+        ],  # Maintain light text on active state
         relief=[("pressed", "flat"), ("!pressed", "flat")],  # Ensure flat on press
     )
 
@@ -134,7 +134,9 @@ def init_style():
             ("active", "#c82333"),
             ("pressed", "#bd2130"),
         ],  # Darker red on hover
-        foreground=[("active", PALETTE["surface"])], # Maintain light text on active state
+        foreground=[
+            ("active", PALETTE["surface"])
+        ],  # Maintain light text on active state
         relief=[("pressed", "flat"), ("!pressed", "flat")],
     )
 
@@ -165,32 +167,28 @@ def init_style():
         font=base_font,
         fieldbackground=PALETTE["surface"],
         foreground=PALETTE["text"],
-        selectbackground=PALETTE["primary"],  # Background of selected item in dropdown
-        selectforeground=PALETTE["text_light"],  # Text of selected item (default)
         bordercolor=PALETTE["border"],
         borderwidth=1,
         relief="solid",
         padding=[5, 5],
     )
+
     style.map(
         "TCombobox",
         bordercolor=[("focus", PALETTE["primary"])],
         fieldbackground=[("readonly", PALETTE["background"])],
-        background=[
-            ("hover", PALETTE["primary_dark"])
-        ],  # Background of the dropdown button
+        background=[("hover", PALETTE["primary_dark"])],
+        foreground=[("readonly", PALETTE["text"])],
     )
-    # Styles for the dropdown list itself
-    style.configure("TCombobox.Border",
-                    foreground=PALETTE["border"],
-                    background=PALETTE["surface"])
-    style.configure("TCombobox.Listbox",
-                    font=base_font,
-                    foreground=PALETTE["text"],
-                    background=PALETTE["surface"],
-                    selectforeground=PALETTE["surface"], # ***CHANGED: Light text on primary selected item***
-                    selectbackground=PALETTE["primary"])
 
+    style.configure(
+        "TCombobox.Listbox",
+        font=base_font,
+        foreground=PALETTE["text"],
+        background=PALETTE["surface"],
+        selectbackground=PALETTE["primary"],  # Your primary blue for highlight
+        selectforeground=PALETTE["surface"],  # Light text on primary blue, very visible
+    )
 
     # --- TCheckbutton and TRadiobutton ---
     style.configure(
@@ -210,7 +208,7 @@ def init_style():
         indicatorcolor=[
             ("selected", PALETTE["primary"]),
             ("disabled", PALETTE["accent"]),
-            ("!selected", PALETTE["surface"]) # Unselected indicator background
+            ("!selected", PALETTE["surface"]),  # Unselected indicator background
         ],
     )
 
@@ -229,7 +227,7 @@ def init_style():
         indicatorcolor=[
             ("selected", PALETTE["primary"]),
             ("disabled", PALETTE["accent"]),
-            ("!selected", PALETTE["surface"]) # Unselected indicator background
+            ("!selected", PALETTE["surface"]),  # Unselected indicator background
         ],
     )
 
@@ -257,8 +255,11 @@ def init_style():
             ("active", PALETTE["border"]),
         ],  # Selected tab is primary, hover is border
         foreground=[
-            ("selected", PALETTE["surface"]), # ***CHANGED: Light text on selected (primary) tab***
-            ("active", PALETTE["text"])
+            (
+                "selected",
+                PALETTE["surface"],
+            ),  # ***CHANGED: Light text on selected (primary) tab***
+            ("active", PALETTE["text"]),
         ],
         expand=[("selected", [0, 0, 0, 0])],  # No expansion on selected tab
     )
@@ -286,21 +287,23 @@ def init_style():
     )
     style.map(
         "TLabelframe",
-        bordercolor=[("active", PALETTE["accent"])], # Border color change on active/hover
+        bordercolor=[
+            ("active", PALETTE["accent"])
+        ],  # Border color change on active/hover
     )
 
     # --- TProgressbar Style ---
     style.configure(
         "TProgressbar",
-        background=PALETTE["primary"],      # Color of the filled portion
-        troughcolor=PALETTE["border"],      # Color of the empty portion (trough)
-        bordercolor=PALETTE["border"],      # Border around the trough
-        thickness=15,                       # Height/width of the bar
-        relief="flat",                      # Flat appearance
-        borderwidth=1,                      # Subtle border
+        background=PALETTE["primary"],  # Color of the filled portion
+        troughcolor=PALETTE["border"],  # Color of the empty portion (trough)
+        bordercolor=PALETTE["border"],  # Border around the trough
+        thickness=15,  # Height/width of the bar
+        relief="flat",  # Flat appearance
+        borderwidth=1,  # Subtle border
     )
     # Map for indeterminate mode (if used)
     style.map(
         "TProgressbar",
-        background=[("active", PALETTE["primary_dark"])], # Slightly darker when active
+        background=[("active", PALETTE["primary_dark"])],  # Slightly darker when active
     )

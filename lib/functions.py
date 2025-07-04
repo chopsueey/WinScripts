@@ -78,93 +78,89 @@ def run_ps1_script_elevated(
     )
 
 
-def run_ps1_script(script_path: str, window: bool = False, ps_args: list = None) -> list:
+def run_ps1_script_2(script_path: str, ps_args: list = None) -> None:
     if ps_args is None:
         ps_args = []
 
-    powershell_command_args = [
+    cmd = [
         "powershell.exe",
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
         script_path,
-    ]
-    powershell_command_args.extend(ps_args)
+    ] + ps_args
 
-    creationflags = subprocess.CREATE_NO_WINDOW if not window else 0
+    result = subprocess.Popen(
+        cmd,
+        # shell=True,
+        # capture_output=True,
+        # text=True,
+        # creationflags=subprocess.CREATE_NO_WINDOW,
+    )
 
-    try:
-        result = subprocess.run(
-            powershell_command_args,
-            capture_output=True,  # Capture stdout and stderr
-            text=True,  # Decode stdout/stderr as text
-            check=True,  # Raise CalledProcessError for non-zero exit codes
-            creationflags=creationflags,  # Control window visibility
-        )
-
-        json_output = result.stdout.strip()
-
-        if not json_output:
-            print(
-                f"Warning: PowerShell script '{script_path}' returned no output to stdout."
-            )
-            # Even if no output, check stderr in case there was a non-fatal warning
-            if result.stderr:
-                print(f"PowerShell STDERR: {result.stderr.strip()}")
-            return []  # Return an empty list if no output, assuming no error
-
-        return json.loads(json_output)
-
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing PowerShell script '{script_path}':")
-        print(f"Return code: {e.returncode}")
-        print(
-            f"STDOUT (if any): {e.stdout.strip()}"
-        )  # Show any partial output before error
-        print(f"STDERR: {e.stderr.strip()}")
-        return None
-    except json.JSONDecodeError as e:
-        print(
-            f"Error decoding JSON from PowerShell output for script '{script_path}': {e}"
-        )
-        print(f"Raw PowerShell output (STDOUT): '{json_output}'")
-        # Include stderr if available, as it might explain malformed JSON
-        if "result" in locals() and result.stderr:  # Check if result is defined
-            print(f"PowerShell STDERR: {result.stderr.strip()}")
-        return None
-    except FileNotFoundError:
-        print(
-            f"Error: 'powershell.exe' or script '{script_path}' not found. Make sure PowerShell is in your PATH."
-        )
-        return None
+    # print("STDOUT:", result.stdout)
+    # print("STDERR:", result.stderr)
+    # result.check_returncode()
 
 
+# def run_ps1_script(script_path: str, window: bool = False, ps_args: list = None) -> list:
+#     if ps_args is None:
+#         ps_args = []
 
-# --- Example Usage ---
-# Ensure you have a 'get_image_data.ps1' file with the content above
-# and a valid ISO path for testing.
+#     powershell_command_args = [
+#         "powershell.exe",
+#         "-NoProfile",
+#         "-ExecutionPolicy",
+#         "Bypass",
+#         "-File",
+#         script_path,
+#     ]
+#     powershell_command_args.extend(ps_args)
 
-# script_path = "C:\\path\\to\\your\\get_image_data.ps1" # Adjust to your actual .ps1 file path
-# iso_path_example = "D:\\path\\to\\your\\windows.iso" # Replace with a real ISO path on your system
+#     creationflags = subprocess.CREATE_NO_WINDOW if not window else 0
 
-# if __name__ == "__main__":
-#     # IMPORTANT: This Python script must be run with Administrator privileges
-#     # for Mount-DiskImage and Get-WindowsImage to work.
-#     # Open Command Prompt or PowerShell as Administrator and run:
-#     # python your_main_script.py
+#     try:
+#         result = subprocess.run(
+#             powershell_command_args,
+#             capture_output=True,  # Capture stdout and stderr
+#             text=True,  # Decode stdout/stderr as text
+#             check=True,  # Raise CalledProcessError for non-zero exit codes
+#             creationflags=creationflags,  # Control window visibility
+#         )
 
-#     ps_script_arguments = ["-IsoPath", iso_path_example]
-#
-#     print(f"Attempting to get image names from ISO: {iso_path_example}")
-#     image_names_list = run_ps1_script_elevated_context(script_path, ps_script_arguments)
+#         json_output = result.stdout.strip()
 
-#     if image_names_list is not None: # Check for None to indicate a definite error
-#         if image_names_list:
-#             print("\nReceived image names from PowerShell:")
-#             for name in image_names_list:
-#                 print(f"- {name}")
-#         else:
-#             print("\nNo image names found in the ISO.")
-#     else:
-#         print("\nFailed to retrieve image names due to an error.")
+#         if not json_output:
+#             print(
+#                 f"Warning: PowerShell script '{script_path}' returned no output to stdout."
+#             )
+#             # Even if no output, check stderr in case there was a non-fatal warning
+#             if result.stderr:
+#                 print(f"PowerShell STDERR: {result.stderr.strip()}")
+#             return []  # Return an empty list if no output, assuming no error
+
+#         return json.loads(json_output)
+
+#     except subprocess.CalledProcessError as e:
+#         print(f"Error executing PowerShell script '{script_path}':")
+#         print(f"Return code: {e.returncode}")
+#         print(
+#             f"STDOUT (if any): {e.stdout.strip()}"
+#         )  # Show any partial output before error
+#         print(f"STDERR: {e.stderr.strip()}")
+#         return None
+#     except json.JSONDecodeError as e:
+#         print(
+#             f"Error decoding JSON from PowerShell output for script '{script_path}': {e}"
+#         )
+#         print(f"Raw PowerShell output (STDOUT): '{json_output}'")
+#         # Include stderr if available, as it might explain malformed JSON
+#         if "result" in locals() and result.stderr:  # Check if result is defined
+#             print(f"PowerShell STDERR: {result.stderr.strip()}")
+#         return None
+#     except FileNotFoundError:
+#         print(
+#             f"Error: 'powershell.exe' or script '{script_path}' not found. Make sure PowerShell is in your PATH."
+#         )
+#         return None

@@ -59,3 +59,5 @@ Write-Host "Setting DNS Server Forwarders..."
 Set-DnsServerForwarder -IPAddress $DnsForwarderIPs -ErrorAction Stop
 
 Write-Host "`nScript execution complete."
+
+Read-Host "Press enter to exit"

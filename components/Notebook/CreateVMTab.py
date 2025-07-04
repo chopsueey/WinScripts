@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import ttk, filedialog
-from lib.functions import run_ps1_script, run_ps1_script_elevated
+from tkinter import ttk, filedialog, messagebox
+from lib.functions import run_ps1_script_elevated, run_ps1_script_2
 import os, json
 
 
@@ -18,7 +18,7 @@ class CreateVMTab(tk.Frame):
         self.selected_vm_switch = tk.StringVar(value="No switch selected.")
         self.selected_network_category = tk.StringVar()
         self.selected_network_category.set("Private")  # default
-        self.network_category_options = ["Public", "Private", "Domain"]
+        self.network_category_options = ["Public", "Private"]
 
         # Topframe (ISO, Edition and VMSwitches)
         self.top_frame = ttk.Frame(self)
@@ -38,12 +38,12 @@ class CreateVMTab(tk.Frame):
         self.edition_frame = ttk.Labelframe(self.top_frame, text="Edition")
         self.edition_frame.pack(expand=True, fill="both", padx=4)
         self.edition_info_label = ttk.Label(
-            self.edition_frame, 
-            textvariable=self.selected_edition, 
+            self.edition_frame,
+            textvariable=self.selected_edition,
         )
         self.edition_info_label.pack(side="left", padx=4)
         self.edition_combobox = ttk.Combobox(
-            self.edition_frame, textvariable=self.selected_edition, state="readonly"
+            self.edition_frame, textvariable=self.selected_edition, state="readonly", width=70
         )
         self.edition_combobox.pack(side="left", padx=4)
         self.edition_combobox.set("Choose an iso first...")
@@ -59,6 +59,7 @@ class CreateVMTab(tk.Frame):
             self.vm_switches_frame,
             textvariable=self.selected_vm_switch,
             state="readonly",
+            width=40
         )
         self.vm_switches_combobox.pack(side="left", padx=4)
         self.vm_switches_combobox.set("Choose a switch...")
@@ -206,7 +207,7 @@ class CreateVMTab(tk.Frame):
         print(f"Selected edition: {selected}", self.version_name)
 
     def load_switches(self):
-        self.vm_switches = run_ps1_script(
+        self.vm_switches = run_ps1_script_2(
             self.app.construct_path("getVMSwitches.ps1"),
             ps_args=[
                 "-IsoPath",
@@ -291,55 +292,68 @@ class CreateVMTab(tk.Frame):
         return None
 
     def create_vm(self):
-        print(self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"))
-
-        # Get all user input from your entry widgets
+        # Gather all input values
         vm_name = self.vm_name_entry.get()
         password = self.password_entry.get()
-        ram_gb = self.ram_entry.get() # e.g., "4" for 4GB
-        processor_count = self.processor_count_entry.get() # e.g., "2"
-        vhdx_size_gb = self.vhdx_size_entry.get() # e.g., "60" for 60GB
+        ram_gb = self.ram_entry.get()
+        processor_count = self.processor_count_entry.get()
+        vhdx_size_gb = self.vhdx_size_entry.get()
         ip_address = self.ip_entry.get()
         prefix_length = self.prefix_length_entry.get()
         gateway = self.gateway_entry.get()
-        dns = self.dns_entry.get() # Assuming this might be a comma-separated string
+        dns = self.dns_entry.get()
         network_category = self.selected_network_category.get()
+        iso_file = self.iso_path.get()
+        iso_edition = self.selected_edition.get()
+        version_name = self.version_name
+        name_switch = self.selected_vm_switch.get()
+        script_path = self.app.construct_path(r".\\Hyper-V-Automation\\")
 
-        print(self.selected_vm_switch, self.selected_vm_switch.get())
+        # Prepare summary text for confirmation dialog
+        summary = (
+            f"Please confirm the VM creation with the following settings:\n\n"
+            f"VM Name: {vm_name}\n"
+            f"Password: {'*' * len(password)}\n"  # mask password
+            f"RAM (GB): {ram_gb}\n"
+            f"Processor Count: {processor_count}\n"
+            f"VHDX Size (GB): {vhdx_size_gb}\n"
+            f"IP Address: {ip_address}\n"
+            f"Prefix Length: {prefix_length}\n"
+            f"Gateway: {gateway}\n"
+            f"DNS: {dns}\n"
+            f"Network Category: {network_category}\n"
+            f"ISO File: {iso_file}\n"
+            f"ISO Edition: {iso_edition}\n"
+            f"Version Name: {version_name}\n"
+            f"Switch Name: {name_switch}\n\n"
+            f"Do you want to proceed?"
+        )
 
-        run_ps1_script_elevated(
+        # Show confirmation dialog
+        proceed = messagebox.askyesno("Confirm VM Creation", summary)
+
+        if not proceed:
+            print("VM creation canceled by user.")
+            return
+
+        # User confirmed, run the PowerShell script
+        run_ps1_script_2(
             self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"),
-            window=True,
             ps_args=[
-                "-isoFile",
-                f"{self.iso_path.get()}",
-                "-vmName",
-                f"{vm_name}", # Use the actual variable here
-                "-pass",
-                f"{password}", # Use the actual variable here
-                "-iso_edition",
-                f"{self.selected_edition.get()}",
-                "-version_name",
-                f"{self.version_name}",
-                "-nameSwitch",
-                f"{self.selected_vm_switch.get()}",
-                "-script_path",
-                f"{self.app.construct_path(r'.\\Hyper-V-Automation\\')}",
-                "-MemoryStartupGB", # New parameter for RAM
-                f"{ram_gb}",
-                "-VMProcessorCount", # New parameter for processor count
-                f"{processor_count}",
-                "-VHDXSizeGB", # New parameter for VHDX size
-                f"{vhdx_size_gb}",
-                "-IPAddress",
-                f"{ip_address}",
-                "-PrefixLength",
-                f"{prefix_length}",
-                "-DefaultGateway",
-                f"{gateway}",
-                "-DnsAddresses",
-                f"{dns}", # Pass as string, PowerShell will handle splitting
-                "-NetworkCategory",
-                f"{network_category}",
+                "-isoFile", iso_file,
+                "-vmName", vm_name,
+                "-pass", password,
+                "-iso_edition", iso_edition,
+                "-version_name", version_name,
+                "-nameSwitch", name_switch,
+                "-script_path", script_path,
+                "-MemoryStartupGB", ram_gb,
+                "-VMProcessorCount", processor_count,
+                "-VHDXSizeGB", vhdx_size_gb,
+                "-IPAddress", ip_address,
+                "-PrefixLength", prefix_length,
+                "-DefaultGateway", gateway,
+                "-DnsAddresses", dns,
+                "-NetworkCategory", network_category,
             ],
         )

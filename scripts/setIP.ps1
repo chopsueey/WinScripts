@@ -88,4 +88,4 @@ Enable-NetAdapter -Name $InterfaceAlias -Confirm:$false -ErrorAction SilentlyCon
 
 Write-Host "IP configuration complete for $InterfaceAlias."
 
-Read-Host "Press enter to exit."
+Read-Host "Press enter to exit"

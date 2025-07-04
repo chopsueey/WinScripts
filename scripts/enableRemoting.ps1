@@ -35,4 +35,4 @@ Write-Host "`nTo test remoting from your Domain Controller (or another administr
 Write-Host "Test-WsMan -ComputerName $($env:COMPUTERNAME)"
 Write-Host "Invoke-Command -ComputerName $($env:COMPUTERNAME) -ScriptBlock { hostname }"
 
-Read-Host 'Press enter to finish script.'
+Read-Host "Press enter to exit"

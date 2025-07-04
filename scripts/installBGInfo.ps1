@@ -18,3 +18,5 @@ if (-not (Test-Path $BgInfoBgi)) {
 # $RunBgInfoCmd = "`"$BgInfoExe`" `"$BgInfoBgi`" /silent /timer:0"
 # $RegPath = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run"
 # Set-ItemProperty -Path $RegPath -Name "BGInfo" -Value $RunBgInfoCmd
+
+Read-Host "Press enter to exit"

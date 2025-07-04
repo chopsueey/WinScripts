@@ -13,3 +13,5 @@ if (-not (Test-Path $BlackWallpaperPath)) {
 # Apply the wallpaper (Current User)
 Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $BlackWallpaperPath
 RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+
+Read-Host "Press enter to exit"

@@ -49,3 +49,5 @@ catch {
 
 # or:
 # Add-Computer -DomainName "zm.modul3.local" -Credential (Get-Credential) -Restart
+
+Read-Host "Press enter to exit"
