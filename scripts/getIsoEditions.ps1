@@ -1,18 +1,20 @@
 param (
-    [string]$IsoPath,
-    [string]$AppRootPath
+    [string]$IsoPath
 )
 
-write-host $AppRootPath
+$ErrorActionPreference = 'Stop' # Critical for catching errors
 
-$drive_letter = (Mount-DiskImage -ImagePath $IsoPath -PassThru | Get-Volume).DriveLetter
+try {
+    $drive_letter = (Mount-DiskImage -ImagePath $IsoPath -PassThru | Get-Volume).DriveLetter
 
-$image_name = Get-WindowsImage -ImagePath "$($drive_letter):\sources\install.wim"
-
-$image_names_list = @($image_name | Select-Object -ExpandProperty ImageName)
-
-$output_json_path = Join-Path $AppRootPath "image_names.json"
-
-$image_names_list | ConvertTo-Json -Depth 10 | Set-Content -Path $output_json_path -Encoding UTF8
-
-Dismount-DiskImage -ImagePath $IsoPath
+    # Get all image names and convert them to JSON
+    $image_names_list = @(Get-WindowsImage -ImagePath "$($drive_letter):\sources\install.wim" | Select-Object -ExpandProperty ImageName)
+    $image_names_list | ConvertTo-Json -Depth 10 -Compress
+    
+    Dismount-DiskImage -ImagePath $IsoPath | Out-Null
+}
+catch {
+    # Write the error to the PowerShell error stream (which subprocess.run captures in stderr)
+    Write-Error $_.Exception.Message
+    exit 1 # Indicate an error to Python by exiting with a non-zero code
+}

@@ -43,7 +43,10 @@ class CreateVMTab(tk.Frame):
         )
         self.edition_info_label.pack(side="left", padx=4)
         self.edition_combobox = ttk.Combobox(
-            self.edition_frame, textvariable=self.selected_edition, state="readonly", width=70
+            self.edition_frame,
+            textvariable=self.selected_edition,
+            state="readonly",
+            width=70,
         )
         self.edition_combobox.pack(side="left", padx=4)
         self.edition_combobox.set("Choose an iso first...")
@@ -59,7 +62,7 @@ class CreateVMTab(tk.Frame):
             self.vm_switches_frame,
             textvariable=self.selected_vm_switch,
             state="readonly",
-            width=40
+            width=40,
         )
         self.vm_switches_combobox.pack(side="left", padx=4)
         self.vm_switches_combobox.set("Choose a switch...")
@@ -148,38 +151,22 @@ class CreateVMTab(tk.Frame):
         )
         self.create_vm_button.pack()
 
-    # METHODS
-    # def on_network_category_selected(self, network_category):
-    # self.status_label.config(text=f"Choosen network category: {network_category}")
-    # print(self.selected_network_category.get())
+        self.load_switches()
 
+    # METHODS
     def get_windows_image_editions(self):
         isopath = filedialog.askopenfilename()
         self.iso_path.set(isopath)
 
-        run_ps1_script_elevated(
+        self.editions = run_ps1_script(
             self.app.construct_path("getIsoEditions.ps1"),
             window=False,
             ps_args=[
                 "-IsoPath",
                 f"{self.iso_path.get()}",
-                "-AppRootPath",
-                f"{self.app.get_root_path()}",
             ],
         )
 
-        json_file_path = os.path.join(self.app.get_root_path(), "image_names.json")
-
-        # Above script creates a json file with the image edition names of the iso.
-        # Note: This step is not necessary when app run as administrator (see self.load_switches)
-
-        with open(json_file_path, "r", encoding="utf-8-sig") as file:
-            self.editions = json.loads(file.read())
-
-        self.load_editions()
-        self.load_switches()
-
-    def load_editions(self):
         if self.editions:
             # self.editions is a single string if the iso just has one available edition
             # else it is a list
@@ -209,6 +196,7 @@ class CreateVMTab(tk.Frame):
     def load_switches(self):
         self.vm_switches = run_ps1_script(
             self.app.construct_path("getVMSwitches.ps1"),
+            window=False,
             ps_args=[
                 "-IsoPath",
                 f"{self.iso_path.get()}",
@@ -216,8 +204,6 @@ class CreateVMTab(tk.Frame):
                 f"{self.app.get_root_path()}",
             ],
         )
-
-        print(self.vm_switches)
 
         if self.vm_switches:
             # self.editions is a single string if the iso just has one available edition
@@ -340,20 +326,35 @@ class CreateVMTab(tk.Frame):
         run_ps1_script_2(
             self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"),
             ps_args=[
-                "-isoFile", iso_file,
-                "-vmName", vm_name,
-                "-pass", password,
-                "-iso_edition", iso_edition,
-                "-version_name", version_name,
-                "-nameSwitch", name_switch,
-                "-script_path", script_path,
-                "-MemoryStartupGB", ram_gb,
-                "-VMProcessorCount", processor_count,
-                "-VHDXSizeGB", vhdx_size_gb,
-                "-IPAddress", ip_address,
-                "-PrefixLength", prefix_length,
-                "-DefaultGateway", gateway,
-                "-DnsAddresses", dns,
-                "-NetworkCategory", network_category,
+                "-isoFile",
+                iso_file,
+                "-vmName",
+                vm_name,
+                "-pass",
+                password,
+                "-iso_edition",
+                iso_edition,
+                "-version_name",
+                version_name,
+                "-nameSwitch",
+                name_switch,
+                "-script_path",
+                script_path,
+                "-MemoryStartupGB",
+                ram_gb,
+                "-VMProcessorCount",
+                processor_count,
+                "-VHDXSizeGB",
+                vhdx_size_gb,
+                "-IPAddress",
+                ip_address,
+                "-PrefixLength",
+                prefix_length,
+                "-DefaultGateway",
+                gateway,
+                "-DnsAddresses",
+                dns,
+                "-NetworkCategory",
+                network_category,
             ],
         )

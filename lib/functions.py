@@ -104,7 +104,11 @@ def run_ps1_script_2(script_path: str, ps_args: list = None) -> None:
     # result.check_returncode()
 
 
-def run_ps1_script(script_path: str, window: bool = False, ps_args: list = None) -> list:
+def run_ps1_script(
+    script_path: str,
+    ps_args: list = None,
+    window: bool = True,
+) -> list:
     if ps_args is None:
         ps_args = []
 
@@ -121,15 +125,20 @@ def run_ps1_script(script_path: str, window: bool = False, ps_args: list = None)
     creationflags = subprocess.CREATE_NO_WINDOW if not window else 0
 
     try:
-        result = subprocess.run(
+        result = subprocess.Popen(
             powershell_command_args,
-            capture_output=True,  # Capture stdout and stderr
-            text=True,  # Decode stdout/stderr as text
-            check=True,  # Raise CalledProcessError for non-zero exit codes
-            creationflags=creationflags,  # Control window visibility
+            # capture_output=True,  # Capture stdout and stderr
+            stdout=subprocess.PIPE,  # Use this instead of capture_output
+            stderr=subprocess.PIPE,  # Also pipe stderr if you want to capture errors
+            # text=True,  # Decode stdout/stderr as text
+            # check=True,  # Raise CalledProcessError for non-zero exit codes
+            creationflags=creationflags,
         )
 
-        json_output = result.stdout.strip()
+        # returns a tuple of bytes
+        stdout, stderr = result.communicate()
+
+        json_output = stdout.decode().strip()
 
         if not json_output:
             print(
@@ -137,7 +146,7 @@ def run_ps1_script(script_path: str, window: bool = False, ps_args: list = None)
             )
             # Even if no output, check stderr in case there was a non-fatal warning
             if result.stderr:
-                print(f"PowerShell STDERR: {result.stderr.strip()}")
+                print(f"PowerShell STDERR: {stderr.strip()}")
             return []  # Return an empty list if no output, assuming no error
 
         return json.loads(json_output)
@@ -156,8 +165,8 @@ def run_ps1_script(script_path: str, window: bool = False, ps_args: list = None)
         )
         print(f"Raw PowerShell output (STDOUT): '{json_output}'")
         # Include stderr if available, as it might explain malformed JSON
-        if "result" in locals() and result.stderr:  # Check if result is defined
-            print(f"PowerShell STDERR: {result.stderr.strip()}")
+        if "result" in locals() and stderr:  # Check if result is defined
+            print(f"PowerShell STDERR: {stderr.strip()}")
         return None
     except FileNotFoundError:
         print(
