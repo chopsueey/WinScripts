@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import messagebox
 import subprocess, json
 
 
@@ -79,7 +78,7 @@ def run_ps1_script_elevated(
     )
 
 
-def run_ps1_script_2(script_path: str, ps_args: list = None) -> tuple[bool, str, str]:
+def run_ps1_script_2(script_path: str, ps_args: list = None) -> None:
     if ps_args is None:
         ps_args = []
 
@@ -92,28 +91,17 @@ def run_ps1_script_2(script_path: str, ps_args: list = None) -> tuple[bool, str,
         script_path,
     ] + ps_args
 
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False,  # Don't raise exception on non-zero exit code, we will check it manually
-            creationflags=subprocess.CREATE_NO_WINDOW,
-        )
+    result = subprocess.Popen(
+        cmd,
+        # shell=True,
+        # capture_output=True,
+        # text=True,
+        # creationflags=subprocess.CREATE_NO_WINDOW,
+    )
 
-        if result.returncode == 0:
-            return True, result.stdout, result.stderr
-        else:
-            return False, result.stdout, result.stderr
-
-    except FileNotFoundError:
-        return (
-            False,
-            "",
-            f"Error: 'powershell.exe' or script '{script_path}' not found. Make sure PowerShell is in your PATH.",
-        )
-    except Exception as e:
-        return False, "", f"An unexpected error occurred: {e}"
+    # print("STDOUT:", result.stdout)
+    # print("STDERR:", result.stderr)
+    # result.check_returncode()
 
 
 def run_ps1_script(
@@ -139,45 +127,49 @@ def run_ps1_script(
     try:
         result = subprocess.Popen(
             powershell_command_args,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            # capture_output=True,  # Capture stdout and stderr
+            stdout=subprocess.PIPE,  # Use this instead of capture_output
+            stderr=subprocess.PIPE,  # Also pipe stderr if you want to capture errors
+            # text=True,  # Decode stdout/stderr as text
+            # check=True,  # Raise CalledProcessError for non-zero exit codes
             creationflags=creationflags,
         )
 
+        # returns a tuple of bytes
         stdout, stderr = result.communicate()
+
         json_output = stdout.decode().strip()
 
         if not json_output:
-            if stderr:
-                error_message = (
-                    f"PowerShell script '{script_path}' returned no output to stdout, but wrote to stderr:\n\n"
-                    f"{stderr.decode().strip()}"
-                )
-                messagebox.showwarning("PowerShell Warning", error_message)
-            return []
+            print(
+                f"Warning: PowerShell script '{script_path}' returned no output to stdout."
+            )
+            # Even if no output, check stderr in case there was a non-fatal warning
+            if result.stderr:
+                print(f"PowerShell STDERR: {stderr.strip()}")
+            return []  # Return an empty list if no output, assuming no error
 
         return json.loads(json_output)
 
     except subprocess.CalledProcessError as e:
-        error_message = (
-            f"Error executing PowerShell script '{script_path}':\n\n"
-            f"Return code: {e.returncode}\n"
-            f"STDOUT: {e.stdout.strip()}\n"
-            f"STDERR: {e.stderr.strip()}"
-        )
-        messagebox.showerror("PowerShell Execution Error", error_message)
+        print(f"Error executing PowerShell script '{script_path}':")
+        print(f"Return code: {e.returncode}")
+        print(
+            f"STDOUT (if any): {e.stdout.strip()}"
+        )  # Show any partial output before error
+        print(f"STDERR: {e.stderr.strip()}")
         return None
     except json.JSONDecodeError as e:
-        error_message = (
-            f"Error decoding JSON from PowerShell output for script '{script_path}':\n\n"
-            f"{e}\n\n"
-            f"Raw PowerShell output (STDOUT): '{json_output}'"
+        print(
+            f"Error decoding JSON from PowerShell output for script '{script_path}': {e}"
         )
-        if stderr:
-            error_message += f"\nPowerShell STDERR: {stderr.decode().strip()}"
-        messagebox.showerror("JSON Decode Error", error_message)
+        print(f"Raw PowerShell output (STDOUT): '{json_output}'")
+        # Include stderr if available, as it might explain malformed JSON
+        if "result" in locals() and stderr:  # Check if result is defined
+            print(f"PowerShell STDERR: {stderr.strip()}")
         return None
     except FileNotFoundError:
-        error_message = f"Error: 'powershell.exe' or script '{script_path}' not found. Make sure PowerShell is in your PATH."
-        messagebox.showerror("File Not Found Error", error_message)
+        print(
+            f"Error: 'powershell.exe' or script '{script_path}' not found. Make sure PowerShell is in your PATH."
+        )
         return None

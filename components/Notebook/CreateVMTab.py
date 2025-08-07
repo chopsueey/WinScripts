@@ -5,23 +5,6 @@ import os, json
 
 
 class CreateVMTab(tk.Frame):
-    EDITION_TO_VERSION_MAP = {
-        "2025 datacenter": "Server2025Datacenter",
-        "2025 standard": "Server2025Standard",
-        "2022 datacenter": "Server2022Datacenter",
-        "2022 standard": "Server2022Standard",
-        "2019 datacenter": "Server2019Datacenter",
-        "2019 standard": "Server2019Standard",
-        "2016 datacenter": "Server2016Datacenter",
-        "2016 standard": "Server2016Standard",
-        "11 enterprise": "Windows11Enterprise",
-        "11 professional": "Windows11Professional",
-        "10 enterprise": "Windows10Enterprise",
-        "10 professional": "Windows10Professional",
-        "81 professional": "Windows81Professional",
-        "8.1 professional": "Windows81Professional",
-    }
-
     def __init__(self, master, app, **kwargs):
         super().__init__(master, **kwargs)
 
@@ -261,9 +244,36 @@ class CreateVMTab(tk.Frame):
             .strip()
         )
 
-        for key, value in self.EDITION_TO_VERSION_MAP.items():
-            if key in normalized_edition:
-                return value
+        # Return specific Versionname for choosen selected_edition
+        if "2025 datacenter" in normalized_edition:
+            return "Server2025Datacenter"
+        elif "2025 standard" in normalized_edition:
+            return "Server2025Standard"
+        elif "2022 datacenter" in normalized_edition:
+            return "Server2022Datacenter"
+        elif "2022 standard" in normalized_edition:
+            return "Server2022Standard"
+        elif "2019 datacenter" in normalized_edition:
+            return "Server2019Datacenter"
+        elif "2019 standard" in normalized_edition:
+            return "Server2019Standard"
+        elif "2016 datacenter" in normalized_edition:
+            return "Server2016Datacenter"
+        elif "2016 standard" in normalized_edition:
+            return "Server2016Standard"
+        elif "11 enterprise" in normalized_edition:
+            return "Windows11Enterprise"
+        elif "11 professional" in normalized_edition:
+            return "Windows11Professional"
+        elif "10 enterprise" in normalized_edition:
+            return "Windows10Enterprise"
+        elif "10 professional" in normalized_edition:
+            return "Windows10Professional"
+        elif (
+            "81 professional" in normalized_edition
+            or "8.1 professional" in normalized_edition
+        ):
+            return "Windows81Professional"
 
         return None
 
@@ -313,7 +323,7 @@ class CreateVMTab(tk.Frame):
             return
 
         # User confirmed, run the PowerShell script
-        success, stdout, stderr = run_ps1_script_2(
+        run_ps1_script_2(
             self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"),
             ps_args=[
                 "-isoFile",
@@ -348,10 +358,3 @@ class CreateVMTab(tk.Frame):
                 network_category,
             ],
         )
-
-        if success:
-            messagebox.showinfo("Success", f"VM created successfully!\n\nOutput:\n{stdout}")
-        else:
-            messagebox.showerror(
-                "Error", f"Failed to create VM.\n\nError:\n{stderr}\n\nOutput:\n{stdout}"
-            )
