@@ -2,6 +2,7 @@ import tkinter as tk
 from style import init_style
 from components import Menubar, Statusbar, Notebook
 from lib.functions import center_window
+from lib.utils import resource_path
 import os, sys
 
 
@@ -12,7 +13,7 @@ class App(tk.Tk):
 
         self.master = master
         self.title("App")
-        icon_path = self.resource_path("favicon.ico")
+        icon_path = resource_path("favicon.ico")
         self.iconbitmap(icon_path)
         # self.iconbitmap(r"./favicon.ico")
 
@@ -39,24 +40,6 @@ class App(tk.Tk):
         path_to_main = os.path.abspath(sys.modules["__main__"].__file__)
         root_dir = os.path.dirname(path_to_main)
         return root_dir
-
-    # move construct_path and resource_path to ./lib/functions.py?
-
-    # construct_path is for getting the right path for the specified scriptname in ./scripts
-    def construct_path(self, script_name: str) -> str:
-        return os.path.join(
-            self.current_script_dir, self.script_dir_relative, script_name
-        )
-
-    def resource_path(self, relative_path):
-        """Get absolute path to resource, works for dev and for PyInstaller"""
-        try:
-            # PyInstaller creates a temp folder and stores path in _MEIPASS
-            base_path = sys._MEIPASS
-        except Exception:
-            base_path = os.path.abspath(".")
-
-        return os.path.join(base_path, relative_path)
 
     def _bring_to_front(self):
         self.lift()

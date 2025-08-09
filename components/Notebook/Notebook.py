@@ -39,16 +39,5 @@ class Notebook(ttk.Notebook):
         selected_tab = event.widget.select()
         tab_index = event.widget.index(selected_tab)
 
-        if tab_index == 0:
-            print("0 tab")
-        elif tab_index == 1:
-            print("1 tab opened")
-        elif tab_index == 2:
-            print("2 tab opened")
-        elif tab_index == 3:
-            print("3 tab opened")
-        elif tab_index == 4:
-            print("4 tab opened")
+        if tab_index == 4:
             self.quick_shell.script_input.focus()
-        elif tab_index == 5:
-            print("5 tab opened")

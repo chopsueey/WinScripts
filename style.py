@@ -1,5 +1,4 @@
 from tkinter import ttk
-import tkinter as tk
 
 # --- Define a Modern Slightly Darker Light Mode Color Palette ---
 PALETTE = {
@@ -20,11 +19,268 @@ PALETTE = {
 }
 
 
-# --- Styling Function ---
+def _configure_frame_styles(style, palette):
+    """Configure TFrame styles."""
+    style.configure(
+        "TFrame",
+        background=palette["background"],
+        relief="flat",
+        borderwidth=0,
+        padding=10,
+    )
+    style.configure(
+        "Card.TFrame",
+        background=palette["surface"],
+        relief="flat",
+        borderwidth=1,
+        bordercolor=palette["border"],
+        padding=15,
+    )
+
+
+def _configure_label_styles(style, palette, base_font, heading_font):
+    """Configure TLabel styles."""
+    style.configure(
+        "TLabel",
+        font=base_font,
+        foreground=palette["text"],
+        background=palette["background"],
+        relief="flat",
+    )
+    style.configure(
+        "Heading.TLabel",
+        font=heading_font,
+        foreground=palette["text"],
+        background=palette["background"],
+    )
+    style.configure(
+        "Accent.TLabel",
+        font=base_font,
+        foreground=palette["accent"],
+        background=palette["background"],
+    )
+
+
+def _configure_button_styles(style, palette, large_font):
+    """Configure TButton styles."""
+    # Default Button (primary action)
+    style.configure(
+        "TButton",
+        font=large_font,
+        foreground=palette["surface"],
+        background=palette["primary"],
+        relief="flat",
+        borderwidth=0,
+        padding=[15, 8],
+    )
+    style.map(
+        "TButton",
+        background=[("active", palette["primary_dark"]), ("pressed", palette["primary_dark"])],
+        foreground=[("active", palette["surface"])],
+        relief=[("pressed", "flat"), ("!pressed", "flat")],
+    )
+
+    # Secondary Button
+    style.configure(
+        "Secondary.TButton",
+        font=large_font,
+        foreground=palette["text"],
+        background=palette["surface"],
+        relief="solid",
+        borderwidth=1,
+        bordercolor=palette["border"],
+        padding=[15, 8],
+    )
+    style.map(
+        "Secondary.TButton",
+        background=[("active", palette["background"]), ("pressed", palette["background"])],
+        foreground=[("active", palette["text"])],
+        relief=[("pressed", "solid"), ("!pressed", "solid")],
+        bordercolor=[("active", palette["accent"])],
+    )
+
+    # Danger Button
+    style.configure(
+        "Danger.TButton",
+        font=large_font,
+        foreground=palette["surface"],
+        background=palette["danger"],
+        relief="flat",
+        borderwidth=0,
+        padding=[15, 8],
+    )
+    style.map(
+        "Danger.TButton",
+        background=[("active", "#c82333"), ("pressed", "#bd2130")],
+        foreground=[("active", palette["surface"])],
+        relief=[("pressed", "flat"), ("!pressed", "flat")],
+    )
+
+
+def _configure_entry_styles(style, palette, base_font):
+    """Configure TEntry styles."""
+    style.configure(
+        "TEntry",
+        font=base_font,
+        fieldbackground=palette["surface"],
+        foreground=palette["text"],
+        insertcolor=palette["primary"],
+        relief="solid",
+        borderwidth=1,
+        bordercolor=palette["border"],
+        padding=[5, 5],
+    )
+    style.map(
+        "TEntry",
+        bordercolor=[("focus", palette["primary"])],
+        fieldbackground=[("readonly", palette["background"]), ("disabled", palette["background"])],
+    )
+
+
+def _configure_combobox_styles(style, palette, base_font):
+    """Configure TCombobox styles."""
+    style.configure(
+        "TCombobox",
+        font=base_font,
+        fieldbackground=palette["surface"],
+        foreground=palette["text"],
+        bordercolor=palette["border"],
+        borderwidth=1,
+        relief="solid",
+        padding=[5, 5],
+    )
+    style.map(
+        "TCombobox",
+        bordercolor=[("focus", palette["primary"])],
+        fieldbackground=[("readonly", palette["background"])],
+        background=[("hover", palette["primary_dark"])],
+        foreground=[("readonly", palette["text"])],
+    )
+    style.configure(
+        "TCombobox.Listbox",
+        font=base_font,
+        foreground=palette["text"],
+        background=palette["surface"],
+        selectbackground=palette["primary"],
+        selectforeground=palette["surface"],
+    )
+
+
+def _configure_check_radio_styles(style, palette, base_font):
+    """Configure TCheckbutton and TRadiobutton styles."""
+    style.configure(
+        "TCheckbutton",
+        font=base_font,
+        foreground=palette["text"],
+        background=palette["background"],
+        indicatorcolor=palette["primary"],
+        indicatorrelief="flat",
+    )
+    style.map(
+        "TCheckbutton",
+        foreground=[("disabled", palette["accent"])],
+        background=[("active", palette["background"])],
+        indicatorcolor=[
+            ("selected", palette["primary"]),
+            ("disabled", palette["accent"]),
+            ("!selected", palette["surface"]),
+        ],
+    )
+
+    style.configure(
+        "TRadiobutton",
+        font=base_font,
+        foreground=palette["text"],
+        background=palette["background"],
+        indicatorcolor=palette["primary"],
+        indicatorrelief="flat",
+    )
+    style.map(
+        "TRadiobutton",
+        foreground=[("disabled", palette["accent"])],
+        background=[("active", palette["background"])],
+        indicatorcolor=[
+            ("selected", palette["primary"]),
+            ("disabled",palette["accent"]),
+            ("!selected", palette["surface"]),
+        ],
+    )
+
+
+def _configure_notebook_styles(style, palette, base_font):
+    """Configure TNotebook styles."""
+    style.configure(
+        "TNotebook",
+        background=palette["background"],
+        borderwidth=0,
+        tabposition="nw",
+        padding=[5, 5],
+    )
+    style.configure(
+        "TNotebook.Tab",
+        font=base_font,
+        background=palette["background"],
+        foreground=palette["text"],
+        padding=[10, 5],
+        borderwidth=0,
+        relief="flat",
+    )
+    style.map(
+        "TNotebook.Tab",
+        background=[("selected", palette["primary"]), ("active", palette["border"])],
+        foreground=[("selected", palette["surface"]), ("active", palette["text"])],
+        expand=[("selected", [0, 0, 0, 0])],
+    )
+    style.configure(
+        "TNotebook.Client", background=palette["surface"], borderwidth=0
+    )
+
+
+def _configure_labelframe_styles(style, palette, base_font, heading_font):
+    """Configure TLabelframe styles."""
+    style.configure(
+        "TLabelframe",
+        background=palette["surface"],
+        foreground=palette["text"],
+        font=base_font,
+        relief="solid",
+        borderwidth=1,
+        bordercolor=palette["border"],
+        padding=[10, 10, 10, 10],
+    )
+    style.configure(
+        "TLabelframe.Label",
+        background=palette["surface"],
+        foreground=palette["text"],
+        font=heading_font,
+        padding=[5, 2],
+    )
+    style.map(
+        "TLabelframe",
+        bordercolor=[("active", palette["accent"])],
+    )
+
+
+def _configure_progressbar_styles(style, palette):
+    """Configure TProgressbar styles."""
+    style.configure(
+        "TProgressbar",
+        background=palette["primary"],
+        troughcolor=palette["border"],
+        bordercolor=palette["border"],
+        thickness=15,
+        relief="flat",
+        borderwidth=1,
+    )
+    style.map(
+        "TProgressbar",
+        background=[("active", palette["primary_dark"])],
+    )
+
+
 def init_style():
     """Initializes and configures modern-looking ttk.Style for slightly darker light mode widgets."""
     style = ttk.Style()
-
     style.theme_use("clam")
 
     # --- General Font Configuration ---
@@ -32,278 +288,13 @@ def init_style():
     heading_font = ("Segoe UI", 12, "bold")
     large_font = ("Segoe UI", 12)
 
-    # --- TFrame Style ---
-    style.configure(
-        "TFrame",
-        background=PALETTE["background"],
-        relief="flat",
-        borderwidth=0,
-        padding=10,
-    )
-    # A specific style for panels or cards
-    style.configure(
-        "Card.TFrame",
-        background=PALETTE["surface"],
-        relief="flat",
-        borderwidth=1,
-        bordercolor=PALETTE["border"],
-        padding=15,
-    )
-
-    # --- TLabel Style ---
-    style.configure(
-        "TLabel",
-        font=base_font,
-        foreground=PALETTE["text"],
-        background=PALETTE["background"],
-        relief="flat",
-    )
-    # Heading Label
-    style.configure(
-        "Heading.TLabel",
-        font=heading_font,
-        foreground=PALETTE["text"],
-        background=PALETTE["background"],
-    )
-    # Accent Label (e.g., for disabled text or secondary info)
-    style.configure(
-        "Accent.TLabel",
-        font=base_font,
-        foreground=PALETTE["accent"],
-        background=PALETTE["background"],
-    )
-
-    # --- TButton Style (Modern Flat) ---
-    # Default Button (primary action)
-    style.configure(
-        "TButton",  # Default TButton style
-        font=large_font,
-        foreground=PALETTE["surface"],  # Very light text for contrast on primary button
-        background=PALETTE["primary"],
-        relief="flat",
-        borderwidth=0,
-        padding=[15, 8],
-    )
-    style.map(
-        "TButton",
-        background=[
-            ("active", PALETTE["primary_dark"]),
-            ("pressed", PALETTE["primary_dark"]),
-        ],
-        foreground=[
-            ("active", PALETTE["surface"])
-        ],  # Maintain light text on active state
-        relief=[("pressed", "flat"), ("!pressed", "flat")],  # Ensure flat on press
-    )
-
-    # Secondary Button (e.g., cancel, less prominent actions)
-    style.configure(
-        "Secondary.TButton",
-        font=large_font,
-        foreground=PALETTE["text"],
-        background=PALETTE["surface"],
-        relief="solid",  # A subtle border
-        borderwidth=1,
-        bordercolor=PALETTE["border"],
-        padding=[15, 8],
-    )
-    style.map(
-        "Secondary.TButton",
-        background=[
-            ("active", PALETTE["background"]),
-            ("pressed", PALETTE["background"]),
-        ],  # Background changes to lighter shade
-        foreground=[("active", PALETTE["text"])],
-        relief=[("pressed", "solid"), ("!pressed", "solid")],
-        bordercolor=[("active", PALETTE["accent"])],  # Border changes on hover
-    )
-
-    # Danger Button (e.g., delete)
-    style.configure(
-        "Danger.TButton",
-        font=large_font,
-        foreground=PALETTE["surface"],  # Very light text for contrast on danger button
-        background=PALETTE["danger"],
-        relief="flat",
-        borderwidth=0,
-        padding=[15, 8],
-    )
-    style.map(
-        "Danger.TButton",
-        background=[
-            ("active", "#c82333"),
-            ("pressed", "#bd2130"),
-        ],  # Darker red on hover
-        foreground=[
-            ("active", PALETTE["surface"])
-        ],  # Maintain light text on active state
-        relief=[("pressed", "flat"), ("!pressed", "flat")],
-    )
-
-    # --- TEntry Style (Modern Input Field) ---
-    style.configure(
-        "TEntry",
-        font=base_font,
-        fieldbackground=PALETTE["surface"],  # Background of the input field
-        foreground=PALETTE["text"],
-        insertcolor=PALETTE["primary"],  # Cursor color
-        relief="solid",  # A subtle border
-        borderwidth=1,
-        bordercolor=PALETTE["border"],
-        padding=[5, 5],  # Internal padding
-    )
-    style.map(
-        "TEntry",
-        bordercolor=[("focus", PALETTE["primary"])],  # Border color changes on focus
-        fieldbackground=[
-            ("readonly", PALETTE["background"]),
-            ("disabled", PALETTE["background"]),
-        ],
-    )
-
-    # --- TCombobox Style ---
-    style.configure(
-        "TCombobox",
-        font=base_font,
-        fieldbackground=PALETTE["surface"],
-        foreground=PALETTE["text"],
-        bordercolor=PALETTE["border"],
-        borderwidth=1,
-        relief="solid",
-        padding=[5, 5],
-    )
-
-    style.map(
-        "TCombobox",
-        bordercolor=[("focus", PALETTE["primary"])],
-        fieldbackground=[("readonly", PALETTE["background"])],
-        background=[("hover", PALETTE["primary_dark"])],
-        foreground=[("readonly", PALETTE["text"])],
-    )
-
-    style.configure(
-        "TCombobox.Listbox",
-        font=base_font,
-        foreground=PALETTE["text"],
-        background=PALETTE["surface"],
-        selectbackground=PALETTE["primary"],  # Your primary blue for highlight
-        selectforeground=PALETTE["surface"],  # Light text on primary blue, very visible
-    )
-
-    # --- TCheckbutton and TRadiobutton ---
-    style.configure(
-        "TCheckbutton",
-        font=base_font,
-        foreground=PALETTE["text"],
-        background=PALETTE["background"],
-        indicatorcolor=PALETTE["primary"],  # Color of the checkmark/radio dot
-        indicatorrelief="flat",
-    )
-    style.map(
-        "TCheckbutton",
-        foreground=[("disabled", PALETTE["accent"])],
-        background=[
-            ("active", PALETTE["background"])
-        ],  # Active background remains same
-        indicatorcolor=[
-            ("selected", PALETTE["primary"]),
-            ("disabled", PALETTE["accent"]),
-            ("!selected", PALETTE["surface"]),  # Unselected indicator background
-        ],
-    )
-
-    style.configure(
-        "TRadiobutton",
-        font=base_font,
-        foreground=PALETTE["text"],
-        background=PALETTE["background"],
-        indicatorcolor=PALETTE["primary"],
-        indicatorrelief="flat",
-    )
-    style.map(
-        "TRadiobutton",
-        foreground=[("disabled", PALETTE["accent"])],
-        background=[("active", PALETTE["background"])],
-        indicatorcolor=[
-            ("selected", PALETTE["primary"]),
-            ("disabled", PALETTE["accent"]),
-            ("!selected", PALETTE["surface"]),  # Unselected indicator background
-        ],
-    )
-
-    # --- TNotebook (Tabs) Style ---
-    style.configure(
-        "TNotebook",
-        background=PALETTE["background"],
-        borderwidth=0,
-        tabposition="nw",  # Tabs at north-west
-        padding=[5, 5],
-    )
-    style.configure(
-        "TNotebook.Tab",
-        font=base_font,
-        background=PALETTE["background"],  # Default tab background
-        foreground=PALETTE["text"],
-        padding=[10, 5],
-        borderwidth=0,  # Remove default tab border
-        relief="flat",
-    )
-    style.map(
-        "TNotebook.Tab",
-        background=[
-            ("selected", PALETTE["primary"]),
-            ("active", PALETTE["border"]),
-        ],  # Selected tab is primary, hover is border
-        foreground=[
-            (
-                "selected",
-                PALETTE["surface"],
-            ),  # ***CHANGED: Light text on selected (primary) tab***
-            ("active", PALETTE["text"]),
-        ],
-        expand=[("selected", [0, 0, 0, 0])],  # No expansion on selected tab
-    )
-    style.configure(
-        "TNotebook.Client", background=PALETTE["surface"], borderwidth=0
-    )  # Background of the tab content area
-
-    # --- TLabelframe Style (Modern Look) ---
-    style.configure(
-        "TLabelframe",
-        background=PALETTE["surface"],  # Background of the Labelframe's content area
-        foreground=PALETTE["text"],  # Color of the label text
-        font=base_font,
-        relief="solid",  # A subtle solid border
-        borderwidth=1,
-        bordercolor=PALETTE["border"],
-        padding=[10, 10, 10, 10],  # Padding around the content inside the frame
-    )
-    style.configure(
-        "TLabelframe.Label",
-        background=PALETTE["surface"],  # Matches the Labelframe background
-        foreground=PALETTE["text"],  # Label text color
-        font=heading_font,  # Use heading font for the label for prominence
-        padding=[5, 2],  # Padding around the label itself
-    )
-    style.map(
-        "TLabelframe",
-        bordercolor=[
-            ("active", PALETTE["accent"])
-        ],  # Border color change on active/hover
-    )
-
-    # --- TProgressbar Style ---
-    style.configure(
-        "TProgressbar",
-        background=PALETTE["primary"],  # Color of the filled portion
-        troughcolor=PALETTE["border"],  # Color of the empty portion (trough)
-        bordercolor=PALETTE["border"],  # Border around the trough
-        thickness=15,  # Height/width of the bar
-        relief="flat",  # Flat appearance
-        borderwidth=1,  # Subtle border
-    )
-    # Map for indeterminate mode (if used)
-    style.map(
-        "TProgressbar",
-        background=[("active", PALETTE["primary_dark"])],  # Slightly darker when active
-    )
+    # --- Apply Styles ---
+    _configure_frame_styles(style, PALETTE)
+    _configure_label_styles(style, PALETTE, base_font, heading_font)
+    _configure_button_styles(style, PALETTE, large_font)
+    _configure_entry_styles(style, PALETTE, base_font)
+    _configure_combobox_styles(style, PALETTE, base_font)
+    _configure_check_radio_styles(style, PALETTE, base_font)
+    _configure_notebook_styles(style, PALETTE, base_font)
+    _configure_labelframe_styles(style, PALETTE, base_font, heading_font)
+    _configure_progressbar_styles(style, PALETTE)
