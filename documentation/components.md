@@ -30,3 +30,14 @@ Each tab in the notebook is a separate class, allowing for a clean separation of
 - **`Menubar.py`**: Defines the application's top menu bar.
 - **`Statusbar.py`**: Creates the status bar at the bottom of the application window.
 - **`State.py`**: Manages the application's shared state (not fully implemented in the current version).
+
+## Reusable Components
+
+This section describes general-purpose components that are designed to be reused across different parts of the application.
+
+### AdminButton (`components/AdminButton.py`)
+
+The `AdminButton` is a custom `ttk.Button` subclass created to provide a clear visual indication that an action requires administrator privileges.
+
+- **Functionality:** It automatically displays a shield icon (`icons/shield.png`) to the left of the button text.
+- **Implementation:** It uses the `Pillow` library to load and resize the icon. It is designed to be a drop-in replacement for `ttk.Button` for any action that requires elevation. If the icon file is not found, it gracefully falls back to a blank placeholder, preventing the application from crashing.
