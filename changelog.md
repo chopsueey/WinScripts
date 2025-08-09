@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-09] - Statusbar Visibility Fix
+
+### Summary of Changes
+
+- **Fix: Statusbar Layout:** Fixed a bug where items in the status bar would get cut off and become invisible when the window was resized. The layout logic has been corrected to ensure the status bar container expands vertically to fit all content as it wraps to new lines.
+- **Refactor: Layout Management:** The `Statusbar` and its child `FlowFrame` now use `tkinter`'s `pack` options (`fill='both'`, `expand=True`) to manage their size, which is a more robust solution than manual height calculation. The `FlowFrame`'s repack logic was also simplified to prevent it from incorrectly hiding widgets.
+
 ## [2025-08-09] - New UI Style Guide (Material Design)
 
 ### Summary of Changes

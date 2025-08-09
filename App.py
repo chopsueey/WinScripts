@@ -41,7 +41,7 @@ class App(tk.Tk):
 
         # Statusbar
         self.status_bar = Statusbar(self, relief="groove", padding=4, border=4)
-        self.status_bar.pack(fill="x", padx=4, pady=4)
+        self.status_bar.pack(fill="both", expand=True, padx=4, pady=4)
 
         # Notebook
         self.notebook = Notebook(self, name="test123", padding=4)

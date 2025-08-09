@@ -123,11 +123,7 @@ class FlowFrame(ttk.Frame):
                 y += row_height
                 row_height = 0
 
-            # Hide widgets if they overflow the available height (max 2 rows)
-            if y > height * 2:
-                widget.place_forget()
-            else:
-                widget.place(x=x, y=y)
+            widget.place(x=x, y=y)
 
             x += width
             if height > row_height:
@@ -141,7 +137,7 @@ class Statusbar(ttk.Frame):
         self.nic_combobox = None
 
         self.flow_frame = FlowFrame(self)
-        self.flow_frame.pack(side="left", fill="x", expand=True, padx=5, pady=2)
+        self.flow_frame.pack(side="left", fill="both", expand=True, padx=5, pady=2)
 
         self.image_path = resource_path(r"./icons/refresh-ccw.png")
         self.refresh_image = tk.PhotoImage(file=self.image_path)
