@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 
+## [2025-08-09] - Documentation and Repository Cleanup
+
+### Summary of Changes
+
+- **Docs: Enhanced README.md:** The project's `README.md` has been completely overhauled to provide a comprehensive overview of the application. The new README includes a clear description of the project, a detailed list of key features, technology stack, and clear instructions for setup and usage.
+- **Chore: Branch Cleanup:** Attempted to clean up stale remote branches. This action was not completed due to repository permission issues.
+
+
 ## [2025-08-09] - UI/UX and Architectural Alignment
 
 ### Summary of Changes
