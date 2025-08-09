@@ -6,22 +6,21 @@ in UI_STYLE_GUIDE.md.
 """
 
 # --- Material Design Color Palette (Light Theme) ---
-# Based on Google's Material Design color system.
-# Primary colors from the chat conversation and UI_STYLE_GUIDE.md.
+# Based on a modern, minimal aesthetic inspired by the Nord palette.
 LIGHT_PALETTE = {
-    "primary": "#6200EE",
-    "primary_variant": "#3700B3",  # A darker variant for hover/active states
-    "secondary": "#03DAC6",
-    "secondary_variant": "#018786", # A darker variant for hover/active states
-    "background": "#e9ecef",       # Using the existing app's light background for consistency
-    "surface": "#FFFFFF",          # White for component surfaces like cards and frames
-    "error": "#B00020",
-    "on_primary": "#FFFFFF",       # Text color on primary background
-    "on_secondary": "#000000",     # Text color on secondary background
-    "on_background": "#000000",    # Text color on main background
-    "on_surface": "#000000",       # Text color on component surfaces
-    "on_error": "#FFFFFF",         # Text color on error background
-    "border": "#E0E0E0",           # A light grey for borders
+    "primary": "#5E81AC",
+    "primary_variant": "#4C6A8D",
+    "secondary": "#88C0D0",
+    "secondary_variant": "#79A8B8",
+    "background": "#ECEFF4",
+    "surface": "#FFFFFF",
+    "error": "#BF616A",
+    "on_primary": "#FFFFFF",
+    "on_secondary": "#2E3440",
+    "on_background": "#2E3440",
+    "on_surface": "#2E3440",
+    "on_error": "#FFFFFF",
+    "border": "#D8DEE9",
 }
 
 # --- Typography ---
