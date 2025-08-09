@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import platform, getpass, subprocess, os, psutil, time, datetime
+from lib.utils import resource_path
 
 
 class Statusbar(ttk.Frame):
@@ -8,7 +9,7 @@ class Statusbar(ttk.Frame):
         super().__init__(master, **kwargs)
 
         self._create_labels()
-        self.image_path = master.resource_path(r"./icons/refresh-ccw.png")
+        self.image_path = resource_path(r"./icons/refresh-ccw.png")
         self.refresh_image = tk.PhotoImage(file=self.image_path)
         self.refresh_button = ttk.Button(
             self, image=self.refresh_image, command=self._create_labels

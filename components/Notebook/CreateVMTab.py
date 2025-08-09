@@ -1,360 +1,242 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from lib.functions import run_ps1_script_elevated, run_ps1_script_2, run_ps1_script
-import os, json
+from lib.functions import run_ps1_script_2, run_ps1_script
+from lib.utils import construct_path
+import os
 
 
 class CreateVMTab(tk.Frame):
     def __init__(self, master, app, **kwargs):
         super().__init__(master, **kwargs)
-
-        # State
         self.app = app
-        self.iso_path = tk.StringVar(value="No ISO choosen yet.")
+
+        self._initialize_state()
+        self._create_widgets()
+        self._pack_widgets()
+        self._bind_events()
+
+        self.load_switches()
+
+    def _initialize_state(self):
+        """Initializes the state variables for the tab."""
+        self.iso_path = tk.StringVar(value="No ISO chosen yet.")
         self.editions = []
         self.selected_edition = tk.StringVar(value="No edition selected.")
         self.version_name = ""
         self.vm_switches = []
         self.selected_vm_switch = tk.StringVar(value="No switch selected.")
-        self.selected_network_category = tk.StringVar()
-        self.selected_network_category.set("Private")  # default
+        self.selected_network_category = tk.StringVar(value="Private")
         self.network_category_options = ["Public", "Private"]
 
-        # Topframe (ISO, Edition and VMSwitches)
+    def _create_widgets(self):
+        """Creates all the widgets for the tab."""
+        # Frames
         self.top_frame = ttk.Frame(self)
-        self.top_frame.pack(expand=True, fill="both")
-
         self.iso_frame = ttk.Labelframe(self.top_frame, text="ISO")
-        self.iso_frame.pack(
-            expand=True, fill="both", padx=4
-        )  # anchor='center' without fill, to center children
-        self.iso_path_label = ttk.Label(self.iso_frame, textvariable=self.iso_path)
-        self.iso_path_label.pack(side="left", padx=4)
-        self.choose_iso = ttk.Button(
-            self.iso_frame, text="Choose ISO", command=self.get_windows_image_editions
-        )
-        self.choose_iso.pack(side="left", padx=4)
-
         self.edition_frame = ttk.Labelframe(self.top_frame, text="Edition")
-        self.edition_frame.pack(expand=True, fill="both", padx=4)
-        self.edition_info_label = ttk.Label(
-            self.edition_frame,
-            textvariable=self.selected_edition,
-        )
-        self.edition_info_label.pack(side="left", padx=4)
-        self.edition_combobox = ttk.Combobox(
-            self.edition_frame,
-            textvariable=self.selected_edition,
-            state="readonly",
-            width=70,
-        )
-        self.edition_combobox.pack(side="left", padx=4)
-        self.edition_combobox.set("Choose an iso first...")
-        self.edition_combobox.bind("<<ComboboxSelected>>", self.on_edition_selected)
-
         self.vm_switches_frame = ttk.Labelframe(self.top_frame, text="Virtual switch")
-        self.vm_switches_frame.pack(expand=True, fill="both", padx=4)
-        self.vm_switches_info_label = ttk.Label(
-            self.vm_switches_frame, text="No switch selected yet."
-        )
-        self.vm_switches_info_label.pack(side="left", padx=4)
-        self.vm_switches_combobox = ttk.Combobox(
-            self.vm_switches_frame,
-            textvariable=self.selected_vm_switch,
-            state="readonly",
-            width=40,
-        )
-        self.vm_switches_combobox.pack(side="left", padx=4)
-        self.vm_switches_combobox.set("Choose a switch...")
-        self.vm_switches_combobox.bind(
-            "<<ComboboxSelected>>", self.on_vm_switch_selected
-        )
-
-        # Bottomframe
         self.bottom_frame = ttk.Frame(self)
-        self.bottom_frame.pack(expand=True, fill="both")
-
-        self.name_pass_frame = ttk.Labelframe(
-            self.bottom_frame, text="Name and password"
-        )
-        self.name_pass_frame.pack(expand=True, fill="both", padx=4)
-        self.vm_name_label = ttk.Label(self.name_pass_frame, text="VM Name: ")
-        self.vm_name_label.pack(side="left", padx=4)
-        self.vm_name_entry = ttk.Entry(self.name_pass_frame)
-        self.vm_name_entry.pack(side="left", padx=4)
-        self.password_label = ttk.Label(self.name_pass_frame, text="Password: ")
-        self.password_label.pack(side="left", padx=4)
-        self.password_entry = ttk.Entry(self.name_pass_frame)
-        self.password_entry.pack(side="left", padx=4)
-
-        # -MemoryStartupBytes 4GB `
-        # -VMProcessorCount 2 `
-        # -VHDXSizeBytes 60GB `
+        self.name_pass_frame = ttk.Labelframe(self.bottom_frame, text="Name and password")
         self.resources_frame = ttk.Labelframe(self.bottom_frame, text="Resources")
-        self.resources_frame.pack(expand=True, fill="both", padx=4)
-        self.ram_label = ttk.Label(self.resources_frame, text="RAM in GB: ")
-        self.ram_label.pack(side="left", padx=4)
+        self.network_settings_frame = ttk.Labelframe(self.bottom_frame, text="Network settings")
+
+        # ISO Widgets
+        self.iso_path_label = ttk.Label(self.iso_frame, textvariable=self.iso_path)
+        self.choose_iso_button = ttk.Button(self.iso_frame, text="Choose ISO", command=self.get_windows_image_editions)
+
+        # Edition Widgets
+        self.edition_info_label = ttk.Label(self.edition_frame, textvariable=self.selected_edition)
+        self.edition_combobox = ttk.Combobox(self.edition_frame, textvariable=self.selected_edition, state="readonly", width=70)
+        self.edition_combobox.set("Choose an ISO first...")
+
+        # VM Switches Widgets
+        self.vm_switches_info_label = ttk.Label(self.vm_switches_frame, text="No switch selected yet.")
+        self.vm_switches_combobox = ttk.Combobox(self.vm_switches_frame, textvariable=self.selected_vm_switch, state="readonly", width=40)
+        self.vm_switches_combobox.set("Choose a switch...")
+
+        # Name and Password Widgets
+        self.vm_name_label = ttk.Label(self.name_pass_frame, text="VM Name:")
+        self.vm_name_entry = ttk.Entry(self.name_pass_frame)
+        self.password_label = ttk.Label(self.name_pass_frame, text="Password:")
+        self.password_entry = ttk.Entry(self.name_pass_frame, show="*")
+
+        # Resources Widgets
+        self.ram_label = ttk.Label(self.resources_frame, text="RAM (GB):")
         self.ram_entry = ttk.Entry(self.resources_frame)
-        self.ram_entry.pack(side="left", padx=4)
-        self.processor_count_label = ttk.Label(
-            self.resources_frame, text="Processor count: "
-        )
-        self.processor_count_label.pack(side="left", padx=4)
+        self.processor_count_label = ttk.Label(self.resources_frame, text="Processors:")
         self.processor_count_entry = ttk.Entry(self.resources_frame)
-        self.processor_count_entry.pack(side="left", padx=4)
-        self.vhdx_size_label = ttk.Label(self.resources_frame, text="VHDX Size: ")
-        self.vhdx_size_label.pack(side="left", padx=4)
+        self.vhdx_size_label = ttk.Label(self.resources_frame, text="VHDX Size (GB):")
         self.vhdx_size_entry = ttk.Entry(self.resources_frame)
-        self.vhdx_size_entry.pack(side="left", padx=4)
 
-        # -IPAddress 10.0.0.10 `
-        # -PrefixLength 8 `
-        # -DefaultGateway 10.0.0.10 `
-        # -DnsAddresses '8.8.8.8', '8.8.4.4' `
-        # -NetworkCategory 'Public', 'Private', 'Domain'?
-        self.network_settings_frame = ttk.Labelframe(
-            self.bottom_frame, text="Network settings"
-        )
-        self.network_settings_frame.pack(expand=True, fill="both", padx=4)
-        self.ip_label = ttk.Label(self.network_settings_frame, text="IPv4 address: ")
-        self.ip_label.pack(side="left", padx=4)
+        # Network Settings Widgets
+        self.ip_label = ttk.Label(self.network_settings_frame, text="IPv4 Address:")
         self.ip_entry = ttk.Entry(self.network_settings_frame)
-        self.ip_entry.pack(side="left", padx=4)
-        self.prefix_length_label = ttk.Label(
-            self.network_settings_frame, text="Prefix length (CIDR): "
-        )
-        self.prefix_length_label.pack(side="left", padx=4)
+        self.prefix_length_label = ttk.Label(self.network_settings_frame, text="Prefix (CIDR):")
         self.prefix_length_entry = ttk.Entry(self.network_settings_frame)
-        self.prefix_length_entry.pack(side="left", padx=4)
-        self.gateway_label = ttk.Label(
-            self.network_settings_frame, text="Default gateway: "
-        )
-        self.gateway_label.pack(side="left", padx=4)
+        self.gateway_label = ttk.Label(self.network_settings_frame, text="Gateway:")
         self.gateway_entry = ttk.Entry(self.network_settings_frame)
-        self.gateway_entry.pack(side="left", padx=4)
-        self.dns_label = ttk.Label(self.network_settings_frame, text="DNS Addresses: ")
-        self.dns_label.pack(side="left", padx=4)
+        self.dns_label = ttk.Label(self.network_settings_frame, text="DNS:")
         self.dns_entry = ttk.Entry(self.network_settings_frame)
-        self.dns_entry.pack(side="left", padx=4)
-        self.network_category_option_menu = ttk.OptionMenu(
-            self.network_settings_frame,
-            self.selected_network_category,
-            self.selected_network_category.get(),
-            *self.network_category_options,
-            # command=self.on_network_category_selected,
-        )
-        self.network_category_option_menu.pack(side="left", padx=4)
+        self.network_category_option_menu = ttk.OptionMenu(self.network_settings_frame, self.selected_network_category, self.selected_network_category.get(), *self.network_category_options)
 
-        # Create VM (TODO: Show all choosen options for the VM and ask for the user to accept them, and only then start the script)
-        self.create_vm_button = ttk.Button(
-            self, text="Create VM", command=self.create_vm
-        )
-        self.create_vm_button.pack()
+        # Create VM Button
+        self.create_vm_button = ttk.Button(self, text="Create VM", command=self.create_vm)
 
-        self.load_switches()
+    def _pack_widgets(self):
+        """Packs all the widgets in the tab."""
+        self.top_frame.pack(expand=True, fill="both", padx=4, pady=2)
+        self.iso_frame.pack(expand=True, fill="x", padx=4, pady=2)
+        self.iso_path_label.pack(side="left", padx=4, pady=4)
+        self.choose_iso_button.pack(side="left", padx=4, pady=4)
 
-    # METHODS
+        self.edition_frame.pack(expand=True, fill="x", padx=4, pady=2)
+        self.edition_info_label.pack(side="left", padx=4, pady=4)
+        self.edition_combobox.pack(side="left", padx=4, pady=4)
+
+        self.vm_switches_frame.pack(expand=True, fill="x", padx=4, pady=2)
+        self.vm_switches_info_label.pack(side="left", padx=4, pady=4)
+        self.vm_switches_combobox.pack(side="left", padx=4, pady=4)
+
+        self.bottom_frame.pack(expand=True, fill="both", padx=4, pady=2)
+        self.name_pass_frame.pack(expand=True, fill="x", padx=4, pady=2)
+        self.vm_name_label.pack(side="left", padx=4, pady=4)
+        self.vm_name_entry.pack(side="left", padx=4, pady=4)
+        self.password_label.pack(side="left", padx=4, pady=4)
+        self.password_entry.pack(side="left", padx=4, pady=4)
+
+        self.resources_frame.pack(expand=True, fill="x", padx=4, pady=2)
+        self.ram_label.pack(side="left", padx=4, pady=4)
+        self.ram_entry.pack(side="left", padx=4, pady=4)
+        self.processor_count_label.pack(side="left", padx=4, pady=4)
+        self.processor_count_entry.pack(side="left", padx=4, pady=4)
+        self.vhdx_size_label.pack(side="left", padx=4, pady=4)
+        self.vhdx_size_entry.pack(side="left", padx=4, pady=4)
+
+        self.network_settings_frame.pack(expand=True, fill="x", padx=4, pady=2)
+        self.ip_label.pack(side="left", padx=4, pady=4)
+        self.ip_entry.pack(side="left", padx=4, pady=4)
+        self.prefix_length_label.pack(side="left", padx=4, pady=4)
+        self.prefix_length_entry.pack(side="left", padx=4, pady=4)
+        self.gateway_label.pack(side="left", padx=4, pady=4)
+        self.gateway_entry.pack(side="left", padx=4, pady=4)
+        self.dns_label.pack(side="left", padx=4, pady=4)
+        self.dns_entry.pack(side="left", padx=4, pady=4)
+        self.network_category_option_menu.pack(side="left", padx=4, pady=4)
+
+        self.create_vm_button.pack(pady=10)
+
+    def _bind_events(self):
+        """Binds events to widgets."""
+        self.edition_combobox.bind("<<ComboboxSelected>>", self.on_edition_selected)
+        self.vm_switches_combobox.bind("<<ComboboxSelected>>", self.on_vm_switch_selected)
+
+    def _populate_combobox_from_ps(self, script_name, ps_args, combobox, info_label, data_list, no_items_msg):
+        """Helper to populate a combobox by running a PowerShell script."""
+        script_path = construct_path(self.app.current_script_dir, self.app.script_dir_relative, script_name)
+        items = run_ps1_script(script_path, window=False, ps_args=ps_args)
+
+        if isinstance(items, str):
+            items = [items]
+
+        data_list[:] = items if items else []
+
+        if data_list:
+            combobox["values"] = data_list
+            combobox.set(data_list[0])
+            if info_label:
+                info_label.config(text=f"Loaded {len(data_list)} items.")
+        else:
+            combobox["values"] = []
+            combobox.set(no_items_msg)
+            if info_label:
+                info_label.config(text=no_items_msg)
+
     def get_windows_image_editions(self):
-        isopath = filedialog.askopenfilename()
+        isopath = filedialog.askopenfilename(filetypes=[("ISO files", "*.iso")])
+        if not isopath:
+            return
         self.iso_path.set(isopath)
 
-        self.editions = run_ps1_script(
-            self.app.construct_path("getIsoEditions.ps1"),
-            window=False,
-            ps_args=[
-                "-IsoPath",
-                f"{self.iso_path.get()}",
-            ],
+        ps_args = ["-IsoPath", f"{self.iso_path.get()}"]
+        self._populate_combobox_from_ps(
+            "getIsoEditions.ps1", ps_args, self.edition_combobox, self.edition_info_label, self.editions, "No editions found."
         )
-
-        if self.editions:
-            # self.editions is a single string if the iso just has one available edition
-            # else it is a list
-            if type(self.editions) == str:
-                self.edition_combobox["values"] = [self.editions]
-                self.edition_combobox.set(self.editions)
-            else:
-                self.edition_combobox["values"] = self.editions
-                self.edition_combobox.set(self.editions[0])
-            self.edition_info_label.config(
-                text=f"Loaded {len(self.editions)} editions."
-            )
-        else:
-            self.edition_combobox["values"] = []
-            self.edition_combobox.set("No editions found.")
-            self.edition_info_label.config(
-                text="No editions found or an error occurred."
-            )
 
     def on_edition_selected(self, event):
         selected = self.selected_edition.get()
         self.edition_info_label.config(text=f"You selected: {selected}")
-        self.version_name = self.get_validate_set_string()
-
+        self.version_name = self._get_version_name_from_edition()
         print(f"Selected edition: {selected}", self.version_name)
 
     def load_switches(self):
-        self.vm_switches = run_ps1_script(
-            self.app.construct_path("getVMSwitches.ps1"),
-            window=False,
-            ps_args=[
-                "-IsoPath",
-                f"{self.iso_path.get()}",
-                "-AppRootPath",
-                f"{self.app.get_root_path()}",
-            ],
+        ps_args = ["-AppRootPath", f"{self.app.get_root_path()}"]
+        self._populate_combobox_from_ps(
+            "getVMSwitches.ps1", ps_args, self.vm_switches_combobox, self.vm_switches_info_label, self.vm_switches, "No switches found."
         )
-
-        if self.vm_switches:
-            # self.editions is a single string if the iso just has one available edition
-            # else it is a list
-            if type(self.vm_switches) == str:
-                self.vm_switches_combobox["values"] = [self.vm_switches]
-                self.vm_switches_combobox.set(self.vm_switches)
-            else:
-                self.vm_switches_combobox["values"] = self.vm_switches
-                self.vm_switches_combobox.set(self.vm_switches[0])
-
-            self.vm_switches_info_label.config(
-                text=f"Loaded {len(self.vm_switches)} switches."
-            )
-        else:
-            self.vm_switches_combobox["values"] = []
-            self.vm_switches_combobox.set("No switches found.")
-            self.vm_switches_info_label.config(
-                text="No switches found or an error occurred."
-            )
 
     def on_vm_switch_selected(self, event):
         selected = self.selected_vm_switch.get()
         self.vm_switches_info_label.config(text=f"You selected: {selected}")
-
         print(f"Selected switch: {selected}")
 
-    def get_validate_set_string(self):
-        # Replace unnecessary substrings
-        normalized_edition = (
-            self.selected_edition.get()
-            .lower()
-            .replace("windows ", "")
-            .replace("server ", "")
-            .replace(" evaluation", "")
-            .replace("(desktopdarstellung)", "")
-            .replace("(desktop experience)", "")
-            .strip()
-        )
+    def _get_version_name_from_edition(self):
+        """Gets the script-friendly version name from the selected edition string."""
+        edition_map = {
+            "2025 datacenter": "Server2025Datacenter",
+            "2025 standard": "Server2025Standard",
+            "2022 datacenter": "Server2022Datacenter",
+            "2022 standard": "Server2022Standard",
+            "2019 datacenter": "Server2019Datacenter",
+            "2019 standard": "Server2019Standard",
+            "2016 datacenter": "Server2016Datacenter",
+            "2016 standard": "Server2016Standard",
+            "11 enterprise": "Windows11Enterprise",
+            "11 professional": "Windows11Professional",
+            "10 enterprise": "Windows10Enterprise",
+            "10 professional": "Windows10Professional",
+            "81 professional": "Windows81Professional",
+            "8.1 professional": "Windows81Professional",
+        }
 
-        # Return specific Versionname for choosen selected_edition
-        if "2025 datacenter" in normalized_edition:
-            return "Server2025Datacenter"
-        elif "2025 standard" in normalized_edition:
-            return "Server2025Standard"
-        elif "2022 datacenter" in normalized_edition:
-            return "Server2022Datacenter"
-        elif "2022 standard" in normalized_edition:
-            return "Server2022Standard"
-        elif "2019 datacenter" in normalized_edition:
-            return "Server2019Datacenter"
-        elif "2019 standard" in normalized_edition:
-            return "Server2019Standard"
-        elif "2016 datacenter" in normalized_edition:
-            return "Server2016Datacenter"
-        elif "2016 standard" in normalized_edition:
-            return "Server2016Standard"
-        elif "11 enterprise" in normalized_edition:
-            return "Windows11Enterprise"
-        elif "11 professional" in normalized_edition:
-            return "Windows11Professional"
-        elif "10 enterprise" in normalized_edition:
-            return "Windows10Enterprise"
-        elif "10 professional" in normalized_edition:
-            return "Windows10Professional"
-        elif (
-            "81 professional" in normalized_edition
-            or "8.1 professional" in normalized_edition
-        ):
-            return "Windows81Professional"
-
+        normalized_edition = self.selected_edition.get().lower()
+        for key, value in edition_map.items():
+            if key in normalized_edition:
+                return value
         return None
 
     def create_vm(self):
-        # Gather all input values
-        vm_name = self.vm_name_entry.get()
-        password = self.password_entry.get()
-        ram_gb = self.ram_entry.get()
-        processor_count = self.processor_count_entry.get()
-        vhdx_size_gb = self.vhdx_size_entry.get()
-        ip_address = self.ip_entry.get()
-        prefix_length = self.prefix_length_entry.get()
-        gateway = self.gateway_entry.get()
-        dns = self.dns_entry.get()
-        network_category = self.selected_network_category.get()
-        iso_file = self.iso_path.get()
-        iso_edition = self.selected_edition.get()
-        version_name = self.version_name
-        name_switch = self.selected_vm_switch.get()
-        script_path = self.app.construct_path(r".\\Hyper-V-Automation\\")
+        """Gathers VM parameters, confirms with the user, and runs the creation script."""
+        vm_params = {
+            "isoFile": self.iso_path.get(),
+            "vmName": self.vm_name_entry.get(),
+            "pass": self.password_entry.get(),
+            "iso_edition": self.selected_edition.get(),
+            "version_name": self.version_name,
+            "nameSwitch": self.selected_vm_switch.get(),
+            "script_path": construct_path(self.app.current_script_dir, self.app.script_dir_relative, r".\\Hyper-V-Automation\\"),
+            "MemoryStartupGB": self.ram_entry.get(),
+            "VMProcessorCount": self.processor_count_entry.get(),
+            "VHDXSizeGB": self.vhdx_size_entry.get(),
+            "IPAddress": self.ip_entry.get(),
+            "PrefixLength": self.prefix_length_entry.get(),
+            "DefaultGateway": self.gateway_entry.get(),
+            "DnsAddresses": self.dns_entry.get(),
+            "NetworkCategory": self.selected_network_category.get(),
+        }
 
-        # Prepare summary text for confirmation dialog
-        summary = (
-            f"Please confirm the VM creation with the following settings:\n\n"
-            f"VM Name: {vm_name}\n"
-            f"Password: {'*' * len(password)}\n"  # mask password
-            f"RAM (GB): {ram_gb}\n"
-            f"Processor Count: {processor_count}\n"
-            f"VHDX Size (GB): {vhdx_size_gb}\n"
-            f"IP Address: {ip_address}\n"
-            f"Prefix Length: {prefix_length}\n"
-            f"Gateway: {gateway}\n"
-            f"DNS: {dns}\n"
-            f"Network Category: {network_category}\n"
-            f"ISO File: {iso_file}\n"
-            f"ISO Edition: {iso_edition}\n"
-            f"Version Name: {version_name}\n"
-            f"Switch Name: {name_switch}\n\n"
-            f"Do you want to proceed?"
-        )
+        summary = "Please confirm the VM creation with the following settings:\n\n"
+        for key, value in vm_params.items():
+            display_value = '******' if key == 'pass' and value else value
+            summary += f"{key}: {display_value}\n"
+        summary += "\nDo you want to proceed?"
 
-        # Show confirmation dialog
-        proceed = messagebox.askyesno("Confirm VM Creation", summary)
-
-        if not proceed:
+        if not messagebox.askyesno("Confirm VM Creation", summary):
             print("VM creation canceled by user.")
             return
 
-        # User confirmed, run the PowerShell script
-        run_ps1_script_2(
-            self.app.construct_path(r".\\Hyper-V-Automation\\create_Vm.ps1"),
-            ps_args=[
-                "-isoFile",
-                iso_file,
-                "-vmName",
-                vm_name,
-                "-pass",
-                password,
-                "-iso_edition",
-                iso_edition,
-                "-version_name",
-                version_name,
-                "-nameSwitch",
-                name_switch,
-                "-script_path",
-                script_path,
-                "-MemoryStartupGB",
-                ram_gb,
-                "-VMProcessorCount",
-                processor_count,
-                "-VHDXSizeGB",
-                vhdx_size_gb,
-                "-IPAddress",
-                ip_address,
-                "-PrefixLength",
-                prefix_length,
-                "-DefaultGateway",
-                gateway,
-                "-DnsAddresses",
-                dns,
-                "-NetworkCategory",
-                network_category,
-            ],
-        )
+        ps_args = []
+        for key, value in vm_params.items():
+            ps_args.extend([f"-{key}", str(value)])
+
+        script_path = construct_path(self.app.current_script_dir, self.app.script_dir_relative, r".\\Hyper-V-Automation\\create_Vm.ps1")
+        run_ps1_script_2(script_path, ps_args=ps_args)
