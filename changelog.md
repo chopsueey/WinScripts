@@ -25,7 +25,8 @@ This update focuses on a comprehensive refactoring of the codebase to ensure all
 
 - **Fix: Application Startup Error:**
   - Fixed a critical `ImportError` caused by the missing `DARK_PALETTE` constant in `lib/material_constants.py`.
-  - Fixed a `TypeError` on startup caused by component classes incorrectly inheriting from a UI helper *function* instead of a `ttk.Frame`.
+  - Fixed a `TypeError` on startup caused by component classes incorrectly inheriting from a UI helper function instead of a `ttk.Frame`.
+  - Refactored all UI helper functions in `lib/ui_helpers.py` to correctly handle keyword arguments, fixing a `TypeError` when using `textvariable` with `StyledLabel`.
 
 
 ## [2025-08-09] - Azure Integration and New Scripts

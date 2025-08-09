@@ -12,25 +12,25 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def StyledButton(master, text, **kwargs):
+def StyledButton(master, **kwargs):
     """Creates a primary action button with the 'TButton' style."""
-    return ttk.Button(master, text=text, style="TButton", **kwargs)
+    return ttk.Button(master, style="TButton", **kwargs)
 
-def StyledSecondaryButton(master, text, **kwargs):
+def StyledSecondaryButton(master, **kwargs):
     """Creates a secondary action button with the 'Secondary.TButton' style."""
-    return ttk.Button(master, text=text, style="Secondary.TButton", **kwargs)
+    return ttk.Button(master, style="Secondary.TButton", **kwargs)
 
-def StyledLabel(master, text, **kwargs):
+def StyledLabel(master, **kwargs):
     """Creates a standard body text label with the 'TLabel' style."""
-    return ttk.Label(master, text=text, style="TLabel", **kwargs)
+    return ttk.Label(master, style="TLabel", **kwargs)
 
-def StyledHeading(master, text, **kwargs):
+def StyledHeading(master, **kwargs):
     """Creates a heading label with the 'Heading.TLabel' style."""
-    return ttk.Label(master, text=text, style="Heading.TLabel", **kwargs)
+    return ttk.Label(master, style="Heading.TLabel", **kwargs)
 
-def StyledTitle(master, text, **kwargs):
+def StyledTitle(master, **kwargs):
     """Creates a title label with the 'Title.TLabel' style."""
-    return ttk.Label(master, text=text, style="Title.TLabel", **kwargs)
+    return ttk.Label(master, style="Title.TLabel", **kwargs)
 
 def StyledEntry(master, **kwargs):
     """Creates an entry widget with the 'TEntry' style."""
@@ -48,18 +48,18 @@ def StyledCard(master, **kwargs):
     """Creates a card-like frame with the 'Card.TFrame' style."""
     return ttk.Frame(master, style="Card.TFrame", **kwargs)
 
-def StyledCheckbutton(master, text, **kwargs):
+def StyledCheckbutton(master, **kwargs):
     """Creates a checkbutton with the 'TCheckbutton' style."""
-    return ttk.Checkbutton(master, text=text, style="TCheckbutton", **kwargs)
+    return ttk.Checkbutton(master, style="TCheckbutton", **kwargs)
 
-def StyledRadiobutton(master, text, **kwargs):
+def StyledRadiobutton(master, **kwargs):
     """Creates a radiobutton with the 'TRadiobutton' style."""
-    return ttk.Radiobutton(master, text=text, style="TRadiobutton", **kwargs)
+    return ttk.Radiobutton(master, style="TRadiobutton", **kwargs)
 
 def StyledProgressbar(master, **kwargs):
     """Creates a progressbar with the 'TProgressbar' style."""
     return ttk.Progressbar(master, style="TProgressbar", **kwargs)
 
-def StyledLabelframe(master, text, **kwargs):
+def StyledLabelframe(master, **kwargs):
     """Creates a labelframe with the 'TLabelframe' style."""
-    return ttk.Labelframe(master, text=text, style="TLabelframe", **kwargs)
+    return ttk.Labelframe(master, style="TLabelframe", **kwargs)
