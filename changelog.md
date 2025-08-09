@@ -23,6 +23,9 @@ This update focuses on a comprehensive refactoring of the codebase to ensure all
 - **Documentation: Script Updates:**
   - The script documentation at `documentation/scripts.md` has been updated to include previously undocumented scripts that are used by the UI (`setComputerName.ps1`, `installBGInfo.ps1`, `setupAD.ps1`).
 
+- **Fix: Application Startup Error:**
+  - Fixed a critical `ImportError` caused by the missing `DARK_PALETTE` constant in `lib/material_constants.py`. This resolves an application crash on startup when toggling themes.
+
 
 ## [2025-08-09] - Azure Integration and New Scripts
 

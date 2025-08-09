@@ -23,6 +23,23 @@ LIGHT_PALETTE = {
     "border": "#D8DEE9",
 }
 
+# --- Material Design Color Palette (Dark Theme) ---
+DARK_PALETTE = {
+    "primary": "#81A1C1",
+    "primary_variant": "#8FBCBB",
+    "secondary": "#88C0D0",
+    "secondary_variant": "#A3BE8C",
+    "background": "#2E3440",
+    "surface": "#3B4252",
+    "error": "#BF616A",
+    "on_primary": "#2E3440",
+    "on_secondary": "#2E3440",
+    "on_background": "#E5E9F0",
+    "on_surface": "#E5E9F0",
+    "on_error": "#2E3440",
+    "border": "#4C566A",
+}
+
 # --- Typography ---
 # Font family: Roboto is the standard for Material Design.
 # The style_material.py file will handle fallbacks if Roboto is not available.
