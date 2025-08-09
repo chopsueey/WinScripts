@@ -94,3 +94,16 @@ For details on the key scripts and how they are used, please read **[`documentat
   ```
 - **Changelog:** All new features, bug fixes, or significant refactors **must** be documented in `changelog.md`.
 - **Code Style:** Follow existing code patterns and aim for clarity and maintainability.
+- **UI Development and Styling:** All UI development must adhere to the official style guide.
+  - **Read the Guide:** Before creating or modifying any UI, you **must** read the **[`UI_STYLE_GUIDE.md`](./UI_STYLE_GUIDE.md)** to understand the design system.
+  - **Use UI Helpers:** To ensure consistency, you **must** use the helper functions provided in **`lib/ui_helpers.py`** for creating styled widgets. Do not style widgets manually.
+  - **Example:**
+    ```python
+    # Correct way to create a button:
+    from lib.ui_helpers import StyledButton
+    button = StyledButton(parent, text="Submit", command=submit_form)
+
+    # Incorrect way (manual styling):
+    # button = ttk.Button(parent, text="Submit", ...)
+    # button.configure(...)
+    ```

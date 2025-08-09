@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from style import init_style
+from style_material import init_style
 from components import Menubar, Statusbar, Notebook
 from lib.functions import center_window
 from lib.utils import resource_path
