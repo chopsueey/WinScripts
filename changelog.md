@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+
 ## [2025-08-09] - Azure Integration and New Scripts
 
 ### Summary of Changes
@@ -29,6 +30,15 @@ This update introduces a new "Azure" tab to the application for managing Azure r
 
 - **Documentation:**
   - Updated `documentation/components.md` and `documentation/scripts.md` to reflect the new Azure components and scripts.
+
+## [2025-08-09] - General Tab Layout Restructure
+
+### Summary of Changes
+
+- **Feature: Structured Layout in General Tab:** The "General" tab has been significantly restructured for better organization and usability. The previous single-column list of buttons has been replaced with a two-column grid layout.
+- **Refactor: Grouped Controls:** Buttons are now grouped into logical categories (`System & Access`, `PowerShell`, `Machine Configuration`, `Domain Management`) using `StyledLabelframe` components. This makes it easier for users to find related functions.
+- **Refactor: Grid-based Layout:** The layout now uses `tkinter`'s `grid` manager instead of `pack`, following the best practices outlined in the UI Style Guide for structured content.
+
 
 ## [2025-08-09] - Statusbar Visibility Fix
 
