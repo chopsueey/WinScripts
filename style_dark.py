@@ -2,21 +2,25 @@ from tkinter import ttk
 import tkinter as tk
 
 # --- Define a Modern Dark Mode Color Palette ---
-PALETTE = {
-    "primary": "#8ab4f8",  # Lighter blue for main actions (Google Material Blue 300/400 equivalent)
-    "primary_dark": "#6a9df8",  # Slightly darker primary for active states
-    "accent": "#9aa0a6",  # Muted light gray for secondary elements
-    "accent_dark": "#7b8086",  # Darker gray for active accent states
-    "background": "#202124",  # Very dark gray for general background (Google Dark Mode BG)
-    "surface": "#2d2e31",  # Slightly lighter dark gray for widget backgrounds (cards, frames)
-    "text": "#e8eaed",  # Light gray for general text
-    "text_light": "#bdc1c6",  # Muted light gray for less prominent text (originally for text on dark bg, now for secondary)
-    "border": "#5f6368",  # Medium-dark gray for subtle borders
-    "success": "#85c485",  # Muted green for success
-    "danger": "#f28b82",  # Muted red for danger
-    "warning": "#fdd663",  # Muted yellow for warning
-    "info": "#78d0ea",  # Muted cyan for info
+# Based on a modern, minimal aesthetic inspired by the Nord palette.
+DARK_PALETTE = {
+    "primary": "#81A1C1",
+    "primary_variant": "#8FBCBB",
+    "secondary": "#88C0D0",
+    "secondary_variant": "#A3BE8C",
+    "background": "#2E3440",
+    "surface": "#3B4252",
+    "error": "#BF616A",
+    "on_primary": "#2E3440",
+    "on_secondary": "#2E3440",
+    "on_background": "#E5E9F0",
+    "on_surface": "#E5E9F0",
+    "on_error": "#2E3440",
+    "border": "#4C566A",
 }
+# For compatibility with existing style definitions that might use these.
+# This can be removed after a full refactor.
+PALETTE = DARK_PALETTE
 
 
 # --- Styling Function ---
@@ -55,7 +59,7 @@ def init_style():
     style.configure(
         "TLabel",
         font=base_font,
-        foreground=PALETTE["text"],
+        foreground=PALETTE["on_background"],
         background=PALETTE["background"],
         relief="flat",
     )
@@ -63,14 +67,14 @@ def init_style():
     style.configure(
         "Heading.TLabel",
         font=heading_font,
-        foreground=PALETTE["text"],
+        foreground=PALETTE["on_background"],
         background=PALETTE["background"],
     )
     # Accent Label (e.g., for disabled text or secondary info)
     style.configure(
         "Accent.TLabel",
         font=base_font,
-        foreground=PALETTE["text_light"],  # Using text_light for subtle text
+        foreground=PALETTE["secondary"],  # Using secondary for subtle text
         background=PALETTE["background"],
     )
 
@@ -79,7 +83,7 @@ def init_style():
     style.configure(
         "TButton",  # Default TButton style
         font=large_font,
-        foreground=PALETTE["background"],  # Dark text on lighter primary button
+        foreground=PALETTE["on_primary"],
         background=PALETTE["primary"],
         relief="flat",
         borderwidth=0,
@@ -88,10 +92,10 @@ def init_style():
     style.map(
         "TButton",
         background=[
-            ("active", PALETTE["primary_dark"]),
-            ("pressed", PALETTE["primary_dark"]),
+            ("active", PALETTE["primary_variant"]),
+            ("pressed", PALETTE["primary_variant"]),
         ],
-        foreground=[("active", PALETTE["background"])],
+        foreground=[("active", PALETTE["on_primary"])],
         relief=[("pressed", "flat"), ("!pressed", "flat")],
     )
 
@@ -99,8 +103,8 @@ def init_style():
     style.configure(
         "Secondary.TButton",
         font=large_font,
-        foreground=PALETTE["text"],  # Light text on dark surface
-        background=PALETTE["surface"],
+        foreground=PALETTE["on_secondary"],
+        background=PALETTE["secondary"],
         relief="solid",
         borderwidth=1,
         bordercolor=PALETTE["border"],
@@ -109,20 +113,20 @@ def init_style():
     style.map(
         "Secondary.TButton",
         background=[
-            ("active", PALETTE["accent_dark"]),  # Darker accent on hover
-            ("pressed", PALETTE["accent_dark"]),
+            ("active", PALETTE["secondary_variant"]),  # Darker accent on hover
+            ("pressed", PALETTE["secondary_variant"]),
         ],
-        foreground=[("active", PALETTE["text"])],
+        foreground=[("active", PALETTE["on_secondary"])],
         relief=[("pressed", "solid"), ("!pressed", "solid")],
-        bordercolor=[("active", PALETTE["accent"])],
+        bordercolor=[("active", PALETTE["primary"])],
     )
 
     # Danger Button
     style.configure(
         "Danger.TButton",
         font=large_font,
-        foreground=PALETTE["background"],  # Dark text on danger button
-        background=PALETTE["danger"],
+        foreground=PALETTE["on_error"],
+        background=PALETTE["error"],
         relief="flat",
         borderwidth=0,
         padding=[15, 8],
@@ -133,7 +137,7 @@ def init_style():
             ("active", "#cc7a73"),  # Slightly darker red on hover
             ("pressed", "#bf6b62"),
         ],
-        foreground=[("active", PALETTE["background"])],
+        foreground=[("active", PALETTE["on_error"])],
         relief=[("pressed", "flat"), ("!pressed", "flat")],
     )
 
@@ -142,7 +146,7 @@ def init_style():
         "TEntry",
         font=base_font,
         fieldbackground=PALETTE["surface"],
-        foreground=PALETTE["text"],
+        foreground=PALETTE["on_surface"],
         insertcolor=PALETTE["primary"],
         relief="solid",
         borderwidth=1,
@@ -157,7 +161,7 @@ def init_style():
             ("disabled", PALETTE["background"]),
         ],
         foreground=[
-            ("disabled", PALETTE["text_light"]), # Muted text for disabled entry
+            ("disabled", PALETTE["on_surface"]), # Muted text for disabled entry
         ]
     )
 
@@ -166,9 +170,9 @@ def init_style():
         "TCombobox",
         font=base_font,
         fieldbackground=PALETTE["surface"],
-        foreground=PALETTE["text"],
+        foreground=PALETTE["on_surface"],
         selectbackground=PALETTE["primary"],
-        selectforeground=PALETTE["background"], # Dark text on primary selected item
+        selectforeground=PALETTE["on_primary"],
         bordercolor=PALETTE["border"],
         borderwidth=1,
         relief="solid",
@@ -178,9 +182,9 @@ def init_style():
         "TCombobox",
         bordercolor=[("focus", PALETTE["primary"])],
         fieldbackground=[("readonly", PALETTE["background"])],
-        foreground=[("disabled", PALETTE["text_light"])], # Muted text for disabled combobox
+        foreground=[("disabled", PALETTE["on_surface"])], # Muted text for disabled combobox
         background=[
-            ("hover", PALETTE["accent_dark"]) # Darker accent on hover for dropdown button
+            ("hover", PALETTE["secondary_variant"]) # Darker accent on hover for dropdown button
         ],
     )
     # Styles for the dropdown list itself
@@ -189,27 +193,27 @@ def init_style():
                     background=PALETTE["surface"])
     style.configure("TCombobox.Listbox",
                     font=base_font,
-                    foreground=PALETTE["text"],
+                    foreground=PALETTE["on_surface"],
                     background=PALETTE["surface"],
-                    selectforeground=PALETTE["background"],
+                    selectforeground=PALETTE["on_primary"],
                     selectbackground=PALETTE["primary"])
 
     # --- TCheckbutton and TRadiobutton ---
     style.configure(
         "TCheckbutton",
         font=base_font,
-        foreground=PALETTE["text"],
+        foreground=PALETTE["on_background"],
         background=PALETTE["background"],
         indicatorcolor=PALETTE["surface"], # Indicator background
         indicatorrelief="flat",
     )
     style.map(
         "TCheckbutton",
-        foreground=[("disabled", PALETTE["text_light"])],
+        foreground=[("disabled", PALETTE["on_background"])],
         background=[("active", PALETTE["background"])],
         indicatorcolor=[
             ("selected", PALETTE["primary"]), # Checked color
-            ("disabled", PALETTE["accent_dark"]), # Disabled indicator background
+            ("disabled", PALETTE["secondary_variant"]), # Disabled indicator background
             ("!selected", PALETTE["surface"]), # Unchecked color
         ],
         # Overlay color for the checkmark itself - often controlled by element options
@@ -219,18 +223,18 @@ def init_style():
     style.configure(
         "TRadiobutton",
         font=base_font,
-        foreground=PALETTE["text"],
+        foreground=PALETTE["on_background"],
         background=PALETTE["background"],
         indicatorcolor=PALETTE["surface"], # Indicator background
         indicatorrelief="flat",
     )
     style.map(
         "TRadiobutton",
-        foreground=[("disabled", PALETTE["text_light"])],
+        foreground=[("disabled", PALETTE["on_background"])],
         background=[("active", PALETTE["background"])],
         indicatorcolor=[
             ("selected", PALETTE["primary"]), # Selected color
-            ("disabled", PALETTE["accent_dark"]), # Disabled indicator background
+            ("disabled", PALETTE["secondary_variant"]), # Disabled indicator background
             ("!selected", PALETTE["surface"]), # Unselected color
         ],
     )
@@ -248,7 +252,7 @@ def init_style():
         "TNotebook.Tab",
         font=base_font,
         background=PALETTE["surface"],  # Tab background (unselected)
-        foreground=PALETTE["text_light"], # Muted text for unselected tabs
+        foreground=PALETTE["on_surface"], # Muted text for unselected tabs
         padding=[10, 5],
         borderwidth=0,
         relief="flat",
@@ -260,8 +264,8 @@ def init_style():
             ("active", PALETTE["surface"]), # Hover over unselected tab
         ],
         foreground=[
-            ("selected", PALETTE["text"]), # Vibrant text for selected tab
-            ("active", PALETTE["text"]), # Vibrant text for active/hovered tab
+            ("selected", PALETTE["on_background"]), # Vibrant text for selected tab
+            ("active", PALETTE["on_surface"]), # Vibrant text for active/hovered tab
         ],
         expand=[("selected", [0, 0, 0, 0])],
     )
@@ -273,7 +277,7 @@ def init_style():
     style.configure(
         "TLabelframe",
         background=PALETTE["surface"],
-        foreground=PALETTE["text"],
+        foreground=PALETTE["on_surface"],
         font=base_font,
         relief="solid",
         borderwidth=1,
@@ -283,7 +287,7 @@ def init_style():
     style.configure(
         "TLabelframe.Label",
         background=PALETTE["surface"],
-        foreground=PALETTE["text"],
+        foreground=PALETTE["on_surface"],
         font=heading_font,
         padding=[5, 2],
     )
