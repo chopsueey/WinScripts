@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-09] - New UI Style Guide (Material Design)
+
+### Summary of Changes
+
+This update introduces a comprehensive, Material Design-based UI style guide to ensure visual consistency and improve the application's overall look and feel.
+
+- **Feature: Material Design Theme:** A new theme, `style_material.py`, has been created to give the application a modern, professional appearance based on Google's Material Design principles. The application now uses this theme by default.
+- **Feature: UI Style Guide:** A new `UI_STYLE_GUIDE.md` has been added to the project root. This document outlines the color palette, typography, spacing, and other design rules for all developers to follow.
+- **Feature: UI Helper Functions:** A new module, `lib/ui_helpers.py`, has been created. It provides a set of helper functions (e.g., `StyledButton`, `StyledLabel`) for easily creating widgets that conform to the new design system.
+- **New Constants:** A `lib/material_constants.py` file was added to centralize the color and font definitions for the new theme.
+- **Documentation:** Updated `AGENTS.md` to instruct agents on using the new style guide and created `documentation/technical_considerations.md` to document the decision.
+
 ## [2025-08-09] - Statusbar Refactor and Enhancement
 
 ### Summary of Changes
