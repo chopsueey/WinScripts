@@ -14,7 +14,7 @@ This update implements a global styling change to introduce rounded corners for 
     - Created a new helper function, `create_rounded_bordered_image`, to generate `tkinter.PhotoImage` objects on the fly.
     - Used `tkinter.ttk.Style`'s `element_create` and `layout` methods to replace the default rectangular widget borders with the custom-generated rounded images.
     - This technique was applied to `TButton`, `TFrame` (for cards), `TEntry`, `TCombobox`, `TLabelframe`, and `TProgressbar`.
-- **Fix:** Corrected an `AttributeError` caused by calling `ttk.PhotoImage` instead of the correct `tk.PhotoImage`.
+- **Fix:** Corrected a `TypeError` and `AttributeError` crash on startup. The initial fix was incomplete; the final solution involved switching from `tk.PhotoImage` to the correct `PIL.ImageTk.PhotoImage` for converting Pillow images into a format usable by Tkinter.
 
 ## [2025-08-09] - Statusbar Visibility Fix
 

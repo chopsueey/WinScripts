@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageTk
 
 # --- Rounded Corner Asset Generator ---
 
@@ -29,8 +29,8 @@ def get_photo_image(image, name_prefix):
     """Caches and returns a PhotoImage."""
     key = f"{name_prefix}_{image.tobytes()}"
     if key not in _photo_images:
-        unique_name = f"img_{len(_photo_images)}"
-        _photo_images[key] = tk.PhotoImage(image, name=unique_name)
+        # The ImageTk.PhotoImage object must be stored to prevent garbage collection.
+        _photo_images[key] = ImageTk.PhotoImage(image)
     return _photo_images[key]
 
 # --- Define Color Palettes ---
