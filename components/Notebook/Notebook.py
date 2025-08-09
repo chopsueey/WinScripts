@@ -6,6 +6,7 @@ from .AdvancedTab import AdvancedTab
 from .ADTab import ADTab
 from .QuickShellTab import QuickShellTab
 from .CreateVMTab import CreateVMTab
+from .AzureTab import AzureTab
 
 
 class Notebook(ttk.Notebook):
@@ -27,17 +28,21 @@ class Notebook(ttk.Notebook):
         self.create_vm_tab = CreateVMTab(self, app=master)
 
         # Tab 4
+        self.azure_tab = AzureTab(self, app=master)
+
+        # Tab 5
         self.quick_shell = QuickShellTab(self, app=master)
 
         self.add(self.general_tab, text="General")
         self.add(self.advanced_tab, text="Advanced")
         self.add(self.active_directory_tab, text="Active Directory")
         self.add(self.create_vm_tab, text="Create VM")
+        self.add(self.azure_tab, text="Azure")
         self.add(self.quick_shell, text="QuickShell")
 
     def _on_tab_change(self, event):
         selected_tab = event.widget.select()
         tab_index = event.widget.index(selected_tab)
 
-        if tab_index == 4:
+        if tab_index == 5:
             self.quick_shell.script_input.focus()

@@ -1,3 +1,5 @@
+Write-Host "Creating new user..."
+
 $Username = "newuser"
 $PasswordPlain = "P@ssw0rd"
 $FullName = "New User"

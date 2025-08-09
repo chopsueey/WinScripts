@@ -1,5 +1,9 @@
+Write-Host "Setting new computer name..."
+
 $NewComputerName = Read-Host "Choose new name"
 Rename-Computer -NewName $NewComputerName -Force
+
+Write-Host "Computer name changed to $NewComputerName. A restart is required for the change to take effect."
 
 Add-Type -AssemblyName System.Windows.Forms
 

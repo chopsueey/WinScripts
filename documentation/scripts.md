@@ -16,13 +16,25 @@ The most important scripts are located in the `scripts/Hyper-V-Automation/` subd
 
 The `scripts/` directory also contains several smaller utility scripts for performing specific tasks, such as:
 
-- `activateRDP.ps1`
+- `activateRDP.ps1`: Toggles Remote Desktop Protocol (RDP) on or off.
 - `activateAdmin.ps1`
 - `setIP.ps1`
 - `joinDomain.ps1`
 - `enableRemoting.ps1`
+- `Get-DiskSpace.ps1`: Displays disk space information for all logical drives.
+- `Get-RunningServices.ps1`: Lists all currently running services.
+- `Create-LocalUser.ps1`: Creates a new local user with a password, full name, and description.
 
 These scripts are typically called from the "General" tab in the application.
+
+## Azure Automation Scripts
+
+A new set of scripts for Azure automation has been added to the `scripts/Azure-Automation/` subdirectory.
+
+- `Connect-Azure.ps1`: Connects to an Azure account.
+- `Get-AzureResourceGroup.ps1`: Lists all resource groups in the current Azure subscription.
+- `Get-AzureStorageAccount.ps1`: Lists all storage accounts in the current Azure subscription.
+- `New-AzureVM.ps1`: Creates a new Azure Virtual Machine.
 
 ## How They Are Called
 

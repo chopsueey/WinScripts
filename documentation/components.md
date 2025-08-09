@@ -23,6 +23,7 @@ Each tab in the notebook is a separate class, allowing for a clean separation of
 - **`AdvancedTab.py`**: Intended for more advanced configuration options.
 - **`ADTab.py`**: Contains functionalities related to Active Directory management.
 - **`CreateVMTab.py`**: Offers a detailed form for creating a new Hyper-V virtual machine, with options for specifying the ISO, edition, resources, and network settings. This is one of the core features of the application.
+- **`AzureTab.py`**: Provides buttons for common Azure administrative tasks, such as connecting to Azure, listing resource groups and storage accounts, and creating a new Azure VM.
 - **`QuickShellTab.py`**: Provides a simple interface for running quick PowerShell commands.
 
 ## Other Components
