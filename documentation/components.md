@@ -28,7 +28,13 @@ Each tab in the notebook is a separate class, allowing for a clean separation of
 ## Other Components
 
 - **`Menubar.py`**: Defines the application's top menu bar.
-- **`Statusbar.py`**: Creates the status bar at the bottom of the application window.
+- **`Statusbar.py`**: Creates a dynamic and responsive status bar at the bottom of the application window. It provides at-a-glance information about the system's health and configuration.
+  - **Features:**
+    - **Comprehensive Info:** Displays key data such as User, OS, RDP Status, Uptime, CPU/Memory/Disk Usage, and VM Detection.
+    - **Responsive Design:** The layout automatically adjusts to the window size, wrapping information into multiple lines as needed to remain readable.
+    - **Grouped Information:** Data is organized into logical groups (`System`, `Hardware`, `Network`) for clarity.
+    - **Compact Network Display:** Uses a dropdown menu to list all network interfaces, preventing UI clutter.
+  - **Implementation:** It contains a `SystemInfo` class for data gathering and a custom `FlowFrame` component to manage the responsive layout.
 - **`State.py`**: Manages the application's shared state (not fully implemented in the current version).
 
 ## Reusable Components

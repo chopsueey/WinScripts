@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-09] - Statusbar Refactor and Enhancement
+
+### Summary of Changes
+
+This update introduces a complete overhaul of the `Statusbar` component to provide more valuable information in a clean, responsive, and user-friendly manner.
+
+- **Feature: Enhanced System Information:** The status bar now displays a wider range of valuable information for administrators, including **CPU Usage**, **Memory Usage**, **Disk Usage**, and whether the system is a **Virtual Machine**.
+- **Feature: Responsive and Organized Layout:** The status bar has been redesigned to be fully responsive. Information is logically grouped into `System`, `Hardware`, and `Network` categories. The layout automatically wraps to new lines when the window is resized, and hides less critical information to prevent clutter in very narrow windows.
+- **Feature: Compact Network Information:** To handle systems with many network interfaces, the NIC information is now presented in a clean, space-saving **dropdown menu (`Combobox`)**.
+- **Refactor: Modular Architecture:** The `Statusbar` code was completely refactored. Data-gathering logic has been moved into a dedicated `SystemInfo` class, separating it from the UI. The UI now updates periodically without recreating widgets, resulting in a smoother user experience.
+
 ## [2025-08-09] - Admin Rights Indicator
 
 ### Summary of Changes
