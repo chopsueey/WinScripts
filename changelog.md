@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-09] - Global UI Styling with Rounded Corners
+
+### Summary of Changes
+
+This update implements a global styling change to introduce rounded corners for all major UI elements, fulfilling the second part of the "theme-toggle-and-rounded-corners" feature. This provides a more modern and visually consistent user interface.
+
+- **Feature: Rounded Corners:** All major interactive and container widgets (Buttons, Cards, Input Fields, etc.) now have rounded corners.
+- **Refactor: Style Engine:** The `style.py` module was significantly refactored to support rounded corners. This was achieved by programmatically generating rounded border/background images using the `Pillow` library.
+- **Technical Implementation:**
+    - Created a new helper function, `create_rounded_bordered_image`, to generate `tkinter.PhotoImage` objects on the fly.
+    - Used `tkinter.ttk.Style`'s `element_create` and `layout` methods to replace the default rectangular widget borders with the custom-generated rounded images.
+    - This technique was applied to `TButton`, `TFrame` (for cards), `TEntry`, `TCombobox`, `TLabelframe`, and `TProgressbar`.
+
 ## [2025-08-09] - Statusbar Visibility Fix
 
 ### Summary of Changes
