@@ -2,6 +2,14 @@ import tkinter as tk
 from tkinter import ttk
 import platform, getpass, subprocess, os, psutil, time, datetime
 from lib.utils import resource_path
+from lib.ui_helpers import (
+    StyledFrame,
+    StyledLabelframe,
+    StyledLabel,
+    StyledCombobox,
+    StyledButton,
+    StyledSecondaryButton,
+)
 
 class SystemInfo:
     """Gathers system and network information."""
@@ -142,11 +150,11 @@ class Statusbar(ttk.Frame):
         self.image_path = resource_path(r"./icons/refresh-ccw.png")
         self.refresh_image = tk.PhotoImage(file=self.image_path)
         self.refresh_button = ttk.Button(
-            self, image=self.refresh_image, command=self.update_status
+            self, image=self.refresh_image, command=self.update_status, style="TButton"
         )
         self.refresh_button.pack(side="right", anchor="e", padx=5)
 
-        self.theme_button = ttk.Button(
+        self.theme_button = StyledSecondaryButton(
             self, text="Toggle Theme", command=master.toggle_theme
         )
         self.theme_button.pack(side="right", anchor="e", padx=5)
@@ -156,30 +164,30 @@ class Statusbar(ttk.Frame):
 
     def _create_groups(self):
         # System Group
-        sys_group = ttk.Labelframe(self.flow_frame, text="System")
+        sys_group = StyledLabelframe(self.flow_frame, text="System")
         sys_group.pack(side="left", padx=5, pady=2, anchor="nw")
         sys_keys = ["User", "RDP", "OS", "Uptime", "Type"]
         self._create_info_labels(sys_group, sys_keys)
 
         # Hardware Group
-        hw_group = ttk.Labelframe(self.flow_frame, text="Hardware")
+        hw_group = StyledLabelframe(self.flow_frame, text="Hardware")
         hw_group.pack(side="left", padx=5, pady=2, anchor="nw")
         hw_keys = ["CPU", "Memory", "Disk"]
         self._create_info_labels(hw_group, hw_keys)
 
         # Network Group
-        net_group = ttk.Labelframe(self.flow_frame, text="Network")
+        net_group = StyledLabelframe(self.flow_frame, text="Network")
         net_group.pack(side="left", padx=5, pady=2, anchor="nw")
-        self.nic_combobox = ttk.Combobox(net_group, state="readonly", width=30)
+        self.nic_combobox = StyledCombobox(net_group, state="readonly", width=30)
         self.nic_combobox.pack(padx=5, pady=5)
 
     def _create_info_labels(self, parent, keys):
         for key in keys:
-            frame = ttk.Frame(parent)
+            frame = StyledFrame(parent)
             frame.pack(side="top", anchor="w", padx=5, pady=2)
-            key_label = ttk.Label(frame, text=f"{key}:")
+            key_label = StyledLabel(frame, text=f"{key}:")
             key_label.pack(side="left")
-            val_label = ttk.Label(frame, text="N/A", anchor="w")
+            val_label = StyledLabel(frame, text="N/A", anchor="w")
             val_label.pack(side="left")
             self.info_labels[key] = val_label
 

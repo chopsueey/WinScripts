@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 
 
+## [2025-08-09] - UI/UX and Architectural Alignment
+
+### Summary of Changes
+
+This update focuses on a comprehensive refactoring of the codebase to ensure all components and elements align with the official style guide and documentation. The goal was to improve code quality, visual consistency, and maintainability.
+
+- **Refactor: Full UI Component Styling:**
+  - All UI components have been refactored to use the central styling system and helper functions from `lib/ui_helpers.py`.
+  - Manually styled `ttk` widgets in `CreateVMTab.py`, `QuickShellTab.py`, and `Statusbar.py` have been replaced with their `Styled*` equivalents.
+  - This ensures a consistent look and feel across the entire application, adhering to the `UI_STYLE_GUIDE.md`.
+
+- **Refactor: Architectural Styling Improvements:**
+  - The `style.py` module was refactored to remove duplicated color and font constants, and now imports them from the single source of truth at `lib/material_constants.py`.
+  - The custom canvas-based `RoundedButton` was removed from `lib/ui_helpers.py` to improve performance and maintainability.
+  - The `StyledButton` helper now creates a standard `ttk.Button` with the primary theme style, making it consistent with the `AdminButton` component.
+  - The `AdminButton` component is now styled with the standard `TButton` style, making it visually consistent with other buttons.
+
+- **Documentation: Script Updates:**
+  - The script documentation at `documentation/scripts.md` has been updated to include previously undocumented scripts that are used by the UI (`setComputerName.ps1`, `installBGInfo.ps1`, `setupAD.ps1`).
+
+- **Fix: Application Startup Error:**
+  - Fixed a critical `ImportError` caused by the missing `DARK_PALETTE` constant in `lib/material_constants.py`.
+  - Fixed a `TypeError` on startup caused by component classes incorrectly inheriting from a UI helper function instead of a `ttk.Frame`.
+  - Refactored all UI helper functions in `lib/ui_helpers.py` to correctly handle keyword arguments, fixing a `TypeError` when using `textvariable` with `StyledLabel`.
+
+
 ## [2025-08-09] - Azure Integration and New Scripts
 
 ### Summary of Changes
