@@ -1,6 +1,8 @@
 # Remote Restart Script (PowerShell 7+)
 # Run on your local machine
 
+Write-Host "Restarting computer remotely..."
+
 $VMNameOrIP = "192.168.178.118"
 $Username = "administrator"
 $Password = "P@ssw0rd"
@@ -9,9 +11,10 @@ $Password = "P@ssw0rd"
 $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
 $Cred = New-Object System.Management.Automation.PSCredential ($Username, $SecurePassword)
 
-Read-Host "Press enter to exit"
+Restart-Computer -ComputerName $VMNameOrIP -Credential $Cred -Force
 
-Restart-Computer -ComputerName $VMNameOrIP -Credential $Cred -Force 
+Write-Host "Restart command sent to $VMNameOrIP."
+Read-Host "Press enter to exit"
 
 
 # if (Test-Connection -ComputerName $VMNameOrIP -Count 1 -Quiet) {

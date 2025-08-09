@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-09] - Azure Integration and New Scripts
+
+### Summary of Changes
+
+This update introduces a new "Azure" tab to the application for managing Azure resources, adds several new local administration scripts, and improves user feedback in existing scripts.
+
+- **Feature: Azure Integration:**
+  - A new "Azure" tab has been added to the notebook interface.
+  - New PowerShell scripts for Azure automation have been created in `scripts/Azure-Automation/`, including:
+    - `Connect-Azure.ps1`
+    - `Get-AzureResourceGroup.ps1`
+    - `Get-AzureStorageAccount.ps1`
+    - `New-AzureVM.ps1`
+  - A new UI component, `components/Notebook/AzureTab.py`, was created to house the buttons for the Azure scripts.
+
+- **Feature: New Local Admin Scripts:**
+  - Added three new scripts for common local administrative tasks:
+    - `Get-DiskSpace.ps1`
+    - `Get-RunningServices.ps1`
+    - `Create-LocalUser.ps1`
+
+- **Enhancement: Script User Feedback:**
+  - Added `Write-Host` messages to several existing scripts in the `scripts/` directory to provide better user feedback on their execution status.
+  - The `activateRDP.ps1` script has been updated to function as a toggle, enabling or disabling RDP based on its current state.
+
+- **Documentation:**
+  - Updated `documentation/components.md` and `documentation/scripts.md` to reflect the new Azure components and scripts.
+
 ## [2025-08-09] - Statusbar Visibility Fix
 
 ### Summary of Changes

@@ -1,8 +1,12 @@
+Write-Host "Installing BGInfo..."
+
 $BgInfoUrl = "https://download.sysinternals.com/files/BGInfo.zip"
 $BgInfoZip = "$env:TEMP\BGInfo.zip"
 $BgInfoPath = "C:\Tools\BGInfo"
 
+Write-Host "Downloading BGInfo..."
 Invoke-WebRequest -Uri $BgInfoUrl -OutFile $BgInfoZip
+Write-Host "Extracting BGInfo..."
 Expand-Archive -Path $BgInfoZip -DestinationPath $BgInfoPath -Force
 
 # Optional: Configure BGInfo to auto-run with a basic config
@@ -11,6 +15,7 @@ $BgInfoBgi = Join-Path $BgInfoPath "default.bgi"
 
 # Create default config if it doesn't exist
 if (-not (Test-Path $BgInfoBgi)) {
+    Write-Host "Creating default BGInfo configuration..."
     Start-Process -FilePath $BgInfoExe -ArgumentList "/silent", "/timer:0" -Wait
 }
 
@@ -19,4 +24,5 @@ if (-not (Test-Path $BgInfoBgi)) {
 # $RegPath = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run"
 # Set-ItemProperty -Path $RegPath -Name "BGInfo" -Value $RunBgInfoCmd
 
+Write-Host "BGInfo installation complete."
 Read-Host "Press enter to exit"
