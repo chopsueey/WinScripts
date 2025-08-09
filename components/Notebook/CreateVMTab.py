@@ -2,10 +2,18 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from lib.functions import run_ps1_script_2, run_ps1_script
 from lib.utils import construct_path
+from lib.ui_helpers import (
+    StyledFrame,
+    StyledLabelframe,
+    StyledLabel,
+    StyledButton,
+    StyledCombobox,
+    StyledEntry,
+)
 import os
 
 
-class CreateVMTab(tk.Frame):
+class CreateVMTab(StyledFrame):
     def __init__(self, master, app, **kwargs):
         super().__init__(master, **kwargs)
         self.app = app
@@ -31,97 +39,112 @@ class CreateVMTab(tk.Frame):
     def _create_widgets(self):
         """Creates all the widgets for the tab."""
         # Frames
-        self.top_frame = ttk.Frame(self)
-        self.iso_frame = ttk.Labelframe(self.top_frame, text="ISO")
-        self.edition_frame = ttk.Labelframe(self.top_frame, text="Edition")
-        self.vm_switches_frame = ttk.Labelframe(self.top_frame, text="Virtual switch")
-        self.bottom_frame = ttk.Frame(self)
-        self.name_pass_frame = ttk.Labelframe(self.bottom_frame, text="Name and password")
-        self.resources_frame = ttk.Labelframe(self.bottom_frame, text="Resources")
-        self.network_settings_frame = ttk.Labelframe(self.bottom_frame, text="Network settings")
+        self.top_frame = StyledFrame(self)
+        self.iso_frame = StyledLabelframe(self.top_frame, text="ISO")
+        self.edition_frame = StyledLabelframe(self.top_frame, text="Edition")
+        self.vm_switches_frame = StyledLabelframe(self.top_frame, text="Virtual switch")
+        self.bottom_frame = StyledFrame(self)
+        self.name_pass_frame = StyledLabelframe(self.bottom_frame, text="Name and password")
+        self.resources_frame = StyledLabelframe(self.bottom_frame, text="Resources")
+        self.network_settings_frame = StyledLabelframe(self.bottom_frame, text="Network settings")
 
         # ISO Widgets
-        self.iso_path_label = ttk.Label(self.iso_frame, textvariable=self.iso_path)
-        self.choose_iso_button = ttk.Button(self.iso_frame, text="Choose ISO", command=self.get_windows_image_editions)
+        self.iso_path_label = StyledLabel(self.iso_frame, textvariable=self.iso_path)
+        self.choose_iso_button = StyledButton(self.iso_frame, text="Choose ISO", command=self.get_windows_image_editions)
 
         # Edition Widgets
-        self.edition_info_label = ttk.Label(self.edition_frame, textvariable=self.selected_edition)
-        self.edition_combobox = ttk.Combobox(self.edition_frame, textvariable=self.selected_edition, state="readonly", width=70)
+        self.edition_info_label = StyledLabel(self.edition_frame, textvariable=self.selected_edition)
+        self.edition_combobox = StyledCombobox(self.edition_frame, textvariable=self.selected_edition, state="readonly", width=70)
         self.edition_combobox.set("Choose an ISO first...")
 
         # VM Switches Widgets
-        self.vm_switches_info_label = ttk.Label(self.vm_switches_frame, text="No switch selected yet.")
-        self.vm_switches_combobox = ttk.Combobox(self.vm_switches_frame, textvariable=self.selected_vm_switch, state="readonly", width=40)
+        self.vm_switches_info_label = StyledLabel(self.vm_switches_frame, text="No switch selected yet.")
+        self.vm_switches_combobox = StyledCombobox(self.vm_switches_frame, textvariable=self.selected_vm_switch, state="readonly", width=40)
         self.vm_switches_combobox.set("Choose a switch...")
 
         # Name and Password Widgets
-        self.vm_name_label = ttk.Label(self.name_pass_frame, text="VM Name:")
-        self.vm_name_entry = ttk.Entry(self.name_pass_frame)
-        self.password_label = ttk.Label(self.name_pass_frame, text="Password:")
-        self.password_entry = ttk.Entry(self.name_pass_frame, show="*")
+        self.vm_name_label = StyledLabel(self.name_pass_frame, text="VM Name:")
+        self.vm_name_entry = StyledEntry(self.name_pass_frame)
+        self.password_label = StyledLabel(self.name_pass_frame, text="Password:")
+        self.password_entry = StyledEntry(self.name_pass_frame, show="*")
 
         # Resources Widgets
-        self.ram_label = ttk.Label(self.resources_frame, text="RAM (GB):")
-        self.ram_entry = ttk.Entry(self.resources_frame)
-        self.processor_count_label = ttk.Label(self.resources_frame, text="Processors:")
-        self.processor_count_entry = ttk.Entry(self.resources_frame)
-        self.vhdx_size_label = ttk.Label(self.resources_frame, text="VHDX Size (GB):")
-        self.vhdx_size_entry = ttk.Entry(self.resources_frame)
+        self.ram_label = StyledLabel(self.resources_frame, text="RAM (GB):")
+        self.ram_entry = StyledEntry(self.resources_frame)
+        self.processor_count_label = StyledLabel(self.resources_frame, text="Processors:")
+        self.processor_count_entry = StyledEntry(self.resources_frame)
+        self.vhdx_size_label = StyledLabel(self.resources_frame, text="VHDX Size (GB):")
+        self.vhdx_size_entry = StyledEntry(self.resources_frame)
 
         # Network Settings Widgets
-        self.ip_label = ttk.Label(self.network_settings_frame, text="IPv4 Address:")
-        self.ip_entry = ttk.Entry(self.network_settings_frame)
-        self.prefix_length_label = ttk.Label(self.network_settings_frame, text="Prefix (CIDR):")
-        self.prefix_length_entry = ttk.Entry(self.network_settings_frame)
-        self.gateway_label = ttk.Label(self.network_settings_frame, text="Gateway:")
-        self.gateway_entry = ttk.Entry(self.network_settings_frame)
-        self.dns_label = ttk.Label(self.network_settings_frame, text="DNS:")
-        self.dns_entry = ttk.Entry(self.network_settings_frame)
-        self.network_category_option_menu = ttk.OptionMenu(self.network_settings_frame, self.selected_network_category, self.selected_network_category.get(), *self.network_category_options)
+        self.ip_label = StyledLabel(self.network_settings_frame, text="IPv4 Address:")
+        self.ip_entry = StyledEntry(self.network_settings_frame)
+        self.prefix_length_label = StyledLabel(self.network_settings_frame, text="Prefix (CIDR):")
+        self.prefix_length_entry = StyledEntry(self.network_settings_frame)
+        self.gateway_label = StyledLabel(self.network_settings_frame, text="Gateway:")
+        self.gateway_entry = StyledEntry(self.network_settings_frame)
+        self.dns_label = StyledLabel(self.network_settings_frame, text="DNS:")
+        self.dns_entry = StyledEntry(self.network_settings_frame)
+
+        # Replace OptionMenu with a more modern Combobox
+        self.network_category_label = StyledLabel(self.network_settings_frame, text="Network Category:")
+        self.network_category_combobox = StyledCombobox(
+            self.network_settings_frame,
+            textvariable=self.selected_network_category,
+            state="readonly"
+        )
+        self.network_category_combobox["values"] = self.network_category_options
+        self.network_category_combobox.set(self.selected_network_category.get())
+
 
         # Create VM Button
-        self.create_vm_button = ttk.Button(self, text="Create VM", command=self.create_vm)
+        self.create_vm_button = StyledButton(self, text="Create VM", command=self.create_vm)
 
     def _pack_widgets(self):
         """Packs all the widgets in the tab."""
-        self.top_frame.pack(expand=True, fill="both", padx=4, pady=2)
-        self.iso_frame.pack(expand=True, fill="x", padx=4, pady=2)
-        self.iso_path_label.pack(side="left", padx=4, pady=4)
-        self.choose_iso_button.pack(side="left", padx=4, pady=4)
+        # Standardized padding
+        PAD_X = 5
+        PAD_Y = 5
 
-        self.edition_frame.pack(expand=True, fill="x", padx=4, pady=2)
-        self.edition_info_label.pack(side="left", padx=4, pady=4)
-        self.edition_combobox.pack(side="left", padx=4, pady=4)
+        self.top_frame.pack(expand=True, fill="both", padx=PAD_X, pady=PAD_Y)
+        self.iso_frame.pack(expand=True, fill="x", padx=PAD_X, pady=PAD_Y)
+        self.iso_path_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.choose_iso_button.pack(side="left", padx=PAD_X, pady=PAD_Y)
 
-        self.vm_switches_frame.pack(expand=True, fill="x", padx=4, pady=2)
-        self.vm_switches_info_label.pack(side="left", padx=4, pady=4)
-        self.vm_switches_combobox.pack(side="left", padx=4, pady=4)
+        self.edition_frame.pack(expand=True, fill="x", padx=PAD_X, pady=PAD_Y)
+        self.edition_info_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.edition_combobox.pack(side="left", padx=PAD_X, pady=PAD_Y)
 
-        self.bottom_frame.pack(expand=True, fill="both", padx=4, pady=2)
-        self.name_pass_frame.pack(expand=True, fill="x", padx=4, pady=2)
-        self.vm_name_label.pack(side="left", padx=4, pady=4)
-        self.vm_name_entry.pack(side="left", padx=4, pady=4)
-        self.password_label.pack(side="left", padx=4, pady=4)
-        self.password_entry.pack(side="left", padx=4, pady=4)
+        self.vm_switches_frame.pack(expand=True, fill="x", padx=PAD_X, pady=PAD_Y)
+        self.vm_switches_info_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.vm_switches_combobox.pack(side="left", padx=PAD_X, pady=PAD_Y)
 
-        self.resources_frame.pack(expand=True, fill="x", padx=4, pady=2)
-        self.ram_label.pack(side="left", padx=4, pady=4)
-        self.ram_entry.pack(side="left", padx=4, pady=4)
-        self.processor_count_label.pack(side="left", padx=4, pady=4)
-        self.processor_count_entry.pack(side="left", padx=4, pady=4)
-        self.vhdx_size_label.pack(side="left", padx=4, pady=4)
-        self.vhdx_size_entry.pack(side="left", padx=4, pady=4)
+        self.bottom_frame.pack(expand=True, fill="both", padx=PAD_X, pady=PAD_Y)
+        self.name_pass_frame.pack(expand=True, fill="x", padx=PAD_X, pady=PAD_Y)
+        self.vm_name_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.vm_name_entry.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.password_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.password_entry.pack(side="left", padx=PAD_X, pady=PAD_Y)
 
-        self.network_settings_frame.pack(expand=True, fill="x", padx=4, pady=2)
-        self.ip_label.pack(side="left", padx=4, pady=4)
-        self.ip_entry.pack(side="left", padx=4, pady=4)
-        self.prefix_length_label.pack(side="left", padx=4, pady=4)
-        self.prefix_length_entry.pack(side="left", padx=4, pady=4)
-        self.gateway_label.pack(side="left", padx=4, pady=4)
-        self.gateway_entry.pack(side="left", padx=4, pady=4)
-        self.dns_label.pack(side="left", padx=4, pady=4)
-        self.dns_entry.pack(side="left", padx=4, pady=4)
-        self.network_category_option_menu.pack(side="left", padx=4, pady=4)
+        self.resources_frame.pack(expand=True, fill="x", padx=PAD_X, pady=PAD_Y)
+        self.ram_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.ram_entry.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.processor_count_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.processor_count_entry.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.vhdx_size_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.vhdx_size_entry.pack(side="left", padx=PAD_X, pady=PAD_Y)
+
+        self.network_settings_frame.pack(expand=True, fill="x", padx=PAD_X, pady=PAD_Y)
+        self.ip_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.ip_entry.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.prefix_length_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.prefix_length_entry.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.gateway_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.gateway_entry.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.dns_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.dns_entry.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.network_category_label.pack(side="left", padx=PAD_X, pady=PAD_Y)
+        self.network_category_combobox.pack(side="left", padx=PAD_X, pady=PAD_Y)
 
         self.create_vm_button.pack(pady=10)
 

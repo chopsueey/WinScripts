@@ -1,35 +1,39 @@
 import tkinter as tk
 from tkinter import ttk
 from lib.functions import run_ps1_cmd
+from lib.ui_helpers import StyledFrame, StyledEntry, StyledButton
 
 
-class QuickShellTab(ttk.Frame):
+class QuickShellTab(StyledFrame):
     def __init__(self, master, app):
         super().__init__(master)
 
         # Command input
-        self.input_frame = ttk.Frame(self)
-        self.input_frame.pack(fill="x", pady=4)
+        self.input_frame = StyledFrame(self)
+        self.input_frame.pack(fill="x", padx=5, pady=5)
         self.input_frame.grid_rowconfigure(0, weight=1)
         self.input_frame.grid_columnconfigure(0, weight=1)
         self.input_frame.grid_columnconfigure(1, weight=0)
-        self.script_input = ttk.Entry(self.input_frame, font="18")
-        self.script_input.grid(row=0, column=0, sticky="ew", padx=4)
+
+        self.script_input = StyledEntry(self.input_frame)
+        self.script_input.grid(row=0, column=0, sticky="ew", padx=(0, 5))
         self.script_input.bind(
             "<Return>", lambda e: self.run_script_and_display_output()
         )
 
         # Run Button
-        self.run_script_button = ttk.Button(
+        self.run_script_button = StyledButton(
             self.input_frame, text="Run", command=self.run_script_and_display_output
         )
-        self.run_script_button.grid(row=0, column=1, padx=4)
+        self.run_script_button.grid(row=0, column=1)
 
         # Output Text Widget with Scrollbar
-        self.output_frame = ttk.Frame(self)
-        self.output_frame.pack(expand=True, fill="both", padx=4)
+        self.output_frame = StyledFrame(self)
+        self.output_frame.pack(expand=True, fill="both", padx=5, pady=(0, 5))
 
-        self.script_output_text = tk.Text(self.output_frame, wrap="word")
+        # tk.Text and ttk.Scrollbar do not have styled helpers, so they are used directly.
+        # Their appearance is generally governed by the OS or a base Tcl/Tk theme.
+        self.script_output_text = tk.Text(self.output_frame, wrap="word", relief="flat", borderwidth=1)
         self.script_output_text.pack(side="left", expand=True, fill="both")
 
         self.scrollbar = ttk.Scrollbar(

@@ -19,8 +19,11 @@ The `scripts/` directory also contains several smaller utility scripts for perfo
 - `activateRDP.ps1`: Toggles Remote Desktop Protocol (RDP) on or off.
 - `activateAdmin.ps1`
 - `setIP.ps1`
+- `setComputerName.ps1`: Sets a new computer name.
 - `joinDomain.ps1`
+- `setupAD.ps1`: Installs Active Directory Domain Services.
 - `enableRemoting.ps1`
+- `installBGInfo.ps1`: Installs the Sysinternals BGInfo tool.
 - `Get-DiskSpace.ps1`: Displays disk space information for all logical drives.
 - `Get-RunningServices.ps1`: Lists all currently running services.
 - `Create-LocalUser.ps1`: Creates a new local user with a password, full name, and description.

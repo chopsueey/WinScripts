@@ -11,72 +11,10 @@ style_material.py theme.
 import tkinter as tk
 from tkinter import ttk
 
-def create_rounded_rectangle(canvas, x1, y1, x2, y2, radius, **kwargs):
-    """Draw a rounded rectangle on a canvas."""
-    points = [
-        x1 + radius, y1,
-        x1 + radius, y1,
-        x2 - radius, y1,
-        x2 - radius, y1,
-        x2, y1,
-        x2, y1 + radius,
-        x2, y1 + radius,
-        x2, y2 - radius,
-        x2, y2 - radius,
-        x2, y2,
-        x2 - radius, y2,
-        x2 - radius, y2,
-        x1 + radius, y2,
-        x1 + radius, y2,
-        x1, y2,
-        x1, y2 - radius,
-        x1, y2 - radius,
-        x1, y1 + radius,
-        x1, y1 + radius,
-        x1, y1
-    ]
-    return canvas.create_polygon(points, **kwargs, smooth=True)
-
-class RoundedButton(tk.Canvas):
-    def __init__(self, master=None, text="", radius=25, btn_fg="#000000", btn_bg="#ffffff", cmd=None, **kwargs):
-        super().__init__(master, relief="flat", highlightthickness=0, **kwargs)
-        self.radius = radius
-        self.btn_fg = btn_fg
-        self.btn_bg = btn_bg
-        self.command = cmd
-
-        self.bind("<Configure>", self._draw)
-        self.bind("<ButtonPress-1>", self._on_press)
-        self.bind("<ButtonRelease-1>", self._on_release)
-
-        self.text_id = self.create_text(0, 0, text=text, fill=btn_fg, font=("Segoe UI", 12, "bold"))
-
-    def _draw(self, event=None):
-        self.delete("all")
-        width = self.winfo_width()
-        height = self.winfo_height()
-
-        create_rounded_rectangle(self, 0, 0, width, height, self.radius, fill=self.btn_bg, outline="")
-
-        # Center the text
-        bbox = self.bbox(self.text_id)
-        x_center = (width - (bbox[2] - bbox[0])) / 2
-        y_center = (height - (bbox[3] - bbox[1])) / 2
-        self.coords(self.text_id, x_center, y_center)
-        self.itemconfig(self.text_id, text=self.itemcget(self.text_id, "text"))
-
-    def _on_press(self, event=None):
-        if self.command:
-            self.command()
-
-    def _on_release(self, event=None):
-        pass
 
 def StyledButton(master, text, **kwargs):
-    """Creates a primary action button with a rounded shape."""
-    # This is a temporary implementation.
-    # In a real scenario, we would get the colors from the theme.
-    return RoundedButton(master, text=text, btn_bg="#5E81AC", btn_fg="#FFFFFF", **kwargs)
+    """Creates a primary action button with the 'TButton' style."""
+    return ttk.Button(master, text=text, style="TButton", **kwargs)
 
 def StyledSecondaryButton(master, text, **kwargs):
     """Creates a secondary action button with the 'Secondary.TButton' style."""

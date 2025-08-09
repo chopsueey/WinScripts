@@ -32,5 +32,6 @@ class AdminButton(ttk.Button):
             command=command,
             image=AdminButton._shield_icon,
             compound=tk.LEFT,
+            style="TButton",
             **kwargs
         )

@@ -1,38 +1,7 @@
 from tkinter import ttk
 import tkinter.font
+from lib.material_constants import LIGHT_PALETTE, DARK_PALETTE, FONT_FAMILY, TITLE_FONT, HEADING_FONT, BODY_FONT, BUTTON_FONT
 
-# --- Define Color Palettes ---
-LIGHT_PALETTE = {
-    "primary": "#5E81AC",
-    "primary_variant": "#4C6A8D",
-    "secondary": "#88C0D0",
-    "secondary_variant": "#79A8B8",
-    "background": "#ECEFF4",
-    "surface": "#FFFFFF",
-    "error": "#BF616A",
-    "on_primary": "#FFFFFF",
-    "on_secondary": "#2E3440",
-    "on_background": "#2E3440",
-    "on_surface": "#2E3440",
-    "on_error": "#FFFFFF",
-    "border": "#D8DEE9",
-}
-
-DARK_PALETTE = {
-    "primary": "#81A1C1",
-    "primary_variant": "#8FBCBB",
-    "secondary": "#88C0D0",
-    "secondary_variant": "#A3BE8C",
-    "background": "#2E3440",
-    "surface": "#3B4252",
-    "error": "#BF616A",
-    "on_primary": "#2E3440",
-    "on_secondary": "#2E3440",
-    "on_background": "#E5E9F0",
-    "on_surface": "#E5E9F0",
-    "on_error": "#2E3440",
-    "border": "#4C566A",
-}
 
 def init_style(theme="light"):
     """
@@ -44,20 +13,22 @@ def init_style(theme="light"):
     p = LIGHT_PALETTE if theme == "light" else DARK_PALETTE
 
     # --- Font Handling ---
-    font_family = "Roboto"
-    if "Roboto" not in tkinter.font.families():
+    # Check if the primary font is available, otherwise use a fallback.
+    # Note: The font tuples are imported but we need to resolve the family name dynamically.
+    font_family = FONT_FAMILY
+    if FONT_FAMILY not in tkinter.font.families():
         font_family = "Segoe UI"
 
-    TITLE_FONT = (font_family, 20, "bold")
-    HEADING_FONT = (font_family, 16, "bold")
-    BODY_FONT = (font_family, 12, "normal")
-    BUTTON_FONT = (font_family, 12, "bold")
+    title_font = (font_family, TITLE_FONT[1], TITLE_FONT[2])
+    heading_font = (font_family, HEADING_FONT[1], HEADING_FONT[2])
+    body_font = (font_family, BODY_FONT[1], BODY_FONT[2])
+    button_font = (font_family, BUTTON_FONT[1], BUTTON_FONT[2])
 
     # --- General Widget Configurations ---
     style.configure(".",
                     background=p["background"],
                     foreground=p["on_background"],
-                    font=BODY_FONT,
+                    font=body_font,
                     borderwidth=0,
                     relief="flat")
 
@@ -66,16 +37,16 @@ def init_style(theme="light"):
     style.configure("Card.TFrame", background=p["surface"], relief="solid", borderwidth=1, bordercolor=p["border"])
 
     # --- Label Styles ---
-    style.configure("TLabel", background=p["background"], foreground=p["on_background"], font=BODY_FONT)
-    style.configure("Heading.TLabel", font=HEADING_FONT, foreground=p["on_background"], background=p["background"])
-    style.configure("Title.TLabel", font=TITLE_FONT, foreground=p["on_background"], background=p["background"])
+    style.configure("TLabel", background=p["background"], foreground=p["on_background"], font=body_font)
+    style.configure("Heading.TLabel", font=heading_font, foreground=p["on_background"], background=p["background"])
+    style.configure("Title.TLabel", font=title_font, foreground=p["on_background"], background=p["background"])
     style.configure("Accent.TLabel", foreground=p["secondary"], background=p["background"])
 
     # --- Button Styles ---
     style.configure("TButton",
                     background=p["primary"],
                     foreground=p["on_primary"],
-                    font=BUTTON_FONT,
+                    font=button_font,
                     padding=(12, 6),
                     relief="flat",
                     borderwidth=0)
@@ -85,7 +56,7 @@ def init_style(theme="light"):
     style.configure("Secondary.TButton",
                     background=p["surface"],
                     foreground=p["primary"],
-                    font=BUTTON_FONT,
+                    font=button_font,
                     padding=(12, 6),
                     relief="solid",
                     borderwidth=1,
@@ -99,7 +70,7 @@ def init_style(theme="light"):
                     fieldbackground=p["surface"],
                     foreground=p["on_surface"],
                     insertcolor=p["primary"],
-                    font=BODY_FONT,
+                    font=body_font,
                     padding=5,
                     relief="solid",
                     borderwidth=1,
@@ -115,7 +86,7 @@ def init_style(theme="light"):
                     arrowcolor=p["primary"],
                     selectbackground=p["primary"],
                     selectforeground=p["on_primary"],
-                    font=BODY_FONT,
+                    font=body_font,
                     padding=5,
                     relief="solid",
                     borderwidth=1,
@@ -132,7 +103,7 @@ def init_style(theme="light"):
     style.configure("TCheckbutton",
                     background=p["background"],
                     foreground=p["on_background"],
-                    font=BODY_FONT)
+                    font=body_font)
     style.map("TCheckbutton",
               indicatorcolor=[("selected", p["primary"]), ("!selected", p["on_surface"])],
               background=[("active", p["background"])])
@@ -140,7 +111,7 @@ def init_style(theme="light"):
     style.configure("TRadiobutton",
                     background=p["background"],
                     foreground=p["on_background"],
-                    font=BODY_FONT)
+                    font=body_font)
     style.map("TRadiobutton",
               indicatorcolor=[("selected", p["primary"]), ("!selected", p["on_surface"])],
               background=[("active", p["background"])])
@@ -150,7 +121,7 @@ def init_style(theme="light"):
     style.configure("TNotebook.Tab",
                     background=p["surface"],
                     foreground=p["on_surface"],
-                    font=BUTTON_FONT,
+                    font=button_font,
                     padding=(10, 5),
                     borderwidth=0)
     style.map("TNotebook.Tab",
@@ -161,7 +132,7 @@ def init_style(theme="light"):
     style.configure("TLabelframe",
                     background=p["surface"],
                     foreground=p["on_surface"],
-                    font=HEADING_FONT,
+                    font=heading_font,
                     relief="solid",
                     borderwidth=1,
                     bordercolor=p["border"],
@@ -169,7 +140,7 @@ def init_style(theme="light"):
     style.configure("TLabelframe.Label",
                     background=p["surface"],
                     foreground=p["primary"],
-                    font=HEADING_FONT)
+                    font=heading_font)
 
     # --- Progressbar Style ---
     style.configure("TProgressbar",
