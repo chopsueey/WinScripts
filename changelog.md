@@ -24,7 +24,8 @@ This update focuses on a comprehensive refactoring of the codebase to ensure all
   - The script documentation at `documentation/scripts.md` has been updated to include previously undocumented scripts that are used by the UI (`setComputerName.ps1`, `installBGInfo.ps1`, `setupAD.ps1`).
 
 - **Fix: Application Startup Error:**
-  - Fixed a critical `ImportError` caused by the missing `DARK_PALETTE` constant in `lib/material_constants.py`. This resolves an application crash on startup when toggling themes.
+  - Fixed a critical `ImportError` caused by the missing `DARK_PALETTE` constant in `lib/material_constants.py`.
+  - Fixed a `TypeError` on startup caused by component classes incorrectly inheriting from a UI helper *function* instead of a `ttk.Frame`.
 
 
 ## [2025-08-09] - Azure Integration and New Scripts

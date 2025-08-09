@@ -13,7 +13,7 @@ from lib.ui_helpers import (
 import os
 
 
-class CreateVMTab(StyledFrame):
+class CreateVMTab(ttk.Frame):
     def __init__(self, master, app, **kwargs):
         super().__init__(master, **kwargs)
         self.app = app

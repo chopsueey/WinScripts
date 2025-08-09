@@ -4,7 +4,7 @@ from lib.functions import run_ps1_cmd
 from lib.ui_helpers import StyledFrame, StyledEntry, StyledButton
 
 
-class QuickShellTab(StyledFrame):
+class QuickShellTab(ttk.Frame):
     def __init__(self, master, app):
         super().__init__(master)
 

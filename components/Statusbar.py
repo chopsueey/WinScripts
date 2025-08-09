@@ -104,7 +104,7 @@ class SystemInfo:
             return {"Error": str(e)}
         return nic_data
 
-class FlowFrame(StyledFrame):
+class FlowFrame(ttk.Frame):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
         self.bind("<Configure>", self._on_configure)
@@ -137,7 +137,7 @@ class FlowFrame(StyledFrame):
             if height > row_height:
                 row_height = height
 
-class Statusbar(StyledFrame):
+class Statusbar(ttk.Frame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
         self.system_info = SystemInfo()
