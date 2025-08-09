@@ -23,3 +23,8 @@ The project is organized into the following main directories:
 - **`scripts/`**: Houses all the PowerShell scripts used for automation.
 - **`icons/`**: Stores icon files for the application.
 - **`documentation/`**: Contains markdown files with project documentation.
+
+## Important Notes
+
+- **Administrator Privileges:** On the first launch, the application will display a notification informing you that most scripts require administrative privileges to run correctly. Please ensure you run the application as an administrator for full functionality.
+- **User-Specific Configuration:** The application generates a `config.json` file to store user-specific settings. This file is intentionally not tracked by Git and should be included in your `.gitignore` if you are forking or cloning this repository.

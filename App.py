@@ -1,8 +1,10 @@
 import tkinter as tk
+from tkinter import messagebox
 from style import init_style
 from components import Menubar, Statusbar, Notebook
 from lib.functions import center_window
 from lib.utils import resource_path
+from lib.Config import Config
 import os, sys
 
 
@@ -10,6 +12,16 @@ class App(tk.Tk):
     def __init__(self, master=None):
         super().__init__(master)
         self.withdraw()
+
+        # Config
+        self.app_config = Config()
+
+        if not self.app_config.admin_rights_message_shown:
+            messagebox.showinfo(
+                "Admin Rights",
+                "For most scripts, you need to run this app as an administrator.",
+            )
+            self.app_config.admin_rights_message_shown = True
 
         self.master = master
         self.title("App")
