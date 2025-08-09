@@ -150,6 +150,11 @@ class Statusbar(ttk.Frame):
         )
         self.refresh_button.pack(side="right", anchor="e", padx=5)
 
+        self.theme_button = ttk.Button(
+            self, text="Toggle Theme", command=master.toggle_theme
+        )
+        self.theme_button.pack(side="right", anchor="e", padx=5)
+
         self._create_groups()
         self.update_status()
 

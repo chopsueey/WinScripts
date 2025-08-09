@@ -26,3 +26,12 @@ class Config:
     def admin_rights_message_shown(self, value):
         self.config["admin_rights_message_shown"] = value
         self._save_config()
+
+    @property
+    def theme(self):
+        return self.config.get("theme", "light")
+
+    @theme.setter
+    def theme(self, value):
+        self.config["theme"] = value
+        self._save_config()
