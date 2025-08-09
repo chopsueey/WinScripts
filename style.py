@@ -1,300 +1,179 @@
 from tkinter import ttk
+import tkinter.font
 
-# --- Define a Modern Slightly Darker Light Mode Color Palette ---
-PALETTE = {
-    "primary": "#007bff",  # Blue for main actions
-    "primary_dark": "#0056b3",  # Darker blue for active states
-    "accent": "#5a6268",  # Slightly darker gray for secondary elements
-    "accent_dark": "#495057",  # Darker gray for active accent states
-    # Adjusted for a slightly darker light mode look
-    "background": "#e9ecef",  # Deeper light gray for general background
-    "surface": "#f0f2f5",  # Subtle off-white for widget backgrounds
-    "text": "#343a40",  # Dark gray for general text (unchanged, good contrast)
-    "text_light": "#6c757d",  # More prominent light text for better readability on darker light backgrounds
-    "border": "#adb5bd",  # Darker light gray-blue for borders
-    "success": "#28a745",  # Green for success
-    "danger": "#dc3545",  # Red for danger
-    "warning": "#ffc107",  # Yellow for warning
-    "info": "#17a2b8",  # Cyan for info
+# --- Define Color Palettes ---
+LIGHT_PALETTE = {
+    "primary": "#5E81AC",
+    "primary_variant": "#4C6A8D",
+    "secondary": "#88C0D0",
+    "secondary_variant": "#79A8B8",
+    "background": "#ECEFF4",
+    "surface": "#FFFFFF",
+    "error": "#BF616A",
+    "on_primary": "#FFFFFF",
+    "on_secondary": "#2E3440",
+    "on_background": "#2E3440",
+    "on_surface": "#2E3440",
+    "on_error": "#FFFFFF",
+    "border": "#D8DEE9",
 }
 
+DARK_PALETTE = {
+    "primary": "#81A1C1",
+    "primary_variant": "#8FBCBB",
+    "secondary": "#88C0D0",
+    "secondary_variant": "#A3BE8C",
+    "background": "#2E3440",
+    "surface": "#3B4252",
+    "error": "#BF616A",
+    "on_primary": "#2E3440",
+    "on_secondary": "#2E3440",
+    "on_background": "#E5E9F0",
+    "on_surface": "#E5E9F0",
+    "on_error": "#2E3440",
+    "border": "#4C566A",
+}
 
-def _configure_frame_styles(style, palette):
-    """Configure TFrame styles."""
-    style.configure(
-        "TFrame",
-        background=palette["background"],
-        relief="flat",
-        borderwidth=0,
-        padding=10,
-    )
-    style.configure(
-        "Card.TFrame",
-        background=palette["surface"],
-        relief="flat",
-        borderwidth=1,
-        bordercolor=palette["border"],
-        padding=15,
-    )
-
-
-def _configure_label_styles(style, palette, base_font, heading_font):
-    """Configure TLabel styles."""
-    style.configure(
-        "TLabel",
-        font=base_font,
-        foreground=palette["text"],
-        background=palette["background"],
-        relief="flat",
-    )
-    style.configure(
-        "Heading.TLabel",
-        font=heading_font,
-        foreground=palette["text"],
-        background=palette["background"],
-    )
-    style.configure(
-        "Accent.TLabel",
-        font=base_font,
-        foreground=palette["accent"],
-        background=palette["background"],
-    )
-
-
-def _configure_button_styles(style, palette, large_font):
-    """Configure TButton styles."""
-    # Default Button (primary action)
-    style.configure(
-        "TButton",
-        font=large_font,
-        foreground=palette["surface"],
-        background=palette["primary"],
-        relief="flat",
-        borderwidth=0,
-        padding=[15, 8],
-    )
-    style.map(
-        "TButton",
-        background=[("active", palette["primary_dark"]), ("pressed", palette["primary_dark"])],
-        foreground=[("active", palette["surface"])],
-        relief=[("pressed", "flat"), ("!pressed", "flat")],
-    )
-
-    # Secondary Button
-    style.configure(
-        "Secondary.TButton",
-        font=large_font,
-        foreground=palette["text"],
-        background=palette["surface"],
-        relief="solid",
-        borderwidth=1,
-        bordercolor=palette["border"],
-        padding=[15, 8],
-    )
-    style.map(
-        "Secondary.TButton",
-        background=[("active", palette["background"]), ("pressed", palette["background"])],
-        foreground=[("active", palette["text"])],
-        relief=[("pressed", "solid"), ("!pressed", "solid")],
-        bordercolor=[("active", palette["accent"])],
-    )
-
-    # Danger Button
-    style.configure(
-        "Danger.TButton",
-        font=large_font,
-        foreground=palette["surface"],
-        background=palette["danger"],
-        relief="flat",
-        borderwidth=0,
-        padding=[15, 8],
-    )
-    style.map(
-        "Danger.TButton",
-        background=[("active", "#c82333"), ("pressed", "#bd2130")],
-        foreground=[("active", palette["surface"])],
-        relief=[("pressed", "flat"), ("!pressed", "flat")],
-    )
-
-
-def _configure_entry_styles(style, palette, base_font):
-    """Configure TEntry styles."""
-    style.configure(
-        "TEntry",
-        font=base_font,
-        fieldbackground=palette["surface"],
-        foreground=palette["text"],
-        insertcolor=palette["primary"],
-        relief="solid",
-        borderwidth=1,
-        bordercolor=palette["border"],
-        padding=[5, 5],
-    )
-    style.map(
-        "TEntry",
-        bordercolor=[("focus", palette["primary"])],
-        fieldbackground=[("readonly", palette["background"]), ("disabled", palette["background"])],
-    )
-
-
-def _configure_combobox_styles(style, palette, base_font):
-    """Configure TCombobox styles."""
-    style.configure(
-        "TCombobox",
-        font=base_font,
-        fieldbackground=palette["surface"],
-        foreground=palette["text"],
-        bordercolor=palette["border"],
-        borderwidth=1,
-        relief="solid",
-        padding=[5, 5],
-    )
-    style.map(
-        "TCombobox",
-        bordercolor=[("focus", palette["primary"])],
-        fieldbackground=[("readonly", palette["background"])],
-        background=[("hover", palette["primary_dark"])],
-        foreground=[("readonly", palette["text"])],
-    )
-    style.configure(
-        "TCombobox.Listbox",
-        font=base_font,
-        foreground=palette["text"],
-        background=palette["surface"],
-        selectbackground=palette["primary"],
-        selectforeground=palette["surface"],
-    )
-
-
-def _configure_check_radio_styles(style, palette, base_font):
-    """Configure TCheckbutton and TRadiobutton styles."""
-    style.configure(
-        "TCheckbutton",
-        font=base_font,
-        foreground=palette["text"],
-        background=palette["background"],
-        indicatorcolor=palette["primary"],
-        indicatorrelief="flat",
-    )
-    style.map(
-        "TCheckbutton",
-        foreground=[("disabled", palette["accent"])],
-        background=[("active", palette["background"])],
-        indicatorcolor=[
-            ("selected", palette["primary"]),
-            ("disabled", palette["accent"]),
-            ("!selected", palette["surface"]),
-        ],
-    )
-
-    style.configure(
-        "TRadiobutton",
-        font=base_font,
-        foreground=palette["text"],
-        background=palette["background"],
-        indicatorcolor=palette["primary"],
-        indicatorrelief="flat",
-    )
-    style.map(
-        "TRadiobutton",
-        foreground=[("disabled", palette["accent"])],
-        background=[("active", palette["background"])],
-        indicatorcolor=[
-            ("selected", palette["primary"]),
-            ("disabled",palette["accent"]),
-            ("!selected", palette["surface"]),
-        ],
-    )
-
-
-def _configure_notebook_styles(style, palette, base_font):
-    """Configure TNotebook styles."""
-    style.configure(
-        "TNotebook",
-        background=palette["background"],
-        borderwidth=0,
-        tabposition="nw",
-        padding=[5, 5],
-    )
-    style.configure(
-        "TNotebook.Tab",
-        font=base_font,
-        background=palette["background"],
-        foreground=palette["text"],
-        padding=[10, 5],
-        borderwidth=0,
-        relief="flat",
-    )
-    style.map(
-        "TNotebook.Tab",
-        background=[("selected", palette["primary"]), ("active", palette["border"])],
-        foreground=[("selected", palette["surface"]), ("active", palette["text"])],
-        expand=[("selected", [0, 0, 0, 0])],
-    )
-    style.configure(
-        "TNotebook.Client", background=palette["surface"], borderwidth=0
-    )
-
-
-def _configure_labelframe_styles(style, palette, base_font, heading_font):
-    """Configure TLabelframe styles."""
-    style.configure(
-        "TLabelframe",
-        background=palette["surface"],
-        foreground=palette["text"],
-        font=base_font,
-        relief="solid",
-        borderwidth=1,
-        bordercolor=palette["border"],
-        padding=[10, 10, 10, 10],
-    )
-    style.configure(
-        "TLabelframe.Label",
-        background=palette["surface"],
-        foreground=palette["text"],
-        font=heading_font,
-        padding=[5, 2],
-    )
-    style.map(
-        "TLabelframe",
-        bordercolor=[("active", palette["accent"])],
-    )
-
-
-def _configure_progressbar_styles(style, palette):
-    """Configure TProgressbar styles."""
-    style.configure(
-        "TProgressbar",
-        background=palette["primary"],
-        troughcolor=palette["border"],
-        bordercolor=palette["border"],
-        thickness=15,
-        relief="flat",
-        borderwidth=1,
-    )
-    style.map(
-        "TProgressbar",
-        background=[("active", palette["primary_dark"])],
-    )
-
-
-def init_style():
-    """Initializes and configures modern-looking ttk.Style for slightly darker light mode widgets."""
+def init_style(theme="light"):
+    """
+    Initializes and configures a ttk.Style based on the selected theme.
+    """
     style = ttk.Style()
     style.theme_use("clam")
 
-    # --- General Font Configuration ---
-    base_font = ("Segoe UI", 10)
-    heading_font = ("Segoe UI", 12, "bold")
-    large_font = ("Segoe UI", 12)
+    p = LIGHT_PALETTE if theme == "light" else DARK_PALETTE
 
-    # --- Apply Styles ---
-    _configure_frame_styles(style, PALETTE)
-    _configure_label_styles(style, PALETTE, base_font, heading_font)
-    _configure_button_styles(style, PALETTE, large_font)
-    _configure_entry_styles(style, PALETTE, base_font)
-    _configure_combobox_styles(style, PALETTE, base_font)
-    _configure_check_radio_styles(style, PALETTE, base_font)
-    _configure_notebook_styles(style, PALETTE, base_font)
-    _configure_labelframe_styles(style, PALETTE, base_font, heading_font)
-    _configure_progressbar_styles(style, PALETTE)
+    # --- Font Handling ---
+    font_family = "Roboto"
+    if "Roboto" not in tkinter.font.families():
+        font_family = "Segoe UI"
+
+    TITLE_FONT = (font_family, 20, "bold")
+    HEADING_FONT = (font_family, 16, "bold")
+    BODY_FONT = (font_family, 12, "normal")
+    BUTTON_FONT = (font_family, 12, "bold")
+
+    # --- General Widget Configurations ---
+    style.configure(".",
+                    background=p["background"],
+                    foreground=p["on_background"],
+                    font=BODY_FONT,
+                    borderwidth=0,
+                    relief="flat")
+
+    # --- Frame Styles ---
+    style.configure("TFrame", background=p["background"])
+    style.configure("Card.TFrame", background=p["surface"], relief="solid", borderwidth=1, bordercolor=p["border"])
+
+    # --- Label Styles ---
+    style.configure("TLabel", background=p["background"], foreground=p["on_background"], font=BODY_FONT)
+    style.configure("Heading.TLabel", font=HEADING_FONT, foreground=p["on_background"], background=p["background"])
+    style.configure("Title.TLabel", font=TITLE_FONT, foreground=p["on_background"], background=p["background"])
+    style.configure("Accent.TLabel", foreground=p["secondary"], background=p["background"])
+
+    # --- Button Styles ---
+    style.configure("TButton",
+                    background=p["primary"],
+                    foreground=p["on_primary"],
+                    font=BUTTON_FONT,
+                    padding=(12, 6),
+                    relief="flat",
+                    borderwidth=0)
+    style.map("TButton",
+              background=[("active", p["primary_variant"]), ("pressed", p["primary_variant"])])
+
+    style.configure("Secondary.TButton",
+                    background=p["surface"],
+                    foreground=p["primary"],
+                    font=BUTTON_FONT,
+                    padding=(12, 6),
+                    relief="solid",
+                    borderwidth=1,
+                    bordercolor=p["border"])
+    style.map("Secondary.TButton",
+              background=[("active", p["border"]), ("pressed", p["border"])],
+              bordercolor=[("active", p["primary"])])
+
+    # --- Entry Style ---
+    style.configure("TEntry",
+                    fieldbackground=p["surface"],
+                    foreground=p["on_surface"],
+                    insertcolor=p["primary"],
+                    font=BODY_FONT,
+                    padding=5,
+                    relief="solid",
+                    borderwidth=1,
+                    bordercolor=p["border"])
+    style.map("TEntry",
+              bordercolor=[("focus", p["primary"])],
+              fieldbackground=[("readonly", p["background"])])
+
+    # --- Combobox Style ---
+    style.configure("TCombobox",
+                    fieldbackground=p["surface"],
+                    foreground=p["on_surface"],
+                    arrowcolor=p["primary"],
+                    selectbackground=p["primary"],
+                    selectforeground=p["on_primary"],
+                    font=BODY_FONT,
+                    padding=5,
+                    relief="solid",
+                    borderwidth=1,
+                    bordercolor=p["border"])
+    style.map("TCombobox",
+              bordercolor=[("focus", p["primary"])])
+    style.configure("TCombobox.Listbox",
+                    background=p["surface"],
+                    foreground=p["on_surface"],
+                    selectbackground=p["primary"],
+                    selectforeground=p["on_primary"])
+
+    # --- Checkbutton and Radiobutton Styles ---
+    style.configure("TCheckbutton",
+                    background=p["background"],
+                    foreground=p["on_background"],
+                    font=BODY_FONT)
+    style.map("TCheckbutton",
+              indicatorcolor=[("selected", p["primary"]), ("!selected", p["on_surface"])],
+              background=[("active", p["background"])])
+
+    style.configure("TRadiobutton",
+                    background=p["background"],
+                    foreground=p["on_background"],
+                    font=BODY_FONT)
+    style.map("TRadiobutton",
+              indicatorcolor=[("selected", p["primary"]), ("!selected", p["on_surface"])],
+              background=[("active", p["background"])])
+
+    # --- Notebook (Tabs) Style ---
+    style.configure("TNotebook", background=p["background"], borderwidth=0)
+    style.configure("TNotebook.Tab",
+                    background=p["surface"],
+                    foreground=p["on_surface"],
+                    font=BUTTON_FONT,
+                    padding=(10, 5),
+                    borderwidth=0)
+    style.map("TNotebook.Tab",
+              background=[("selected", p["background"]), ("active", p["border"])],
+              foreground=[("selected", p["primary"])])
+
+    # --- Labelframe Style ---
+    style.configure("TLabelframe",
+                    background=p["surface"],
+                    foreground=p["on_surface"],
+                    font=HEADING_FONT,
+                    relief="solid",
+                    borderwidth=1,
+                    bordercolor=p["border"],
+                    padding=10)
+    style.configure("TLabelframe.Label",
+                    background=p["surface"],
+                    foreground=p["primary"],
+                    font=HEADING_FONT)
+
+    # --- Progressbar Style ---
+    style.configure("TProgressbar",
+                    background=p["primary"],
+                    troughcolor=p["border"],
+                    borderwidth=0,
+                    thickness=8)

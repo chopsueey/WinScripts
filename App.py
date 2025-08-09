@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from style_material import init_style
+from style import init_style
 from components import Menubar, Statusbar, Notebook
 from lib.functions import center_window
 from lib.utils import resource_path
@@ -33,7 +33,7 @@ class App(tk.Tk):
         self.script_dir_relative = "scripts"
         self.current_script_dir = os.path.dirname(os.path.abspath(__file__))
 
-        init_style()
+        init_style(self.app_config.theme)
 
         # Menubar
         self.menubar = Menubar(self)
@@ -52,6 +52,19 @@ class App(tk.Tk):
         path_to_main = os.path.abspath(sys.modules["__main__"].__file__)
         root_dir = os.path.dirname(path_to_main)
         return root_dir
+
+    def toggle_theme(self):
+        if self.app_config.theme == "light":
+            self.app_config.theme = "dark"
+        else:
+            self.app_config.theme = "light"
+
+        self.restart()
+
+    def restart(self):
+        """Restarts the application."""
+        self.destroy()
+        os.execl(sys.executable, sys.executable, *sys.argv)
 
     def _bring_to_front(self):
         self.lift()
