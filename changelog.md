@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-09] - Admin Rights Indicator
+
+### Summary of Changes
+
+- **Feature: Admin Rights Indicator:** Added a visual indicator (a shield icon) to buttons that execute scripts requiring administrator privileges. This provides immediate feedback to the user about the permission level of each action.
+- **New Component: `AdminButton`:** Created a new reusable `AdminButton` class in `components/AdminButton.py`. This custom button handles the logic for displaying the icon next to the text.
+- **Refactor: `GeneralTab` updated:** The `GeneralTab` was refactored to use the new `AdminButton` for all its actions, as analysis showed all its scripts require elevation.
+- **Fix: Missing `Pillow` Dependency:** Added `Pillow` to `requirements.txt`. This dependency was introduced to handle image manipulation for the icon and was missed in the initial commit, causing a `ModuleNotFoundError`.
+
 ## [2025-08-09] - Admin Rights Notification
 
 ### Summary of Changes
