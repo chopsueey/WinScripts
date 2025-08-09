@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-09] - Admin Rights Notification
+
+### Summary of Changes
+
+- **Added an admin rights notification:** A pop-up message is now displayed to the user on the first launch of the application, informing them that administrative privileges are required for most scripts. This message is only shown once and is managed through a `config.json` file.
+- **Created a `Config` class:** A new `Config` class was introduced in `lib/Config.py` to handle loading and saving application settings.
+- **Updated `App.py`:** The main application class now uses the `Config` class to check whether the admin rights message has been shown and displays it if necessary.
+
 ## [2025-08-09] - Refactoring
 
 This release focuses on a significant refactoring of the Python codebase to improve its quality, readability, and maintainability. No new features have been added, and the existing functionality remains unchanged.
