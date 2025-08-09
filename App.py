@@ -14,14 +14,14 @@ class App(tk.Tk):
         self.withdraw()
 
         # Config
-        self.config = Config()
+        self.app_config = Config()
 
-        if not self.config.admin_rights_message_shown:
+        if not self.app_config.admin_rights_message_shown:
             messagebox.showinfo(
                 "Admin Rights",
                 "For most scripts, you need to run this app as an administrator.",
             )
-            self.config.admin_rights_message_shown = True
+            self.app_config.admin_rights_message_shown = True
 
         self.master = master
         self.title("App")
