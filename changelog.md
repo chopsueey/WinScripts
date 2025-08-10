@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 
+## [2025-08-10] - UI Reorganization of Notebook Tabs
+
+### Summary of Changes
+
+- **Refactor: Relocated Buttons for Better Organization:**
+  - The buttons from the "General" tab have been reorganized into more contextually appropriate tabs to improve user experience and logical grouping.
+  - **"Domain Management"** buttons (`Join Domain`, `Install AD`) have been moved to the **`AD Tab`**.
+  - **"System & Access"** and **"Machine Configuration"** buttons have been moved to the **`Advanced Tab`**.
+  - The **"General" tab** now retains only the **"PowerShell"** buttons for launching consoles, serving as a more focused "Tools" or "Quick Actions" tab.
+  - The `ADTab.py` and `AdvancedTab.py` components were updated from empty placeholders to fully functional tabs containing the relocated controls.
+
+
 ## [2025-08-09] - Documentation and Repository Cleanup
 
 ### Summary of Changes
