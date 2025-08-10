@@ -2,6 +2,8 @@
 
 WinScripts is a user-friendly desktop application for Windows that provides a graphical interface for common, and often complex, IT administration tasks. It simplifies the management of Hyper-V virtual machines, Azure resources, and local system configurations by wrapping powerful PowerShell scripts in an intuitive GUI.
 
+The Hyper-V-Automation scripts are from: https://github.com/fdcastel/Hyper-V-Automation
+
 ## Key Features
 
 - **Intuitive GUI:** A clean, tabbed interface built with Python and Tkinter, designed to make complex tasks accessible.
