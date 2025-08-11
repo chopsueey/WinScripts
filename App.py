@@ -1,16 +1,17 @@
-import tkinter as tk
 from tkinter import messagebox
 from style import init_style
 from components import Menubar, Statusbar, Notebook
+from ttkthemes import ThemedTk
 from lib.functions import center_window
 from lib.utils import resource_path
 from lib.Config import Config
 import os, sys
 
 
-class App(tk.Tk):
+class App(ThemedTk):
     def __init__(self, master=None):
         super().__init__(master)
+        self.set_theme("arc")
         self.withdraw()
 
         # Config
