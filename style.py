@@ -8,7 +8,7 @@ def init_style(theme="light"):
     Initializes and configures a ttk.Style based on the selected theme.
     """
     style = ttk.Style()
-    style.theme_use("clam")
+    # style.theme_use("clam")
 
     p = LIGHT_PALETTE if theme == "light" else DARK_PALETTE
 

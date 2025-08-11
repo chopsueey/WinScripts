@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-11] - Implemented ttkthemes
+
+### Summary of Changes
+
+- **Feature: `ttkthemes` Integration:**
+  - Integrated the `ttkthemes` library to allow for more advanced and modern UI theming.
+  - The application now uses the "arc" theme as its default, providing a cleaner and more modern look and feel.
+- **Refactor: Theming Engine:**
+  - The main application window in `App.py` was updated to inherit from `ttkthemes.ThemedTk`.
+  - The custom styling in `style.py` was adapted to layer on top of the `ttkthemes` theme, preserving custom widget styles while leveraging the new base theme.
 
 ## [2025-08-10] - UI Reorganization of Notebook Tabs
 
