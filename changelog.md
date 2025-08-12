@@ -2,19 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2025-08-12] - Pure ttkthemes Implementation and Theming Fix
+## [2025-08-12] - Fix: PyInstaller Build and Theme Toggling
 
 ### Summary of Changes
 
-- **Refactor: Removed Custom Styling Engine:**
-  - The application's custom styling engine, implemented in `style.py`, has been completely disabled.
-  - The application now relies entirely on the selected `ttkthemes` theme for its look and feel. This simplifies the codebase and ensures a more consistent appearance based on the chosen theme.
-- **Refactor: UI Helper Functions:**
-  - The helper functions in `lib/ui_helpers.py` have been updated to remove all references to the old custom styles. They now create standard `ttk` widgets, allowing the `ttkthemes` theme to style them.
-- **Fix: Restored and Improved Theme Toggling:**
-  - Fixed a crash on startup caused by attempting to load an invalid theme name (e.g., "dark" or "light") from the user's `config.json`. The application now validates the theme against a list of available `ttkthemes` and resets to the default ("arc") if it's invalid.
-  - The theme toggling functionality has been rewritten to work correctly with `ttkthemes`. It now switches between the "arc" (light) and "equilux" (dark) themes.
-  - The user's theme choice is now saved in the `config.json` file and persists across application restarts.
+- **Fix: PyInstaller Theme Asset Bundling:**
+  - Resolved a critical runtime error in the compiled executable where theme assets (`.png` files) were not found.
+  - The `ttkthemes` library's data files are now correctly bundled with the application.
+- **Build: Introduced PyInstaller Hook for `ttkthemes`:**
+  - The build process now uses a custom PyInstaller hook (`hooks/hook-ttkthemes.py`) to correctly bundle the `ttkthemes` data files.
+  - The hook uses `collect_data_files` to ensure all theme assets are found and included in the final executable, which is a more robust method than manually specifying paths in the `build.spec` file.
+  - The `build.spec` has been updated to use the new hook.
 
 ## [2025-08-11] - Implemented ttkthemes
 
@@ -168,7 +166,7 @@ The main goal of this refactoring was to address several code quality issues, in
 ### 1. **Utility Function Abstraction**
 
 - **Change:** The `construct_path` and `resource_path` utility functions, which were originally methods of the `App` class, have been moved to a new `lib/utils.py` module.
-- **Reasoning:** These functions are general-purpose utilities and did not belong in the main `App` class. Moving them to a separate module improves separation of concerns and makes them easier to reuse.
+- **Reasoning:** These functions are a general-purpose utility and did not belong in the main `App` class. Moving them to a separate module improves separation of concerns and makes them easier to reuse.
 
 ### 2. **Style Code Reorganization**
 
