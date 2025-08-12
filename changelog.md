@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-12] - Pure ttkthemes Implementation and Theming Fix
+
+### Summary of Changes
+
+- **Refactor: Removed Custom Styling Engine:**
+  - The application's custom styling engine, implemented in `style.py`, has been completely disabled.
+  - The application now relies entirely on the selected `ttkthemes` theme for its look and feel. This simplifies the codebase and ensures a more consistent appearance based on the chosen theme.
+- **Refactor: UI Helper Functions:**
+  - The helper functions in `lib/ui_helpers.py` have been updated to remove all references to the old custom styles. They now create standard `ttk` widgets, allowing the `ttkthemes` theme to style them.
+- **Fix: Restored and Improved Theme Toggling:**
+  - Fixed a crash on startup caused by attempting to load an invalid theme name (e.g., "dark" or "light") from the user's `config.json`. The application now validates the theme against a list of available `ttkthemes` and resets to the default ("arc") if it's invalid.
+  - The theme toggling functionality has been rewritten to work correctly with `ttkthemes`. It now switches between the "arc" (light) and "equilux" (dark) themes.
+  - The user's theme choice is now saved in the `config.json` file and persists across application restarts.
+
 ## [2025-08-11] - Implemented ttkthemes
 
 ### Summary of Changes
@@ -121,7 +135,7 @@ This update introduces a comprehensive, Material Design-based UI style guide to 
 
 This update introduces a complete overhaul of the `Statusbar` component to provide more valuable information in a clean, responsive, and user-friendly manner.
 
-- **Feature: Enhanced System Information:** The status bar now displays a wider range of valuable information for administrators, including **CPU Usage**, **Memory Usage**, **Disk Usage**, and whether the system is a **Virtual Machine**.
+- **Feature: Enhanced System Information:** The status bar now displays a wider range of valuable information for administrators, including **CPU Usage**, **Memory Usage**, `Disk Usage`, and whether the system is a **Virtual Machine**.
 - **Feature: Responsive and Organized Layout:** The status bar has been redesigned to be fully responsive. Information is logically grouped into `System`, `Hardware`, and `Network` categories. The layout automatically wraps to new lines when the window is resized, and hides less critical information to prevent clutter in very narrow windows.
 - **Feature: Compact Network Information:** To handle systems with many network interfaces, the NIC information is now presented in a clean, space-saving **dropdown menu (`Combobox`)**.
 - **Refactor: Modular Architecture:** The `Statusbar` code was completely refactored. Data-gathering logic has been moved into a dedicated `SystemInfo` class, separating it from the UI. The UI now updates periodically without recreating widgets, resulting in a smoother user experience.

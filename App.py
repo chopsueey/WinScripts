@@ -11,11 +11,18 @@ import os, sys
 class App(ThemedTk):
     def __init__(self, master=None):
         super().__init__(master)
-        self.set_theme("arc")
-        self.withdraw()
-
         # Config
         self.app_config = Config()
+
+        # Validate and set theme
+        available_themes = self.get_themes()
+        current_theme = self.app_config.theme
+        if current_theme not in available_themes:
+            current_theme = "arc"  # Fallback to default
+            self.app_config.theme = current_theme # Correct the config
+
+        self.set_theme(current_theme)
+        self.withdraw()
 
         if not self.app_config.admin_rights_message_shown:
             messagebox.showinfo(
@@ -34,7 +41,7 @@ class App(ThemedTk):
         self.script_dir_relative = "scripts"
         self.current_script_dir = os.path.dirname(os.path.abspath(__file__))
 
-        init_style(self.app_config.theme)
+        # init_style(self.app_config.theme)
 
         # Menubar
         self.menubar = Menubar(self)
@@ -55,10 +62,10 @@ class App(ThemedTk):
         return root_dir
 
     def toggle_theme(self):
-        if self.app_config.theme == "light":
-            self.app_config.theme = "dark"
+        if self.app_config.theme == "arc":
+            self.app_config.theme = "equilux"
         else:
-            self.app_config.theme = "light"
+            self.app_config.theme = "arc"
 
         self.restart()
 
