@@ -49,16 +49,18 @@ The Hyper-V-Automation scripts are from: https://github.com/fdcastel/Hyper-V-Aut
 
 ## Build Instructions
 
-You can create a standalone executable using `pyinstaller`.
+You can create a standalone executable using PyInstaller. The recommended way to build the application is by using the provided spec file, which contains all the necessary configurations.
 
-### Create a single-file executable:
+### Building the Executable
 
-```bash
-pyinstaller --noconfirm --onefile --windowed --icon=".\favicon.ico" --add-data ".\favicon.ico;." --add-data "scripts;scripts" --add-data "icons;icons" .\main.py
-```
+1.  **Ensure PyInstaller is installed:**
+    ```bash
+    pip install pyinstaller
+    ```
 
-### Create a directory with the executable and dependencies:
+2.  **Run the build command from the project root:**
+    ```bash
+    pyinstaller build.spec
+    ```
 
-```bash
-pyinstaller --noconfirm --onedir --windowed --icon=".\favicon.ico" --add-data ".\favicon.ico;." --add-data "scripts;scripts" --add-data "icons;icons" .\main.py
-```
+This command will create a `dist/` directory containing the single-file executable (`WinScripts.exe`). The `build.spec` file is pre-configured to handle all data files, including icons and theme assets, ensuring the application works correctly when compiled.
