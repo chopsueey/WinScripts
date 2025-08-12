@@ -29,7 +29,7 @@ class Config:
 
     @property
     def theme(self):
-        return self.config.get("theme", "light")
+        return self.config.get("theme", "arc")
 
     @theme.setter
     def theme(self, value):

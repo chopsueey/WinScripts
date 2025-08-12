@@ -11,11 +11,11 @@ import os, sys
 class App(ThemedTk):
     def __init__(self, master=None):
         super().__init__(master)
-        self.set_theme("arc")
-        self.withdraw()
-
         # Config
         self.app_config = Config()
+
+        self.set_theme(self.app_config.theme)
+        self.withdraw()
 
         if not self.app_config.admin_rights_message_shown:
             messagebox.showinfo(
@@ -54,18 +54,18 @@ class App(ThemedTk):
         root_dir = os.path.dirname(path_to_main)
         return root_dir
 
-    # def toggle_theme(self):
-    #     if self.app_config.theme == "light":
-    #         self.app_config.theme = "dark"
-    #     else:
-    #         self.app_config.theme = "light"
+    def toggle_theme(self):
+        if self.app_config.theme == "arc":
+            self.app_config.theme = "black"
+        else:
+            self.app_config.theme = "arc"
 
-    #     self.restart()
+        self.restart()
 
-    # def restart(self):
-    #     """Restarts the application."""
-    #     self.destroy()
-    #     os.execl(sys.executable, sys.executable, *sys.argv)
+    def restart(self):
+        """Restarts the application."""
+        self.destroy()
+        os.execl(sys.executable, sys.executable, *sys.argv)
 
     def _bring_to_front(self):
         self.lift()

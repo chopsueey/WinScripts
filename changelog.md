@@ -2,17 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2025-08-12] - Pure ttkthemes Implementation
+## [2025-08-12] - Pure ttkthemes Implementation and Theming Fix
 
 ### Summary of Changes
 
 - **Refactor: Removed Custom Styling Engine:**
   - The application's custom styling engine, implemented in `style.py`, has been completely disabled.
-  - The application now relies entirely on the selected `ttkthemes` theme ("arc") for its look and feel. This simplifies the codebase and ensures a more consistent appearance based on the chosen theme.
+  - The application now relies entirely on the selected `ttkthemes` theme for its look and feel. This simplifies the codebase and ensures a more consistent appearance based on the chosen theme.
 - **Refactor: UI Helper Functions:**
   - The helper functions in `lib/ui_helpers.py` have been updated to remove all references to the old custom styles. They now create standard `ttk` widgets, allowing the `ttkthemes` theme to style them.
-- **Chore: Disabled Theme Toggling:**
-  - The light/dark mode theme toggling functionality, which was tied to the old custom styling engine, has been disabled in `App.py`.
+- **Fix: Restored Theme Toggling Functionality:**
+  - Fixed a crash caused by the "Toggle Theme" button trying to call a disabled method.
+  - The theme toggling functionality has been rewritten to work with `ttkthemes`. It now switches between the "arc" (light) and "black" (dark) themes.
+  - The user's theme choice is now saved in the `config.json` file and persists across application restarts.
+  - The default theme has been set to "arc".
 
 ## [2025-08-11] - Implemented ttkthemes
 
