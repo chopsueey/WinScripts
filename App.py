@@ -14,7 +14,14 @@ class App(ThemedTk):
         # Config
         self.app_config = Config()
 
-        self.set_theme(self.app_config.theme)
+        # Validate and set theme
+        available_themes = self.get_themes()
+        current_theme = self.app_config.theme
+        if current_theme not in available_themes:
+            current_theme = "arc"  # Fallback to default
+            self.app_config.theme = current_theme # Correct the config
+
+        self.set_theme(current_theme)
         self.withdraw()
 
         if not self.app_config.admin_rights_message_shown:
@@ -56,7 +63,7 @@ class App(ThemedTk):
 
     def toggle_theme(self):
         if self.app_config.theme == "arc":
-            self.app_config.theme = "black"
+            self.app_config.theme = "equilux"
         else:
             self.app_config.theme = "arc"
 
