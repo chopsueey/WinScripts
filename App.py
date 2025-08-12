@@ -34,7 +34,7 @@ class App(ThemedTk):
         self.script_dir_relative = "scripts"
         self.current_script_dir = os.path.dirname(os.path.abspath(__file__))
 
-        init_style(self.app_config.theme)
+        # init_style(self.app_config.theme)
 
         # Menubar
         self.menubar = Menubar(self)
@@ -54,18 +54,18 @@ class App(ThemedTk):
         root_dir = os.path.dirname(path_to_main)
         return root_dir
 
-    def toggle_theme(self):
-        if self.app_config.theme == "light":
-            self.app_config.theme = "dark"
-        else:
-            self.app_config.theme = "light"
+    # def toggle_theme(self):
+    #     if self.app_config.theme == "light":
+    #         self.app_config.theme = "dark"
+    #     else:
+    #         self.app_config.theme = "light"
 
-        self.restart()
+    #     self.restart()
 
-    def restart(self):
-        """Restarts the application."""
-        self.destroy()
-        os.execl(sys.executable, sys.executable, *sys.argv)
+    # def restart(self):
+    #     """Restarts the application."""
+    #     self.destroy()
+    #     os.execl(sys.executable, sys.executable, *sys.argv)
 
     def _bring_to_front(self):
         self.lift()
