@@ -116,10 +116,24 @@ class Statusbar(customtkinter.CTkFrame):
         )
         self.refresh_button.grid(row=0, column=1, padx=5)
 
+        # Theme toggle button
+        self.light_icon = customtkinter.CTkImage(light_image=Image.open(resource_path(r"icons/sun.ico")),
+                                     dark_image=Image.open(resource_path(r"icons/sun.ico")),
+                                     size=(20, 20))
+        self.dark_icon = customtkinter.CTkImage(light_image=Image.open(resource_path(r"icons/moon.ico")),
+                                    dark_image=Image.open(resource_path(r"icons/moon.ico")),
+                                    size=(20, 20))
+
         self.theme_button = customtkinter.CTkButton(
-            self, text="Toggle Theme", command=master.toggle_theme
+            self, text="", command=master.toggle_theme, width=20
         )
         self.theme_button.grid(row=0, column=2, padx=5)
+
+        # Set initial icon based on theme
+        if master.app_config.theme == "dark":
+            self.theme_button.configure(image=self.light_icon)
+        else:
+            self.theme_button.configure(image=self.dark_icon)
 
         self._create_groups()
         self.update_status()
@@ -179,3 +193,10 @@ class Statusbar(customtkinter.CTkFrame):
             self.nic_combobox.set("No active NICs found")
 
         self.after(5000, self.update_status)
+
+    def update_theme_icon(self):
+        """Updates the theme toggle button icon."""
+        if self.master.app_config.theme == "dark":
+            self.theme_button.configure(image=self.light_icon)
+        else:
+            self.theme_button.configure(image=self.dark_icon)
