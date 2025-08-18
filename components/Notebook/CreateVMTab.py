@@ -9,7 +9,6 @@ import os
 class CreateVMTab(customtkinter.CTkFrame):
     def __init__(self, master, app, **kwargs):
         super().__init__(master, **kwargs)
-        self.pack(expand=True, fill="both")
         self.app = app
 
         self._initialize_state()
@@ -48,7 +47,7 @@ class CreateVMTab(customtkinter.CTkFrame):
 
         # Edition Widgets
         self.edition_info_label = customtkinter.CTkLabel(self.edition_frame, textvariable=self.selected_edition)
-        self.edition_combobox = customtkinter.CTkComboBox(self.edition_frame, variable=self.selected_edition, state="readonly", width=70)
+        self.edition_combobox = customtkinter.CTkComboBox(self.edition_frame, variable=self.selected_edition, state="disabled", width=70)
         self.edition_combobox.set("Choose an ISO first...")
 
         # VM Switches Widgets
@@ -152,23 +151,18 @@ class CreateVMTab(customtkinter.CTkFrame):
         script_path = construct_path(self.app.current_script_dir, self.app.script_dir_relative, script_name)
         items = run_ps1_script(script_path, window=False, ps_args=ps_args)
 
-        print(f"--- DEBUG: _populate_combobox_from_ps ---")
-        print(f"Script: {script_name}")
-        print(f"Items from script: {items}")
-        print(f"Type of items: {type(items)}")
-        print(f"--- END DEBUG ---")
-
         if isinstance(items, str):
             items = [items]
 
         data_list[:] = items if items else []
 
         if data_list:
-            combobox.configure(values=data_list)
+            combobox.configure(values=data_list, state="readonly")
+            combobox.set("Please select...") # Set a neutral placeholder
             if info_label:
                 info_label.configure(text=f"Loaded {len(data_list)} items.")
         else:
-            combobox.configure(values=[])
+            combobox.configure(values=[], state="disabled")
             combobox.set(no_items_msg)
             if info_label:
                 info_label.configure(text=no_items_msg)
@@ -185,13 +179,6 @@ class CreateVMTab(customtkinter.CTkFrame):
         )
 
     def on_edition_selected(self, choice):
-        print("--- DEBUG: on_edition_selected ---")
-        print(f"Argument 'choice': {choice}")
-        print(f"Type of 'choice': {type(choice)}")
-        print(f"Current value of self.selected_edition: {self.selected_edition.get()}")
-        print(f"Values in combobox: {self.edition_combobox.cget('values')}")
-        print("--- END DEBUG ---")
-
         self.edition_info_label.configure(text=f"You selected: {choice}")
         self.version_name = self._get_version_name_from_edition()
         print(f"Selected edition: {choice}", self.version_name)
@@ -203,13 +190,6 @@ class CreateVMTab(customtkinter.CTkFrame):
         )
 
     def on_vm_switch_selected(self, choice):
-        print("--- DEBUG: on_vm_switch_selected ---")
-        print(f"Argument 'choice': {choice}")
-        print(f"Type of 'choice': {type(choice)}")
-        print(f"Current value of self.selected_vm_switch: {self.selected_vm_switch.get()}")
-        print(f"Values in combobox: {self.vm_switches_combobox.cget('values')}")
-        print("--- END DEBUG ---")
-
         self.vm_switches_info_label.configure(text=f"You selected: {choice}")
         print(f"Selected switch: {choice}")
 

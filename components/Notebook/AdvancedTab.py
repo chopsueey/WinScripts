@@ -6,7 +6,6 @@ from lib.utils import construct_path
 class AdvancedTab(customtkinter.CTkFrame):
     def __init__(self, master, app):
         super().__init__(master)
-        self.pack(expand=True, fill="both")
 
         # Configure the grid layout for the main tab
         self.columnconfigure(0, weight=1)

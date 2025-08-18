@@ -5,7 +5,6 @@ from lib.functions import run_ps1_cmd
 class QuickShellTab(customtkinter.CTkFrame):
     def __init__(self, master, app):
         super().__init__(master)
-        self.pack(expand=True, fill="both")
 
         # Command input
         self.input_frame = customtkinter.CTkFrame(self)
