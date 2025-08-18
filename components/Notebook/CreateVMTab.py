@@ -152,6 +152,12 @@ class CreateVMTab(customtkinter.CTkFrame):
         script_path = construct_path(self.app.current_script_dir, self.app.script_dir_relative, script_name)
         items = run_ps1_script(script_path, window=False, ps_args=ps_args)
 
+        print(f"--- DEBUG: _populate_combobox_from_ps ---")
+        print(f"Script: {script_name}")
+        print(f"Items from script: {items}")
+        print(f"Type of items: {type(items)}")
+        print(f"--- END DEBUG ---")
+
         if isinstance(items, str):
             items = [items]
 
