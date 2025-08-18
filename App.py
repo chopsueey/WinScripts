@@ -41,7 +41,7 @@ class App(customtkinter.CTk):
 
         # Statusbar
         self.status_bar = Statusbar(self)
-        self.status_bar.pack(fill="both", expand=True, padx=4, pady=4)
+        self.status_bar.pack(fill="x", padx=4, pady=4)
 
         # Notebook
         self.notebook = Notebook(self)
