@@ -1,21 +1,15 @@
+import customtkinter
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import filedialog, messagebox
 from lib.functions import run_ps1_script_2, run_ps1_script
 from lib.utils import construct_path
-from lib.ui_helpers import (
-    StyledFrame,
-    StyledLabelframe,
-    StyledLabel,
-    StyledButton,
-    StyledCombobox,
-    StyledEntry,
-)
 import os
 
 
-class CreateVMTab(ttk.Frame):
+class CreateVMTab(customtkinter.CTkFrame):
     def __init__(self, master, app, **kwargs):
         super().__init__(master, **kwargs)
+        self.pack(expand=True, fill="both")
         self.app = app
 
         self._initialize_state()
@@ -39,66 +33,66 @@ class CreateVMTab(ttk.Frame):
     def _create_widgets(self):
         """Creates all the widgets for the tab."""
         # Frames
-        self.top_frame = StyledFrame(self)
-        self.iso_frame = StyledLabelframe(self.top_frame, text="ISO")
-        self.edition_frame = StyledLabelframe(self.top_frame, text="Edition")
-        self.vm_switches_frame = StyledLabelframe(self.top_frame, text="Virtual switch")
-        self.bottom_frame = StyledFrame(self)
-        self.name_pass_frame = StyledLabelframe(self.bottom_frame, text="Name and password")
-        self.resources_frame = StyledLabelframe(self.bottom_frame, text="Resources")
-        self.network_settings_frame = StyledLabelframe(self.bottom_frame, text="Network settings")
+        self.top_frame = customtkinter.CTkFrame(self)
+        self.iso_frame = customtkinter.CTkFrame(self.top_frame)
+        self.edition_frame = customtkinter.CTkFrame(self.top_frame)
+        self.vm_switches_frame = customtkinter.CTkFrame(self.top_frame)
+        self.bottom_frame = customtkinter.CTkFrame(self)
+        self.name_pass_frame = customtkinter.CTkFrame(self.bottom_frame)
+        self.resources_frame = customtkinter.CTkFrame(self.bottom_frame)
+        self.network_settings_frame = customtkinter.CTkFrame(self.bottom_frame)
 
         # ISO Widgets
-        self.iso_path_label = StyledLabel(self.iso_frame, textvariable=self.iso_path)
-        self.choose_iso_button = StyledButton(self.iso_frame, text="Choose ISO", command=self.get_windows_image_editions)
+        self.iso_path_label = customtkinter.CTkLabel(self.iso_frame, textvariable=self.iso_path)
+        self.choose_iso_button = customtkinter.CTkButton(self.iso_frame, text="Choose ISO", command=self.get_windows_image_editions)
 
         # Edition Widgets
-        self.edition_info_label = StyledLabel(self.edition_frame, textvariable=self.selected_edition)
-        self.edition_combobox = StyledCombobox(self.edition_frame, textvariable=self.selected_edition, state="readonly", width=70)
+        self.edition_info_label = customtkinter.CTkLabel(self.edition_frame, textvariable=self.selected_edition)
+        self.edition_combobox = customtkinter.CTkComboBox(self.edition_frame, variable=self.selected_edition, state="readonly", width=70)
         self.edition_combobox.set("Choose an ISO first...")
 
         # VM Switches Widgets
-        self.vm_switches_info_label = StyledLabel(self.vm_switches_frame, text="No switch selected yet.")
-        self.vm_switches_combobox = StyledCombobox(self.vm_switches_frame, textvariable=self.selected_vm_switch, state="readonly", width=40)
+        self.vm_switches_info_label = customtkinter.CTkLabel(self.vm_switches_frame, text="No switch selected yet.")
+        self.vm_switches_combobox = customtkinter.CTkComboBox(self.vm_switches_frame, variable=self.selected_vm_switch, state="readonly", width=40)
         self.vm_switches_combobox.set("Choose a switch...")
 
         # Name and Password Widgets
-        self.vm_name_label = StyledLabel(self.name_pass_frame, text="VM Name:")
-        self.vm_name_entry = StyledEntry(self.name_pass_frame)
-        self.password_label = StyledLabel(self.name_pass_frame, text="Password:")
-        self.password_entry = StyledEntry(self.name_pass_frame, show="*")
+        self.vm_name_label = customtkinter.CTkLabel(self.name_pass_frame, text="VM Name:")
+        self.vm_name_entry = customtkinter.CTkEntry(self.name_pass_frame)
+        self.password_label = customtkinter.CTkLabel(self.name_pass_frame, text="Password:")
+        self.password_entry = customtkinter.CTkEntry(self.name_pass_frame, show="*")
 
         # Resources Widgets
-        self.ram_label = StyledLabel(self.resources_frame, text="RAM (GB):")
-        self.ram_entry = StyledEntry(self.resources_frame)
-        self.processor_count_label = StyledLabel(self.resources_frame, text="Processors:")
-        self.processor_count_entry = StyledEntry(self.resources_frame)
-        self.vhdx_size_label = StyledLabel(self.resources_frame, text="VHDX Size (GB):")
-        self.vhdx_size_entry = StyledEntry(self.resources_frame)
+        self.ram_label = customtkinter.CTkLabel(self.resources_frame, text="RAM (GB):")
+        self.ram_entry = customtkinter.CTkEntry(self.resources_frame)
+        self.processor_count_label = customtkinter.CTkLabel(self.resources_frame, text="Processors:")
+        self.processor_count_entry = customtkinter.CTkEntry(self.resources_frame)
+        self.vhdx_size_label = customtkinter.CTkLabel(self.resources_frame, text="VHDX Size (GB):")
+        self.vhdx_size_entry = customtkinter.CTkEntry(self.resources_frame)
 
         # Network Settings Widgets
-        self.ip_label = StyledLabel(self.network_settings_frame, text="IPv4 Address:")
-        self.ip_entry = StyledEntry(self.network_settings_frame)
-        self.prefix_length_label = StyledLabel(self.network_settings_frame, text="Prefix (CIDR):")
-        self.prefix_length_entry = StyledEntry(self.network_settings_frame)
-        self.gateway_label = StyledLabel(self.network_settings_frame, text="Gateway:")
-        self.gateway_entry = StyledEntry(self.network_settings_frame)
-        self.dns_label = StyledLabel(self.network_settings_frame, text="DNS:")
-        self.dns_entry = StyledEntry(self.network_settings_frame)
+        self.ip_label = customtkinter.CTkLabel(self.network_settings_frame, text="IPv4 Address:")
+        self.ip_entry = customtkinter.CTkEntry(self.network_settings_frame)
+        self.prefix_length_label = customtkinter.CTkLabel(self.network_settings_frame, text="Prefix (CIDR):")
+        self.prefix_length_entry = customtkinter.CTkEntry(self.network_settings_frame)
+        self.gateway_label = customtkinter.CTkLabel(self.network_settings_frame, text="Gateway:")
+        self.gateway_entry = customtkinter.CTkEntry(self.network_settings_frame)
+        self.dns_label = customtkinter.CTkLabel(self.network_settings_frame, text="DNS:")
+        self.dns_entry = customtkinter.CTkEntry(self.network_settings_frame)
 
         # Replace OptionMenu with a more modern Combobox
-        self.network_category_label = StyledLabel(self.network_settings_frame, text="Network Category:")
-        self.network_category_combobox = StyledCombobox(
+        self.network_category_label = customtkinter.CTkLabel(self.network_settings_frame, text="Network Category:")
+        self.network_category_combobox = customtkinter.CTkComboBox(
             self.network_settings_frame,
-            textvariable=self.selected_network_category,
+            variable=self.selected_network_category,
             state="readonly"
         )
-        self.network_category_combobox["values"] = self.network_category_options
+        self.network_category_combobox.configure(values=self.network_category_options)
         self.network_category_combobox.set(self.selected_network_category.get())
 
 
         # Create VM Button
-        self.create_vm_button = StyledButton(self, text="Create VM", command=self.create_vm)
+        self.create_vm_button = customtkinter.CTkButton(self, text="Create VM", command=self.create_vm)
 
     def _pack_widgets(self):
         """Packs all the widgets in the tab."""
@@ -150,8 +144,8 @@ class CreateVMTab(ttk.Frame):
 
     def _bind_events(self):
         """Binds events to widgets."""
-        self.edition_combobox.bind("<<ComboboxSelected>>", self.on_edition_selected)
-        self.vm_switches_combobox.bind("<<ComboboxSelected>>", self.on_vm_switch_selected)
+        self.edition_combobox.configure(command=self.on_edition_selected)
+        self.vm_switches_combobox.configure(command=self.on_vm_switch_selected)
 
     def _populate_combobox_from_ps(self, script_name, ps_args, combobox, info_label, data_list, no_items_msg):
         """Helper to populate a combobox by running a PowerShell script."""
@@ -164,15 +158,15 @@ class CreateVMTab(ttk.Frame):
         data_list[:] = items if items else []
 
         if data_list:
-            combobox["values"] = data_list
+            combobox.configure(values=data_list)
             combobox.set(data_list[0])
             if info_label:
-                info_label.config(text=f"Loaded {len(data_list)} items.")
+                info_label.configure(text=f"Loaded {len(data_list)} items.")
         else:
-            combobox["values"] = []
+            combobox.configure(values=[])
             combobox.set(no_items_msg)
             if info_label:
-                info_label.config(text=no_items_msg)
+                info_label.configure(text=no_items_msg)
 
     def get_windows_image_editions(self):
         isopath = filedialog.askopenfilename(filetypes=[("ISO files", "*.iso")])
@@ -185,11 +179,10 @@ class CreateVMTab(ttk.Frame):
             "getIsoEditions.ps1", ps_args, self.edition_combobox, self.edition_info_label, self.editions, "No editions found."
         )
 
-    def on_edition_selected(self, event):
-        selected = self.selected_edition.get()
-        self.edition_info_label.config(text=f"You selected: {selected}")
+    def on_edition_selected(self, choice):
+        self.edition_info_label.configure(text=f"You selected: {choice}")
         self.version_name = self._get_version_name_from_edition()
-        print(f"Selected edition: {selected}", self.version_name)
+        print(f"Selected edition: {choice}", self.version_name)
 
     def load_switches(self):
         ps_args = ["-AppRootPath", f"{self.app.get_root_path()}"]
@@ -197,10 +190,9 @@ class CreateVMTab(ttk.Frame):
             "getVMSwitches.ps1", ps_args, self.vm_switches_combobox, self.vm_switches_info_label, self.vm_switches, "No switches found."
         )
 
-    def on_vm_switch_selected(self, event):
-        selected = self.selected_vm_switch.get()
-        self.vm_switches_info_label.config(text=f"You selected: {selected}")
-        print(f"Selected switch: {selected}")
+    def on_vm_switch_selected(self, choice):
+        self.vm_switches_info_label.configure(text=f"You selected: {choice}")
+        print(f"Selected switch: {choice}")
 
     def _get_version_name_from_edition(self):
         """Gets the script-friendly version name from the selected edition string."""

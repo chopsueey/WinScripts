@@ -1,12 +1,12 @@
 Traceback (most recent call last):
-  File "/app/main.py", line 4, in <module>
-    app = App()
-          ^^^^^
-  File "/app/App.py", line 13, in __init__
-    super().__init__(master)
-  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/ttkthemes/themed_tk.py", line 66, in __init__
-    tk.Tk.__init__(self, *args, **kwargs)
-  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/tkinter/__init__.py", line 2346, in __init__
-    self.tk = _tkinter.create(screenName, baseName, className, interactive, wantobjects, useTk, sync, use)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_tkinter.TclError: no display name and no $DISPLAY environment variable
+  File "/app/main.py", line 1, in <module>
+    from App import App
+  File "/app/App.py", line 4, in <module>
+    from components import Menubar, Statusbar, Notebook
+  File "/app/components/__init__.py", line 3, in <module>
+    from .Notebook.Notebook import Notebook
+  File "/app/components/Notebook/Notebook.py", line 3, in <module>
+    from .GeneralTab import GeneralTab
+  File "/app/components/Notebook/GeneralTab.py", line 4, in <module>
+    from components.AdminButton import AdminButton
+ModuleNotFoundError: No module named 'components.AdminButton'
