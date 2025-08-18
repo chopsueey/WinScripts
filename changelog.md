@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-18] - Refactor: UI Library and Theming Engine
+
+### Summary of Changes
+
+- **Major Refactor: Replaced `ttkthemes` with `customtkinter`:**
+  - The entire UI theming engine has been migrated from the `ttkthemes` and standard `tkinter.ttk` libraries to the more modern `customtkinter` library. This provides a more consistent and visually appealing look and feel across all components, with better support for light and dark modes.
+  - All UI components (`App.py`, `Statusbar.py`, `Notebook.py`, and all its tabs) have been refactored to use `customtkinter` widgets (e.g., `CTkButton`, `CTkFrame`) instead of their `ttk` counterparts.
+
+- **Code Cleanup:**
+  - Removed the now-obsolete `lib/ui_helpers.py`, `components/AdminButton.py`, and `style.py` files, as their functionality is now handled directly by `customtkinter`.
+  - Updated `requirements.txt` to remove `ttkthemes` and add `customtkinter`.
+
+- **Bug Fixes:**
+  - Resolved several bugs that arose during the refactoring process, including:
+    - A `ValueError` on startup caused by passing unsupported arguments (`relief`, `border`) to `CTkFrame` widgets.
+    - An issue where the main window would close immediately after starting.
+    - A bug where the "Edition" `ComboBox` in the "Create VM" tab was clickable before being populated, which has been fixed by disabling the widget until it is ready.
+
+- **Documentation:**
+  - The `UI_STYLE_GUIDE.md` has been completely rewritten to reflect the new design system based on `customtkinter`.
+
 ## [2025-08-12] - Fix: PyInstaller Build and Theme Toggling
 
 ### Summary of Changes

@@ -66,7 +66,7 @@ To ensure we retain important information and decisions, we use a `technical_con
 
 This project is a desktop application with a graphical user interface (GUI) built using Python's `tkinter` library. Its main purpose is to provide a user-friendly frontend for a collection of PowerShell scripts that automate tasks related to Hyper-V virtual machine management.
 
-- **Main Technologies:** Python, Tkinter, PowerShell
+- **Main Technologies:** Python, CustomTkinter, PowerShell
 - **Core Functionality:** The application acts as a graphical wrapper for PowerShell scripts.
 
 For a more detailed overview, please read **[`documentation/project_overview.md`](./documentation/project_overview.md)**.
@@ -96,14 +96,14 @@ For details on the key scripts and how they are used, please read **[`documentat
 - **Code Style:** Follow existing code patterns and aim for clarity and maintainability.
 - **UI Development and Styling:** All UI development must adhere to the official style guide.
   - **Read the Guide:** Before creating or modifying any UI, you **must** read the **[`UI_STYLE_GUIDE.md`](./UI_STYLE_GUIDE.md)** to understand the design system.
-  - **Use UI Helpers:** To ensure consistency, you **must** use the helper functions provided in **`lib/ui_helpers.py`** for creating styled widgets. Do not style widgets manually.
+  - **Use CustomTkinter Widgets:** To ensure consistency, you **must** use the widgets provided by the `customtkinter` library (e.g., `customtkinter.CTkButton`). Do not use standard `tkinter` or `ttk` widgets.
   - **Example:**
     ```python
     # Correct way to create a button:
-    from lib.ui_helpers import StyledButton
-    button = StyledButton(parent, text="Submit", command=submit_form)
+    import customtkinter
+    button = customtkinter.CTkButton(parent, text="Submit", command=submit_form)
 
-    # Incorrect way (manual styling):
-    # button = ttk.Button(parent, text="Submit", ...)
-    # button.configure(...)
+    # Incorrect way (using old libraries):
+    # import tkinter
+    # button = tkinter.Button(parent, text="Submit", ...)
     ```

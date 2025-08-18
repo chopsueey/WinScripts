@@ -1,15 +1,14 @@
-import tkinter as tk
-from tkinter import ttk
+import customtkinter
 from lib.functions import run_ps1_script_2
 from lib.utils import construct_path
-from components.AdminButton import AdminButton
 
 
-class AzureTab(ttk.Frame):
+class AzureTab(customtkinter.CTkFrame):
     def __init__(self, master, app):
         super().__init__(master)
+        self.pack(expand=True, fill="both")
 
-        self.connect_azure_button = AdminButton(
+        self.connect_azure_button = customtkinter.CTkButton(
             self,
             text="Connect to Azure",
             command=lambda: run_ps1_script_2(
@@ -22,7 +21,7 @@ class AzureTab(ttk.Frame):
         )
         self.connect_azure_button.pack(pady=4)
 
-        self.get_rg_button = AdminButton(
+        self.get_rg_button = customtkinter.CTkButton(
             self,
             text="Get Resource Groups",
             command=lambda: run_ps1_script_2(
@@ -35,7 +34,7 @@ class AzureTab(ttk.Frame):
         )
         self.get_rg_button.pack(pady=4)
 
-        self.get_storage_button = AdminButton(
+        self.get_storage_button = customtkinter.CTkButton(
             self,
             text="Get Storage Accounts",
             command=lambda: run_ps1_script_2(
@@ -48,7 +47,7 @@ class AzureTab(ttk.Frame):
         )
         self.get_storage_button.pack(pady=4)
 
-        self.create_vm_button = AdminButton(
+        self.create_vm_button = customtkinter.CTkButton(
             self,
             text="Create Azure VM",
             command=lambda: run_ps1_script_2(

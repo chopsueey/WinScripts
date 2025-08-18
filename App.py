@@ -1,28 +1,21 @@
+import customtkinter
 from tkinter import messagebox
 from style import init_style
 from components import Menubar, Statusbar, Notebook
-from ttkthemes import ThemedTk
 from lib.functions import center_window
 from lib.utils import resource_path
 from lib.Config import Config
 import os, sys
 
-
-class App(ThemedTk):
+class App(customtkinter.CTk):
     def __init__(self, master=None):
         super().__init__(master)
         # Config
         self.app_config = Config()
 
-        # Validate and set theme
-        available_themes = self.get_themes()
-        current_theme = self.app_config.theme
-        if current_theme not in available_themes:
-            current_theme = "arc"  # Fallback to default
-            self.app_config.theme = current_theme # Correct the config
-
-        self.set_theme(current_theme)
-        self.withdraw()
+        # Set appearance
+        customtkinter.set_appearance_mode(self.app_config.theme)
+        customtkinter.set_default_color_theme("blue")
 
         if not self.app_config.admin_rights_message_shown:
             messagebox.showinfo(
@@ -34,8 +27,7 @@ class App(ThemedTk):
         self.master = master
         self.title("App")
         icon_path = resource_path("favicon.ico")
-        self.iconbitmap(icon_path)
-        # self.iconbitmap(r"./favicon.ico")
+        # self.iconbitmap(icon_path) # customtkinter does not support .ico files on linux
 
         # State
         self.script_dir_relative = "scripts"
@@ -45,15 +37,15 @@ class App(ThemedTk):
 
         # Menubar
         self.menubar = Menubar(self)
-        self.config(menu=self.menubar)
+        # self.config(menu=self.menubar) # CTk does not have a config method
 
         # Statusbar
-        self.status_bar = Statusbar(self, relief="groove", padding=4, border=4)
+        self.status_bar = Statusbar(self)
         self.status_bar.pack(fill="both", expand=True, padx=4, pady=4)
 
         # Notebook
-        self.notebook = Notebook(self, name="test123", padding=4)
-        self.notebook.pack(expand=True, fill="both")
+        self.notebook = Notebook(self)
+        self.notebook.pack(expand=True, fill="both", padx=4, pady=4)
 
     # METHODS
     def get_root_path(self):
@@ -62,12 +54,12 @@ class App(ThemedTk):
         return root_dir
 
     def toggle_theme(self):
-        if self.app_config.theme == "arc":
-            self.app_config.theme = "equilux"
+        if self.app_config.theme == "dark":
+            self.app_config.theme = "light"
         else:
-            self.app_config.theme = "arc"
+            self.app_config.theme = "dark"
 
-        self.restart()
+        customtkinter.set_appearance_mode(self.app_config.theme)
 
     def restart(self):
         """Restarts the application."""
@@ -87,5 +79,4 @@ class App(ThemedTk):
 
         center_window(self, self.width, self.height)
         self.after(100, self._bring_to_front)
-        self.deiconify()
         self.mainloop()
