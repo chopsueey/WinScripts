@@ -1,25 +1,63 @@
-Write-Host "Setting new computer name..."
+#Requires -RunAsAdministrator
+<#
+.SYNOPSIS
+Renames the local computer.
 
-$NewComputerName = Read-Host "Choose new name"
-Rename-Computer -NewName $NewComputerName -Force
+.DESCRIPTION
+This script changes the name of the computer and can optionally restart it to apply the change.
 
-Write-Host "Computer name changed to $NewComputerName. A restart is required for the change to take effect."
+.PARAMETER NewName
+The new name for the computer.
 
-Add-Type -AssemblyName System.Windows.Forms
+.PARAMETER Restart
+A switch that, if present, causes the computer to restart after the rename operation.
 
-# Define the message box parameters
-$Message = "Are you sure you want to restart this computer?"
-$Title = "Confirm Computer Restart"
-$Buttons = [System.Windows.Forms.MessageBoxButtons]::YesNo
-$Icon = [System.Windows.Forms.MessageBoxIcon]::Question
+.EXAMPLE
+.\setComputerName.ps1 -NewName 'NEW-PC-NAME' -Restart
+#>
+[CmdletBinding(SupportsShouldProcess=$true)]
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$NewName,
 
-# Display the message box and capture the result
-# The Show method returns a DialogResult enumeration value (e.g., Yes, No, Cancel)
-$Result = [System.Windows.Forms.MessageBox]::Show($Message, $Title, $Buttons, $Icon)
+    [switch]$Restart
+)
 
-# Check the user's response
-if ($Result -eq [System.Windows.Forms.DialogResult]::Yes) {
-    Restart-Computer -Force
-} else {
-    Write-Host "User cancelled restart. Computer will not be restarted."
+# Import the administration module
+try {
+    Import-Module (Join-Path $PSScriptRoot "modules\WinAdmin.psm1") -ErrorAction Stop
+}
+catch {
+    Write-Host "FATAL: Could not import WinAdmin module. Ensure 'WinAdmin.psm1' exists in the 'modules' subdirectory. ERROR: $($_.Exception.Message)"
+    exit 1
+}
+
+# --- Prerequisite Checks ---
+Write-Log "Performing prerequisite checks..."
+
+if (-not (Test-AdminPrivileges)) {
+    Write-ErrorLog "This script must be run with Administrator privileges."
+    exit 1
+}
+Write-Log "Administrator check passed."
+
+# --- Main Logic ---
+try {
+    if ($PSCmdlet.ShouldProcess("computer '$env:COMPUTERNAME'", "Rename to '$NewName'")) {
+        Write-Log "Renaming computer to '$NewName'..."
+        Rename-Computer -NewName $NewName -Force -ErrorAction Stop
+
+        Write-Log "Computer name has been changed to '$NewName'."
+
+        if ($Restart.IsPresent) {
+            Write-Log "Restarting computer to apply the new name..."
+            Restart-Computer -Force
+        } else {
+            Write-Log "A restart is required for the name change to take effect."
+        }
+    }
+}
+catch {
+    Write-ErrorLog "Failed to rename computer. ERROR: $($_.Exception.Message)"
+    exit 1
 }

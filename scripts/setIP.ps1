@@ -1,91 +1,105 @@
-# Write-Host "Interface Names:"
-# Write-Host ""
-# (Get-NetAdapter | Select-Object -Property Name).Name
-# Write-Host ""
+#Requires -RunAsAdministrator
+<#
+.SYNOPSIS
+Configures a static IP address for a network adapter.
 
-# Write-Host "Choose the interface"
-# Write-Host ""
+.DESCRIPTION
+This script sets a static IPv4 address, subnet mask, default gateway, and DNS servers for a specified network adapter.
+It clears any existing IP and DNS configurations before applying the new settings.
 
-# $InterfaceAlias = Read-Host "Interface name"
-# $IPv4Address = Read-Host "New IP"
-# $PrefixLength = [int](Read-Host "Cidr/Prefix Length (e.g: 24)")                   # For 255.255.255.0
-# $Gateway = Read-Host "Gateway"
-# $DnsServers = @("1.1.1.1", "8.8.8.8")
+.PARAMETER InterfaceAlias
+The name of the network adapter to configure (e.g., 'Ethernet').
 
-# Write-Host "Setting static IP on interface: $InterfaceAlias"
+.PARAMETER IPAddress
+The static IPv4 address to set.
 
-# New-NetIPAddress -InterfaceAlias $InterfaceAlias -IPAddress $IPv4Address -PrefixLength $PrefixLength -DefaultGateway $Gateway -ErrorAction SilentlyContinue
+.PARAMETER PrefixLength
+The subnet mask prefix length (e.g., 24 for 255.255.255.0).
 
-# Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ServerAddresses $DnsServers
+.PARAMETER Gateway
+The default gateway address.
 
-# Write-Host "Interface Names:"
-# Write-Host ""
-# (Get-NetAdapter | Select-Object -Property Name).Name
-# Write-Host ""
+.PARAMETER DnsServers
+An array of DNS server addresses.
 
-# Write-Host "Choose the interface"
-# Write-Host ""
+.EXAMPLE
+.\setIP.ps1 -InterfaceAlias 'Ethernet' -IPAddress '192.168.1.100' -PrefixLength 24 -Gateway '192.168.1.1' -DnsServers '8.8.8.8', '1.1.1.1'
+#>
+[CmdletBinding(SupportsShouldProcess=$true)]
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$InterfaceAlias,
 
-# $InterfaceAlias = Read-Host "Interface name"
-# $IPv4Address = Read-Host "New IP"
-# $PrefixLength = [int](Read-Host "Cidr/Prefix Length (e.g: 24)") # For 255.255.255.0
-# $Gateway = Read-Host "Gateway"
-# $DnsServers = @("1.1.1.1", "8.8.8.8")
+    [Parameter(Mandatory=$true)]
+    [string]$IPAddress,
 
-# Write-Host "Setting static IP on interface: $InterfaceAlias"
+    [Parameter(Mandatory=$true)]
+    [int]$PrefixLength,
 
-# # --- Add this section to clear existing IP addresses ---
-# Write-Host "Clearing existing IP addresses for $InterfaceAlias..."
-# Get-NetIPAddress -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 | Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue
+    [string]$Gateway,
 
-# # --- Add this section to clear existing DNS server addresses ---
-# Write-Host "Clearing existing DNS server addresses for $InterfaceAlias..."
-# Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ResetServerAddresses -ErrorAction SilentlyContinue
+    [string[]]$DnsServers
+)
 
+# Import the administration module
+try {
+    Import-Module (Join-Path $PSScriptRoot "modules\WinAdmin.psm1") -ErrorAction Stop
+}
+catch {
+    Write-Host "FATAL: Could not import WinAdmin module. Ensure 'WinAdmin.psm1' exists in the 'modules' subdirectory. ERROR: $($_.Exception.Message)"
+    exit 1
+}
 
-# New-NetIPAddress -InterfaceAlias $InterfaceAlias -IPAddress $IPv4Address -PrefixLength $PrefixLength -DefaultGateway $Gateway -ErrorAction SilentlyContinue
+# --- Prerequisite Checks ---
+Write-Log "Performing prerequisite checks..."
 
-# Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ServerAddresses $DnsServers
+if (-not (Test-AdminPrivileges)) {
+    Write-ErrorLog "This script must be run with Administrator privileges."
+    exit 1
+}
+Write-Log "Administrator check passed."
 
-Write-Host "Interface Names:"
-Write-Host ""
-(Get-NetAdapter | Select-Object -Property Name).Name
-Write-Host ""
-
-Write-Host "Choose the interface"
-Write-Host ""
-
-$InterfaceAlias = Read-Host "Interface name"
-$IPv4Address = Read-Host "New IP"
-$PrefixLength = [int](Read-Host "Cidr/Prefix Length (e.g: 24)") # For 255.255.255.0
-$Gateway = Read-Host "Gateway"
-$DnsServers = @("1.1.1.1", "8.8.8.8")
-
-Write-Host "Setting static IP on interface: $InterfaceAlias"
-
-# --- Clear existing IP addresses ---
-Write-Host "Clearing existing IP addresses for $InterfaceAlias..."
-Get-NetIPAddress -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 | Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue
-
-# --- Clear existing DNS server addresses ---
-Write-Host "Clearing existing DNS server addresses for $InterfaceAlias..."
-Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ResetServerAddresses -ErrorAction SilentlyContinue
-
-# --- Disable DHCP ---
-Write-Host "Disabling DHCP for IPv4 on $InterfaceAlias..."
-Set-NetIPInterface -InterfaceAlias $InterfaceAlias -Dhcp Disabled -ErrorAction SilentlyContinue
+if (-not (Test-NetworkAdapterExists -InterfaceAlias $InterfaceAlias)) {
+    # The function writes the specific error
+    exit 1
+}
+Write-Log "Network adapter check passed."
 
 
-New-NetIPAddress -InterfaceAlias $InterfaceAlias -IPAddress $IPv4Address -PrefixLength $PrefixLength -DefaultGateway $Gateway -ErrorAction SilentlyContinue
+# --- Main Logic ---
+try {
+    if ($PSCmdlet.ShouldProcess("network adapter '$InterfaceAlias'", "Set static IP to '$IPAddress'")) {
 
-Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ServerAddresses $DnsServers
+        Write-Log "Clearing any existing IP addresses from '$InterfaceAlias'..."
+        Get-NetIPAddress -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 | Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue
 
-# --- Restart the Network Adapter ---
-Write-Host "Restarting network adapter '$InterfaceAlias' to apply changes..."
-Disable-NetAdapter -Name $InterfaceAlias -Confirm:$false -ErrorAction SilentlyContinue
-Start-Sleep -Seconds 2 # Give it a moment to fully disable
-Enable-NetAdapter -Name $InterfaceAlias -Confirm:$false -ErrorAction SilentlyContinue
+        Write-Log "Setting IP address..."
+        $ipParams = @{
+            InterfaceAlias = $InterfaceAlias
+            IPAddress      = $IPAddress
+            PrefixLength   = $PrefixLength
+            ErrorAction    = 'Stop'
+        }
+        if ($PSBoundParameters.ContainsKey('Gateway')) {
+            $ipParams.Add('DefaultGateway', $Gateway)
+        }
+        New-NetIPAddress @ipParams
 
-Write-Host "IP configuration complete for $InterfaceAlias."
+        if ($PSBoundParameters.ContainsKey('DnsServers')) {
+            Write-Log "Setting DNS servers to $($DnsServers -join ', ')..."
+            Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ServerAddresses $DnsServers -ErrorAction Stop
+        } else {
+            Write-Log "No DNS servers specified, clearing existing DNS settings."
+            Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ResetServerAddresses -ErrorAction Stop
+        }
 
-Read-Host "Press enter to exit"
+        Write-Log "Restarting network adapter '$InterfaceAlias' to apply changes..."
+        Restart-NetAdapter -Name $InterfaceAlias -Confirm:$false
+
+        Write-Log "IP configuration complete for '$InterfaceAlias'."
+    }
+}
+catch {
+    Write-ErrorLog "Failed to set IP configuration. ERROR: $($_.Exception.Message)"
+    exit 1
+}

@@ -1,53 +1,105 @@
-# --- User Input ---
-Write-Host "--- Domain Join Configuration ---"
+#Requires -RunAsAdministrator
+<#
+.SYNOPSIS
+Joins a computer to an Active Directory domain.
 
-# The fully qualified domain name (FQDN) of your new domain
-$DomainName = Read-Host "Enter the FQDN of your Active Directory Domain (e.g., zm.modul3.local)"
+.DESCRIPTION
+This script joins a computer to a specified Active Directory domain.
+It performs prerequisite checks for admin privileges and DNS resolution of the domain.
 
-# Get credentials for a domain user with permission to join computers
-# This will open a pop-up window for username and password input
-$DomainJoinCredential = Get-Credential -Message "Enter credentials for a domain user with permission to join computers"
+.PARAMETER DomainName
+The fully qualified domain name of the domain to join.
 
-# (Optional) You can specify an Organizational Unit (OU) path if you want the computer to go into a specific OU
-# $OUPath = Read-Host "Enter the OU path (e.g., OU=Workstations,DC=zm,DC=modul3,DC=local) (leave blank for default 'Computers' container)"
+.PARAMETER Credential
+The domain user credential with permissions to join computers to the domain.
 
-# (Optional) Rename the computer before joining the domain.
-# This will require an additional restart if done separately, but Add-Computer can do it at once.
-# $NewComputerName = Read-Host "Enter the new computer name (leave blank to keep current name)"
+.PARAMETER OUPath
+The distinguished name of the OU to create the computer object in.
+e.g., "OU=Workstations,DC=yourdomain,DC=com"
 
+.PARAMETER Restart
+Switch to automatically restart the computer after the domain join.
 
-Write-Host "`nAttempting to join '$env:COMPUTERNAME' to domain '$DomainName'..."
+.EXAMPLE
+.\joinDomain.ps1 -DomainName 'ad.contoso.com' -Credential (Get-Credential) -Restart
+#>
+[CmdletBinding(SupportsShouldProcess=$true)]
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$DomainName,
 
+    [Parameter(Mandatory=$false)] # Now optional
+    [System.Management.Automation.PSCredential]$Credential,
+
+    [string]$OUPath,
+
+    [switch]$Restart
+)
+
+# If credential is not provided via parameter, prompt for it
+if (-not $PSBoundParameters.ContainsKey('Credential')) {
+    try {
+        $Credential = Get-Credential -Message "Enter credentials to join domain '$DomainName'"
+        if (-not $Credential) {
+            Write-Host "FATAL: Credentials are required to join a domain. Aborting."
+            exit 1
+        }
+    } catch {
+        Write-Host "FATAL: Could not get credentials. Aborting."
+        exit 1
+    }
+}
+
+# Import the administration module
 try {
-    # Join the computer to the domain
-    # -Force: Suppresses prompts for existing domain membership or workgroup.
-    # -Restart: Restarts the computer after successful join. This is crucial for changes to take effect.
-
-    # If you want to rename the computer at the same time:
-    # if ($NewComputerName) {
-    #     Add-Computer -DomainName $DomainName -Credential $DomainJoinCredential -NewName $NewComputerName -Restart -Force -ErrorAction Stop
-    # } else {
-    #     Add-Computer -DomainName $DomainName -Credential $DomainJoinCredential -Restart -Force -ErrorAction Stop
-    # }
-
-    # Standard domain join (without renaming at the same time, if not needed)
-    Add-Computer -DomainName $DomainName -Credential $DomainJoinCredential -Restart -Force -ErrorAction Stop
-
-    # If you want to specify an OU, uncomment the lines below and the OUPath variable above
-    # Add-Computer -DomainName $DomainName -Credential $DomainJoinCredential -OUPath $OUPath -Restart -Force -ErrorAction Stop
-
-    Write-Host "`nSuccessfully initiated domain join. The computer will now restart."
-
+    Import-Module (Join-Path $PSScriptRoot "modules\WinAdmin.psm1") -ErrorAction Stop
 }
 catch {
-    Write-Error "Failed to join the domain: $($_.Exception.Message)"
-    Write-Host "Please ensure:"
-    Write-Host "- DNS is correctly configured on this client to point to your Domain Controller."
-    Write-Host "- There is network connectivity to the Domain Controller."
-    Write-Host "- The provided domain credentials have permission to join computers to the domain."
+    Write-Host "FATAL: Could not import WinAdmin module. Ensure 'WinAdmin.psm1' exists in the 'modules' subdirectory. ERROR: $($_.Exception.Message)"
+    exit 1
 }
 
-# or:
-# Add-Computer -DomainName "zm.modul3.local" -Credential (Get-Credential) -Restart
+# --- Prerequisite Checks ---
+Write-Log "Performing prerequisite checks..."
 
-Read-Host "Press enter to exit"
+if (-not (Test-AdminPrivileges)) {
+    Write-ErrorLog "This script must be run with Administrator privileges."
+    exit 1
+}
+Write-Log "Administrator check passed."
+
+if (-not (Test-DnsResolution -DomainName $DomainName)) {
+    # The function writes the specific error
+    exit 1
+}
+Write-Log "Domain DNS resolution check passed."
+
+# --- Main Logic ---
+try {
+    $joinParams = @{
+        DomainName = $DomainName
+        Credential = $Credential
+        ErrorAction = 'Stop'
+    }
+    if ($PSBoundParameters.ContainsKey('OUPath')) {
+        $joinParams.Add('OUPath', $OUPath)
+    }
+    if ($Restart.IsPresent) {
+        $joinParams.Add('Restart', $true)
+    }
+
+    if ($PSCmdlet.ShouldProcess("computer '$env:COMPUTERNAME'", "join to domain '$DomainName'")) {
+        Write-Log "Attempting to join domain '$DomainName'..."
+        Add-Computer @joinParams
+        Write-Log "Successfully joined domain '$DomainName'."
+        if ($Restart.IsPresent) {
+            Write-Log "The computer will now restart."
+        } else {
+            Write-Log "A restart is required for the changes to take full effect."
+        }
+    }
+}
+catch {
+    Write-ErrorLog "Failed to join domain. ERROR: $($_.Exception.Message)"
+    exit 1
+}

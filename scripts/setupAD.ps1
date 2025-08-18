@@ -1,63 +1,111 @@
-# --- User Input Section ---
-Write-Host "--- Network Configuration ---"
-Write-Host ""
-(Get-NetAdapter | Select-Object -Property Name).Name
-Write-Host ""
+#Requires -RunAsAdministrator
+<#
+.SYNOPSIS
+Installs and configures an Active Directory Domain Controller.
 
-$InterfaceAlias = Read-Host "Enter the name of the network interface (e.g., Ethernet)"
+.DESCRIPTION
+This script installs the Active Directory Domain Services role and promotes the server to a Domain Controller for a new forest.
+It performs prerequisite checks for administrator privileges and a static IP address.
 
-$DnsPrimary = Read-Host "Enter the primary DNS server IPv4 address"
-$DnsSecondary = Read-Host "Enter the secondary DNS server IPv4 address (leave blank if none)"
+.PARAMETER DomainName
+The fully qualified domain name for the new forest (e.g., 'ad.contoso.com').
 
-$ServerDnsServers = @($DnsPrimary)
-if ($DnsSecondary) {
-    $ServerDnsServers += $DnsSecondary
+.PARAMETER SafeModeAdministratorPassword
+The password for the Directory Services Restore Mode (DSRM). The script will prompt for it if not provided.
+
+.PARAMETER DomainMode
+The domain functional level. Defaults to 'WinThreshold'.
+
+.PARAMETER ForestMode
+The forest functional level. Defaults to 'WinThreshold'.
+
+.EXAMPLE
+.\setupAD.ps1 -DomainName 'ad.contoso.com'
+#>
+[CmdletBinding(SupportsShouldProcess=$true)]
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$DomainName,
+
+    [Parameter(Mandatory=$false)] # Now optional
+    [System.Security.SecureString]$SafeModeAdministratorPassword,
+
+    [ValidateSet("Win2008", "Win2008R2", "Win2012", "Win2012R2", "WinThreshold")]
+    [string]$DomainMode = "WinThreshold",
+
+    [ValidateSet("Win2008", "Win2008R2", "Win2012", "Win2012R2", "WinThreshold")]
+    [string]$ForestMode = "WinThreshold"
+)
+
+# If password is not provided via parameter, prompt for it
+if (-not $PSBoundParameters.ContainsKey('SafeModeAdministratorPassword')) {
+    try {
+        $SafeModeAdministratorPassword = Read-Host -AsSecureString -Prompt "Enter the Directory Services Restore Mode (DSRM) password"
+        if (-not $SafeModeAdministratorPassword) {
+            Write-Host "FATAL: DSRM password is required. Aborting."
+            exit 1
+        }
+    } catch {
+        Write-Host "FATAL: Could not get DSRM password. Aborting."
+        exit 1
+    }
 }
 
-Write-Host "`n--- Active Directory Configuration ---"
-$DomainName = Read-Host "Enter the full domain name (e.g., yourdomain.local)"
-$DomainNetBiosName = Read-Host "Enter the NetBIOS name for the domain (e.g., YOURDOMAIN)"
-
-# Get a secure password for DSRM
-$SafeModeAdminPassword = Read-Host -AsSecureString -Prompt "Enter the Directory Services Restore Mode (DSRM) password"
-
-Write-Host "`n--- DNS Forwarder Configuration ---"
-$ForwarderPrimary = Read-Host "Enter the primary DNS forwarder IPv4 address (e.g., 1.1.1.1)"
-$ForwarderSecondary = Read-Host "Enter the secondary DNS forwarder IPv4 address (e.g., 8.8.8.8) (leave blank if none)"
-
-$DnsForwarderIPs = @($ForwarderPrimary)
-if ($ForwarderSecondary) {
-    $DnsForwarderIPs += $ForwarderSecondary
+# Import the administration module
+try {
+    Import-Module (Join-Path $PSScriptRoot "modules\WinAdmin.psm1") -ErrorAction Stop
+}
+catch {
+    Write-Host "FATAL: Could not import WinAdmin module. Ensure 'WinAdmin.psm1' exists in the 'modules' subdirectory. ERROR: $($_.Exception.Message)"
+    exit 1
 }
 
-# --- Script Logic ---
+# --- Prerequisite Checks ---
+Write-Log "Performing prerequisite checks..."
 
-Write-Host "`nSetting DNS Client Server Address..."
-Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ServerAddresses $ServerDnsServers -ErrorAction Stop
+# Check for Admin privileges - Note: #Requires -RunAsAdministrator is the primary guard
+if (-not (Test-AdminPrivileges)) {
+    Write-ErrorLog "This script must be run with Administrator privileges."
+    exit 1
+}
+Write-Log "Administrator check passed."
 
-Write-Host "Disabling IPv6 on interface: $InterfaceAlias..."
-Disable-NetAdapterBinding -Name $InterfaceAlias -ComponentID ms_tcpip6 -ErrorAction Stop
+# Check for a static IP address
+if (-not (Test-StaticIPAddress)) {
+    # The function itself writes the specific error
+    exit 1
+}
+Write-Log "Static IP address check passed."
 
-Write-Host "Installing Active Directory Domain Services feature..."
-Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools -IncludeAllSubFeature -ErrorAction Stop
+# --- Main Logic ---
+try {
+    # Derive NetBIOS name from the domain name (takes the first part of the FQDN)
+    $netbiosName = ($DomainName.Split('.'))[0].ToUpper()
+    Write-Log "Derived NetBIOS Name: $netbiosName"
 
-Write-Host "Installing Active Directory Forest..."
-Install-ADDSForest `
-    -DomainName $DomainName `
-    -DomainNetBiosName $DomainNetBiosName `
-    -DomainMode WinThreshold `
-    -ForestMode WinThreshold `
-    -SkipPreChecks `
-    -InstallDns:$true `
-    -SafeModeAdministratorPassword $SafeModeAdminPassword `
-    -Force -ErrorAction Stop
+    if ($PSCmdlet.ShouldProcess("server '$env:COMPUTERNAME'", "Install AD Domain Services and promote to Domain Controller for domain '$DomainName'")) {
 
-Write-Host "Registering DNS records..."
-ipconfig /registerdns
+        Write-Log "Installing Active Directory Domain Services role..."
+        Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools -ErrorAction Stop
+        Write-Log "AD Domain Services role installed successfully."
 
-Write-Host "Setting DNS Server Forwarders..."
-Set-DnsServerForwarder -IPAddress $DnsForwarderIPs -ErrorAction Stop
+        Write-Log "Promoting server to a Domain Controller for forest '$DomainName'..."
+        Install-ADDSForest `
+            -DomainName $DomainName `
+            -DomainNetbiosName $netbiosName `
+            -DomainMode $DomainMode `
+            -ForestMode $ForestMode `
+            -SafeModeAdministratorPassword $SafeModeAdministratorPassword `
+            -InstallDns:$true `
+            -CreateDnsDelegation:$false `
+            -NoRebootOnCompletion:$false `
+            -Force:$true `
+            -ErrorAction Stop
 
-Write-Host "`nScript execution complete."
-
-Read-Host "Press enter to exit"
+        Write-Log "Domain Controller promotion successful. The server will restart automatically."
+    }
+}
+catch {
+    Write-ErrorLog "Failed to set up Active Directory. ERROR: $($_.Exception.Message)"
+    exit 1
+}

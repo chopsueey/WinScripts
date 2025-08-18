@@ -12,7 +12,7 @@ class AzureTab(customtkinter.CTkFrame):
         self.connect_azure_button = customtkinter.CTkButton(
             self,
             text="Connect to Azure",
-            command=lambda: self.run_script("Azure-Automation/Connect-Azure.ps1")
+            command=self.prompt_for_connect_azure # Updated
         )
         self.connect_azure_button.pack(pady=4)
 
@@ -37,9 +37,30 @@ class AzureTab(customtkinter.CTkFrame):
         )
         self.create_vm_button.pack(pady=4)
 
-    def run_script(self, script_name):
+    def run_script(self, script_name, ps_args=None): # Updated
+        if ps_args is None:
+            ps_args = []
         script_path = construct_path(
             self.app.current_script_dir, self.app.script_dir_relative, script_name
         )
-        # Assuming elevation might be needed for Azure CLI operations
-        run_ps1_script_async(script_path, elevated=True)
+        run_ps1_script_async(script_path, ps_args=ps_args, elevated=True)
+
+    def prompt_for_connect_azure(self):
+        dialog = customtkinter.CTkToplevel(self)
+        dialog.title("Connect to Azure")
+        dialog.geometry("350x120")
+        dialog.transient(self.app)
+
+        force_var = customtkinter.StringVar(value="off")
+
+        customtkinter.CTkCheckBox(dialog, text="Force install 'Az.Accounts' module without prompt", variable=force_var, onvalue="on", offvalue="off").pack(padx=20, pady=(10,5), anchor="w")
+
+        def run_with_args():
+            ps_args = []
+            if force_var.get() == "on":
+                ps_args.append("-Force")
+            self.run_script("Azure-Automation/Connect-Azure.ps1", ps_args)
+            dialog.destroy()
+
+        customtkinter.CTkButton(dialog, text="Connect", command=run_with_args).pack(padx=20, pady=(10,10), fill="x", expand=True)
+        dialog.grab_set()
