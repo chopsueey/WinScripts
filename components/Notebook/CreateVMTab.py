@@ -159,7 +159,6 @@ class CreateVMTab(customtkinter.CTkFrame):
 
         if data_list:
             combobox.configure(values=data_list)
-            combobox.set(data_list[0])
             if info_label:
                 info_label.configure(text=f"Loaded {len(data_list)} items.")
         else:
