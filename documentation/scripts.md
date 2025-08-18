@@ -41,4 +41,4 @@ A new set of scripts for Azure automation has been added to the `scripts/Azure-A
 
 ## How They Are Called
 
-The Python application uses the `subprocess` module to execute these PowerShell scripts. The `lib/functions.py` file contains helper functions (`run_ps1_script`, `run_ps1_script_2`, etc.) that abstract the process of running the scripts and capturing their output.
+The Python application uses the `subprocess` module to execute these PowerShell scripts. The `lib/functions.py` file contains helper functions (`run_ps1_script`, `run_ps1_script_no_json`, `run_ps1_cmd`) that abstract the process of running the scripts and capturing their output. These functions are designed to be robust, with error handling that captures and reports any issues during script execution.
