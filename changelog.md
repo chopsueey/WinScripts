@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-18] - Feature: Input Validation and Error Handling
+
+### Summary of Changes
+
+- **Feature: Comprehensive Error Handling:**
+  - Implemented robust error handling for the entire application, focusing on the "Create VM" tab.
+  - The application now provides clear, user-friendly feedback for both invalid user input and backend script failures.
+
+- **Frontend: Input Validation:**
+  - Added a new `validators.py` module with functions to validate user input (e.g., checking for empty fields, valid integers, IP addresses, etc.).
+  - The "Create VM" form in `CreateVMTab.py` now uses these validators to check all fields before attempting to run the creation script.
+  - If validation fails, an informative error message is displayed to the user, preventing invalid data from being processed.
+
+- **Backend: Script Error Handling:**
+  - Created a new `exceptions.py` module with a custom `ScriptError` exception.
+  - Refactored the PowerShell script execution functions in `lib/functions.py` to be more robust. They now check the script's exit code and capture `stderr`.
+  - If a PowerShell script fails, it now raises a `ScriptError`, which is caught by the UI.
+  - The user is now shown a detailed error message, including the error output from the script, which is critical for debugging issues like missing Hyper-V modules or incorrect permissions.
+
+- **Code Quality:**
+  - The changes make the application more reliable and user-friendly by preventing silent failures and providing clear guidance to the user when things go wrong.
+
 ## [2025-08-18] - Fix: Automatic Window Resizing
 
 ### Summary of Changes
