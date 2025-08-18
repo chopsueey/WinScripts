@@ -1,7 +1,6 @@
 import customtkinter
 from lib.functions import run_ps1_script_2
 from lib.utils import construct_path
-from components.AdminButton import AdminButton
 
 
 class AzureTab(customtkinter.CTkFrame):
