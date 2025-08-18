@@ -36,3 +36,14 @@ class Notebook(customtkinter.CTkTabview):
         # if tab_index == 5:
         #     self.quick_shell.script_input.focus()
         pass
+
+    def get_all_tabs(self):
+        """Returns a list of all tab content frames."""
+        return [
+            self.general_tab,
+            self.advanced_tab,
+            self.active_directory_tab,
+            self.create_vm_tab,
+            self.azure_tab,
+            self.quick_shell,
+        ]
