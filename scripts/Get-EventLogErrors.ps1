@@ -66,3 +66,5 @@ catch {
     Write-ErrorLog "Failed to retrieve event log errors. ERROR: $($_.Exception.Message)"
     exit 1
 }
+
+Read-Host -Prompt "Press Enter to exit"

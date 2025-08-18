@@ -78,3 +78,5 @@ catch {
     Write-ErrorLog "Failed to get system health. ERROR: $($_.Exception.Message)"
     exit 1
 }
+
+Read-Host -Prompt "Press Enter to exit"
