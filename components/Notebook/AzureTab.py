@@ -6,6 +6,7 @@ from lib.utils import construct_path
 class AzureTab(customtkinter.CTkFrame):
     def __init__(self, master, app):
         super().__init__(master)
+        self.pack(expand=True, fill="both")
 
         self.connect_azure_button = customtkinter.CTkButton(
             self,

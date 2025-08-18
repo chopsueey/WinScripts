@@ -9,6 +9,7 @@ import os
 class CreateVMTab(customtkinter.CTkFrame):
     def __init__(self, master, app, **kwargs):
         super().__init__(master, **kwargs)
+        self.pack(expand=True, fill="both")
         self.app = app
 
         self._initialize_state()
