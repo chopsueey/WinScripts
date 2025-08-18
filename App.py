@@ -17,8 +17,6 @@ class App(customtkinter.CTk):
         customtkinter.set_appearance_mode(self.app_config.theme)
         customtkinter.set_default_color_theme("blue")
 
-        self.withdraw()
-
         if not self.app_config.admin_rights_message_shown:
             messagebox.showinfo(
                 "Admin Rights",
@@ -81,5 +79,4 @@ class App(customtkinter.CTk):
 
         center_window(self, self.width, self.height)
         self.after(100, self._bring_to_front)
-        self.deiconify()
         self.mainloop()
