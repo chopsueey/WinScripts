@@ -47,13 +47,13 @@ class CreateVMTab(customtkinter.CTkFrame):
         self.choose_iso_button = customtkinter.CTkButton(self.iso_frame, text="Choose ISO", command=self.get_windows_image_editions)
 
         # Edition Widgets
-        self.edition_info_label = customtkinter.CTkLabel(self.edition_frame, textvariable=self.selected_edition)
-        self.edition_combobox = customtkinter.CTkComboBox(self.edition_frame, variable=self.selected_edition, state="disabled", width=70)
+        self.edition_info_label = customtkinter.CTkLabel(self.edition_frame, text="Selected Edition:")
+        self.edition_combobox = customtkinter.CTkComboBox(self.edition_frame, variable=self.selected_edition, state="disabled", width=250)
         self.edition_combobox.set("Choose an ISO first...")
 
         # VM Switches Widgets
-        self.vm_switches_info_label = customtkinter.CTkLabel(self.vm_switches_frame, text="No switch selected yet.")
-        self.vm_switches_combobox = customtkinter.CTkComboBox(self.vm_switches_frame, variable=self.selected_vm_switch, state="readonly", width=40)
+        self.vm_switches_info_label = customtkinter.CTkLabel(self.vm_switches_frame, text="Selected Virtual Switch:")
+        self.vm_switches_combobox = customtkinter.CTkComboBox(self.vm_switches_frame, variable=self.selected_vm_switch, state="readonly", width=250)
         self.vm_switches_combobox.set("Choose a switch...")
 
         # Name and Password Widgets
@@ -160,13 +160,9 @@ class CreateVMTab(customtkinter.CTkFrame):
         if data_list:
             combobox.configure(values=data_list, state="readonly")
             combobox.set("Please select...") # Set a neutral placeholder
-            if info_label:
-                info_label.configure(text=f"Loaded {len(data_list)} items.")
         else:
             combobox.configure(values=[], state="disabled")
             combobox.set(no_items_msg)
-            if info_label:
-                info_label.configure(text=no_items_msg)
 
     def get_windows_image_editions(self):
         isopath = filedialog.askopenfilename(filetypes=[("ISO files", "*.iso")])
@@ -180,7 +176,6 @@ class CreateVMTab(customtkinter.CTkFrame):
         )
 
     def on_edition_selected(self, choice):
-        self.edition_info_label.configure(text=f"You selected: {choice}")
         self.version_name = self._get_version_name_from_edition()
         print(f"Selected edition: {choice}", self.version_name)
 
@@ -191,7 +186,6 @@ class CreateVMTab(customtkinter.CTkFrame):
         )
 
     def on_vm_switch_selected(self, choice):
-        self.vm_switches_info_label.configure(text=f"You selected: {choice}")
         print(f"Selected switch: {choice}")
 
     def _get_version_name_from_edition(self):
