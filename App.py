@@ -42,12 +42,12 @@ class App(customtkinter.CTk):
         # self.config(menu=self.menubar) # CTk does not have a config method
 
         # Statusbar
-        self.status_bar = Statusbar(self, relief="groove", padding=4, border=4)
+        self.status_bar = Statusbar(self)
         self.status_bar.pack(fill="both", expand=True, padx=4, pady=4)
 
         # Notebook
-        self.notebook = Notebook(self, name="test123", padding=4)
-        self.notebook.pack(expand=True, fill="both")
+        self.notebook = Notebook(self)
+        self.notebook.pack(expand=True, fill="both", padx=4, pady=4)
 
     # METHODS
     def get_root_path(self):
