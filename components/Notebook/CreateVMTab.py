@@ -1,8 +1,10 @@
 import customtkinter
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from lib.functions import run_ps1_script_2, run_ps1_script
+from lib.functions import run_ps1_script_async, run_ps1_script
+from lib.exceptions import ScriptError
 from lib.utils import construct_path
+from lib import validators
 import os
 
 
@@ -150,19 +152,23 @@ class CreateVMTab(customtkinter.CTkFrame):
     def _populate_combobox_from_ps(self, script_name, ps_args, combobox, info_label, data_list, no_items_msg):
         """Helper to populate a combobox by running a PowerShell script."""
         script_path = construct_path(self.app.current_script_dir, self.app.script_dir_relative, script_name)
-        items = run_ps1_script(script_path, window=False, ps_args=ps_args)
+        try:
+            items = run_ps1_script(script_path, ps_args=ps_args)
+            if isinstance(items, str):
+                items = [items]
 
-        if isinstance(items, str):
-            items = [items]
+            data_list[:] = items if items else []
 
-        data_list[:] = items if items else []
-
-        if data_list:
-            combobox.configure(values=data_list, state="readonly")
-            combobox.set("Please select...") # Set a neutral placeholder
-        else:
+            if data_list:
+                combobox.configure(values=data_list, state="readonly")
+                combobox.set("Please select...")
+            else:
+                combobox.configure(values=[], state="disabled")
+                combobox.set(no_items_msg)
+        except ScriptError as e:
+            messagebox.showerror("Script Error", f"Failed to populate combobox using {script_name}:\n\n{e}")
             combobox.configure(values=[], state="disabled")
-            combobox.set(no_items_msg)
+            combobox.set("Error loading data")
 
     def get_windows_image_editions(self):
         isopath = filedialog.askopenfilename(filetypes=[("ISO files", "*.iso")])
@@ -213,12 +219,56 @@ class CreateVMTab(customtkinter.CTkFrame):
                 return value
         return None
 
+    def _validate_form(self):
+        """Validates all user inputs in the form."""
+        # Field name, value, validation function, error message
+        validations = [
+            ("ISO Path", self.iso_path.get(), validators.is_path_like, "You must choose a valid ISO file."),
+            ("Edition", self.selected_edition.get(), lambda v: v != "No edition selected." and v != "Choose an ISO first...", "You must select a Windows edition."),
+            ("Virtual Switch", self.selected_vm_switch.get(), lambda v: v != "No switch selected." and v != "Choose a switch...", "You must select a virtual switch."),
+            ("VM Name", self.vm_name_entry.get(), validators.is_not_empty, "VM Name cannot be empty."),
+            ("Password", self.password_entry.get(), validators.is_not_empty, "Password cannot be empty."),
+            ("RAM (GB)", self.ram_entry.get(), validators.is_integer, "RAM must be a valid integer."),
+            ("Processors", self.processor_count_entry.get(), validators.is_integer, "Processor count must be a valid integer."),
+            ("VHDX Size (GB)", self.vhdx_size_entry.get(), validators.is_integer, "VHDX size must be a valid integer."),
+        ]
+
+        # Optional network validations
+        ip_addr = self.ip_entry.get()
+        prefix = self.prefix_length_entry.get()
+        gateway = self.gateway_entry.get()
+        dns = self.dns_entry.get()
+
+        if any([ip_addr, prefix, gateway]):
+            validations.extend([
+                ("IPv4 Address", ip_addr, validators.is_ip_address, "A valid IPv4 Address is required for network configuration."),
+                ("Prefix (CIDR)", prefix, validators.is_cidr, "A valid CIDR prefix (0-32) is required for network configuration."),
+                ("Gateway", gateway, validators.is_ip_address, "A valid Gateway IP address is required for network configuration."),
+            ])
+
+        if dns:
+            # DNS can be a comma-separated list
+            dns_servers = [d.strip() for d in dns.split(',')]
+            for server in dns_servers:
+                if not validators.is_ip_address(server):
+                    messagebox.showerror("Validation Error", f"Invalid DNS server address: {server}")
+                    return False
+
+        for name, value, func, msg in validations:
+            if not func(value):
+                messagebox.showerror("Validation Error", f"Invalid Input: {name}\n\n{msg}")
+                return False
+        return True
+
     def create_vm(self):
-        """Gathers VM parameters, confirms with the user, and runs the creation script."""
+        """Gathers VM parameters, validates them, confirms with the user, and runs the creation script asynchronously."""
+        if not self._validate_form():
+            return  # Stop if validation fails
+
         vm_params = {
             "isoFile": self.iso_path.get(),
             "vmName": self.vm_name_entry.get(),
-            "pass": self.password_entry.get(),
+            "passPlainText": self.password_entry.get(),
             "iso_edition": self.selected_edition.get(),
             "version_name": self.version_name,
             "nameSwitch": self.selected_vm_switch.get(),
@@ -235,9 +285,9 @@ class CreateVMTab(customtkinter.CTkFrame):
 
         summary = "Please confirm the VM creation with the following settings:\n\n"
         for key, value in vm_params.items():
-            display_value = '******' if key == 'pass' and value else value
+            display_value = '******' if key == 'passPlainText' and value else value
             summary += f"{key}: {display_value}\n"
-        summary += "\nDo you want to proceed?"
+        summary += "\nThis will open a new PowerShell window to create the VM. The app will not freeze.\nDo you want to proceed?"
 
         if not messagebox.askyesno("Confirm VM Creation", summary):
             print("VM creation canceled by user.")
@@ -245,7 +295,14 @@ class CreateVMTab(customtkinter.CTkFrame):
 
         ps_args = []
         for key, value in vm_params.items():
-            ps_args.extend([f"-{key}", str(value)])
+            if value:
+                ps_args.extend([f"-{key}", str(value)])
 
         script_path = construct_path(self.app.current_script_dir, self.app.script_dir_relative, r".\\Hyper-V-Automation\\create_Vm.ps1")
-        run_ps1_script_2(script_path, ps_args=ps_args)
+
+        # Use the async (non-blocking) function, with elevation
+        run_ps1_script_async(script_path, ps_args=ps_args, elevated=True)
+        messagebox.showinfo(
+            "VM Creation Started",
+            f"The script to create VM '{vm_params['vmName']}' has been started in a new PowerShell window."
+        )

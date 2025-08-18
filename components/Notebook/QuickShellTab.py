@@ -1,5 +1,6 @@
 import customtkinter
 from lib.functions import run_ps1_cmd
+from lib.exceptions import ScriptError
 
 
 class QuickShellTab(customtkinter.CTkFrame):
@@ -34,6 +35,9 @@ class QuickShellTab(customtkinter.CTkFrame):
         self.script_output_text.pack(side="left", expand=True, fill="both")
 
     def run_script_and_display_output(self):
-        output = run_ps1_cmd(self.script_input.get())
         self.script_output_text.delete("1.0", "end")
-        self.script_output_text.insert("end", output)
+        try:
+            output = run_ps1_cmd(self.script_input.get())
+            self.script_output_text.insert("end", output)
+        except ScriptError as e:
+            self.script_output_text.insert("end", f"ERROR: {e}")

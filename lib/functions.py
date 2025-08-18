@@ -1,5 +1,8 @@
 import tkinter as tk
-import subprocess, json
+import subprocess
+import json
+import os
+from .exceptions import ScriptError # Use explicit relative import
 
 
 def increment(var: tk.IntVar):
@@ -11,78 +14,105 @@ def decrement(var: tk.IntVar):
 
 
 def center_window(window, width, height):
+    """Centers a tkinter window on the screen."""
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
-
     x = (screen_width / 2) - (width / 2)
     y = (screen_height / 2) - (height / 2)
-
     window.geometry(f"{width}x{height}+{int(x)}+{int(y)}")
 
 
-def run_ps1_cmd(cmd: str) -> str:
-    result = subprocess.run(
-        ["powershell", "-Command", cmd],
-        capture_output=True,
-        text=True,
-        check=True,
-        creationflags=subprocess.CREATE_NO_WINDOW,
+def run_command_async(command: str) -> None:
+    """
+    Runs a command asynchronously in a new process without a visible window.
+    This is for simple, non-interactive, fire-and-forget commands.
+    """
+    subprocess.Popen(
+        ["powershell.exe", "-Command", command],
+        creationflags=subprocess.CREATE_NO_WINDOW
     )
 
-    if result.returncode == 0:
-        return result.stdout
-    else:
-        return result.stderr
+
+def run_ps1_cmd(cmd: str) -> str:
+    """
+    Runs a PowerShell command string and captures its output.
+    This is a BLOCKING call and is intended for quick commands
+    like in the QuickShell tab.
+    """
+    if not cmd:
+        return ""
+    try:
+        process = subprocess.run(
+            ["powershell", "-Command", cmd],
+            capture_output=True,
+            text=True,
+            check=False,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+        )
+        stderr = process.stderr.strip()
+        if process.returncode != 0:
+            raise ScriptError(
+                f"PowerShell command failed with exit code {process.returncode}.",
+                stderr=stderr
+            )
+        return process.stdout.strip()
+    except FileNotFoundError as e:
+        raise FileNotFoundError(
+            f"Error: 'powershell.exe' not found. Make sure PowerShell is installed and in your system's PATH."
+        ) from e
+    except Exception as e:
+        raise ScriptError(f"An unexpected error occurred while running command.") from e
 
 
-def run_ps1_script_elevated(
-    script_path: str, window=False, ps_args: list = None
-) -> None:
+def run_ps1_script_async(script_path: str, ps_args: list = None, elevated: bool = False) -> None:
+    """
+    Runs a PowerShell script in a new, visible window and does NOT block the GUI.
+    This is "fire-and-forget" and uses the 'Start-Process' cmdlet to ensure
+    a new window is created, which is necessary for interactive scripts.
+    """
     if ps_args is None:
         ps_args = []
 
+    # Build the argument list for the script file itself
     script_argument_list = [
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        script_path,
+        f'"{script_path}"',  # Quote the script path to handle spaces
     ]
 
-    script_argument_list.extend(ps_args)
+    # Add additional script arguments
+    for arg in ps_args:
+        # Simple quoting for arguments with spaces
+        script_argument_list.append(f'"{arg}"' if " " in arg else arg)
 
-    # Build a single string: each argument quoted and joined with spaces (NOT commas)
-    argument_list_string = " ".join(
-        [
-            f'"{arg}"' if " " in arg or "(" in arg or ")" in arg else arg
-            for arg in script_argument_list
-        ]
-    )
+    argument_string = " ".join(script_argument_list)
 
-    command_to_execute = (
-        f"Start-Process powershell.exe "
-        f"-ArgumentList '{argument_list_string}' "
-        f"-Wait "  # remove for non-blocking
-        f"-Verb RunAs "
-        f"{'-WindowStyle Hidden' if not window else ''}"
-    )
+    # Determine if elevation is needed
+    verb = "-Verb RunAs" if elevated else ""
 
-    # changed to .run to block python execution, as it takes a while to create the json file
-    # in CreateVMTab.py (see self.get_windows_image_editions). Was subprocess.Popen before.
-    subprocess.run(
-        ["powershell.exe", "-NoProfile", "-Command", command_to_execute],
-        shell=True,
-        capture_output=True,
-        text=True,
-        creationflags=subprocess.CREATE_NO_WINDOW,
+    # Construct the final command to be executed by the initial PowerShell process
+    # This command's job is to launch the second, visible PowerShell process
+    command_to_execute = f"Start-Process powershell.exe -ArgumentList '{argument_string}' {verb}"
+
+    # Use Popen with CREATE_NO_WINDOW to run the launcher command silently.
+    # The launched process itself will be visible.
+    subprocess.Popen(
+        ["powershell.exe", "-Command", command_to_execute],
+        creationflags=subprocess.CREATE_NO_WINDOW
     )
 
 
-def run_ps1_script_2(script_path: str, ps_args: list = None) -> None:
+def run_ps1_script(script_path: str, ps_args: list = None) -> list:
+    """
+    Runs a PowerShell script, captures its JSON output, and blocks until complete.
+    Intended for fast scripts that return data to the GUI, like populating comboboxes.
+    """
     if ps_args is None:
         ps_args = []
 
-    cmd = [
+    command = [
         "powershell.exe",
         "-NoProfile",
         "-ExecutionPolicy",
@@ -91,85 +121,42 @@ def run_ps1_script_2(script_path: str, ps_args: list = None) -> None:
         script_path,
     ] + ps_args
 
-    result = subprocess.Popen(
-        cmd,
-        # shell=True,
-        # capture_output=True,
-        # text=True,
-        # creationflags=subprocess.CREATE_NO_WINDOW,
-    )
-
-    # print("STDOUT:", result.stdout)
-    # print("STDERR:", result.stderr)
-    # result.check_returncode()
-
-
-def run_ps1_script(
-    script_path: str,
-    ps_args: list = None,
-    window: bool = True,
-) -> list:
-    if ps_args is None:
-        ps_args = []
-
-    powershell_command_args = [
-        "powershell.exe",
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        script_path,
-    ]
-    powershell_command_args.extend(ps_args)
-
-    creationflags = subprocess.CREATE_NO_WINDOW if not window else 0
-
     try:
-        result = subprocess.Popen(
-            powershell_command_args,
-            # capture_output=True,  # Capture stdout and stderr
-            stdout=subprocess.PIPE,  # Use this instead of capture_output
-            stderr=subprocess.PIPE,  # Also pipe stderr if you want to capture errors
-            # text=True,  # Decode stdout/stderr as text
-            # check=True,  # Raise CalledProcessError for non-zero exit codes
-            creationflags=creationflags,
+        process = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=False,
+            creationflags=subprocess.CREATE_NO_WINDOW,
         )
 
-        # returns a tuple of bytes
-        stdout, stderr = result.communicate()
+        stdout = process.stdout.strip()
+        stderr = process.stderr.strip()
 
-        json_output = stdout.decode().strip()
-
-        if not json_output:
-            print(
-                f"Warning: PowerShell script '{script_path}' returned no output to stdout."
+        if process.returncode != 0:
+            raise ScriptError(
+                f"PowerShell script '{os.path.basename(script_path)}' failed with exit code {process.returncode}.",
+                stderr=stderr
             )
-            # Even if no output, check stderr in case there was a non-fatal warning
-            if result.stderr:
-                print(f"PowerShell STDERR: {stderr.strip()}")
-            return []  # Return an empty list if no output, assuming no error
 
-        return json.loads(json_output)
+        if not stdout:
+            if stderr:
+                raise ScriptError(
+                    f"PowerShell script '{os.path.basename(script_path)}' returned no JSON output but produced errors.",
+                    stderr=stderr,
+                )
+            return []
 
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing PowerShell script '{script_path}':")
-        print(f"Return code: {e.returncode}")
-        print(
-            f"STDOUT (if any): {e.stdout.strip()}"
-        )  # Show any partial output before error
-        print(f"STDERR: {e.stderr.strip()}")
-        return None
+        return json.loads(stdout)
+
     except json.JSONDecodeError as e:
-        print(
-            f"Error decoding JSON from PowerShell output for script '{script_path}': {e}"
-        )
-        print(f"Raw PowerShell output (STDOUT): '{json_output}'")
-        # Include stderr if available, as it might explain malformed JSON
-        if "result" in locals() and stderr:  # Check if result is defined
-            print(f"PowerShell STDERR: {stderr.strip()}")
-        return None
-    except FileNotFoundError:
-        print(
-            f"Error: 'powershell.exe' or script '{script_path}' not found. Make sure PowerShell is in your PATH."
-        )
-        return None
+        raise ScriptError(
+            f"Failed to decode JSON from '{os.path.basename(script_path)}'.",
+            stderr=f"JSONDecodeError: {e}\nRaw Output: {stdout}",
+        ) from e
+    except FileNotFoundError as e:
+        raise FileNotFoundError(
+            f"Error: 'powershell.exe' not found. Make sure PowerShell is installed and in your system's PATH."
+        ) from e
+    except Exception as e:
+        raise ScriptError(f"An unexpected error occurred while running '{os.path.basename(script_path)}'.") from e
