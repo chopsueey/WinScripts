@@ -60,6 +60,7 @@ class App(customtkinter.CTk):
             self.app_config.theme = "dark"
 
         customtkinter.set_appearance_mode(self.app_config.theme)
+        self.status_bar.update_theme_icon()
 
     def restart(self):
         """Restarts the application."""

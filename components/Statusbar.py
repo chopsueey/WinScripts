@@ -116,13 +116,24 @@ class Statusbar(customtkinter.CTkFrame):
         )
         self.refresh_button.grid(row=0, column=1, padx=5)
 
+        self.sun_image = customtkinter.CTkImage(Image.open(resource_path("icons/sun.png")), size=(20, 20))
+        self.moon_image = customtkinter.CTkImage(Image.open(resource_path("icons/moon.png")), size=(20, 20))
+
+        initial_image = self.sun_image if self.master.app_config.theme == "dark" else self.moon_image
+
         self.theme_button = customtkinter.CTkButton(
-            self, text="Toggle Theme", command=master.toggle_theme
+            self, text="", image=initial_image, command=master.toggle_theme, width=20
         )
         self.theme_button.grid(row=0, column=2, padx=5)
 
         self._create_groups()
         self.update_status()
+
+    def update_theme_icon(self):
+        if self.master.app_config.theme == "dark":
+            self.theme_button.configure(image=self.sun_image)
+        else:
+            self.theme_button.configure(image=self.moon_image)
 
     def _create_groups(self):
         # System Group
