@@ -22,6 +22,17 @@ def center_window(window, width, height):
     window.geometry(f"{width}x{height}+{int(x)}+{int(y)}")
 
 
+def run_command_async(command: str) -> None:
+    """
+    Runs a command asynchronously in a new process without a visible window.
+    This is for simple, non-interactive, fire-and-forget commands.
+    """
+    subprocess.Popen(
+        ["powershell.exe", "-Command", command],
+        creationflags=subprocess.CREATE_NO_WINDOW
+    )
+
+
 def run_ps1_cmd(cmd: str) -> str:
     """
     Runs a PowerShell command string and captures its output.
@@ -53,25 +64,44 @@ def run_ps1_cmd(cmd: str) -> str:
         raise ScriptError(f"An unexpected error occurred while running command.") from e
 
 
-def run_ps1_script_async(script_path: str, ps_args: list = None) -> None:
+def run_ps1_script_async(script_path: str, ps_args: list = None, elevated: bool = False) -> None:
     """
-    Runs a PowerShell script in a new visible window and does NOT block the GUI.
-    This is "fire-and-forget" and does not return output or status.
+    Runs a PowerShell script in a new, visible window and does NOT block the GUI.
+    This is "fire-and-forget" and uses the 'Start-Process' cmdlet to ensure
+    a new window is created, which is necessary for interactive scripts.
     """
     if ps_args is None:
         ps_args = []
 
-    command = [
-        "powershell.exe",
+    # Build the argument list for the script file itself
+    script_argument_list = [
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        script_path,
-    ] + ps_args
+        f'"{script_path}"',  # Quote the script path to handle spaces
+    ]
 
-    # Popen is non-blocking. The script will run in its own window.
-    subprocess.Popen(command)
+    # Add additional script arguments
+    for arg in ps_args:
+        # Simple quoting for arguments with spaces
+        script_argument_list.append(f'"{arg}"' if " " in arg else arg)
+
+    argument_string = " ".join(script_argument_list)
+
+    # Determine if elevation is needed
+    verb = "-Verb RunAs" if elevated else ""
+
+    # Construct the final command to be executed by the initial PowerShell process
+    # This command's job is to launch the second, visible PowerShell process
+    command_to_execute = f"Start-Process powershell.exe -ArgumentList '{argument_string}' {verb}"
+
+    # Use Popen with CREATE_NO_WINDOW to run the launcher command silently.
+    # The launched process itself will be visible.
+    subprocess.Popen(
+        ["powershell.exe", "-Command", command_to_execute],
+        creationflags=subprocess.CREATE_NO_WINDOW
+    )
 
 
 def run_ps1_script(script_path: str, ps_args: list = None) -> list:

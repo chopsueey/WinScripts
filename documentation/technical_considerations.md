@@ -4,6 +4,25 @@ This document records key technical decisions, architectural choices, and import
 
 ---
 
+## 2025-08-18: Non-Blocking, Visible Script Execution is a Key Feature
+
+### Context
+The application's primary function is to act as a GUI wrapper for long-running PowerShell scripts. A key aspect of the user experience is that the application should remain responsive (non-blocking) while these scripts execute. Furthermore, some scripts may require interactive user input directly in the PowerShell console (e.g., for credential prompts or confirmations).
+
+### Decision
+All long-running or potentially interactive scripts **must** be executed asynchronously. The `lib/functions.py` module provides a dedicated function for this purpose: `run_ps1_script_async`.
+
+This function uses `subprocess.Popen` without any flags that would hide the window or redirect I/O. This achieves two critical goals:
+1.  **Non-Blocking GUI:** `Popen` is non-blocking, so the Python application's main thread does not freeze. The user can continue to interact with the GUI while the script runs.
+2.  **Visible & Interactive Console:** A new PowerShell console window appears, allowing the user to see the script's live output and, crucially, to provide any input the script might require.
+
+### Rationale
+This architectural pattern is a core feature. Any attempt to change this to a blocking call (like `subprocess.run`) or to hide the console window (e.g., to capture output for in-app display) will be considered a **major regression**. It would break interactivity and make the application unusable during long operations.
+
+For short, synchronous scripts that need to return data to the application (like populating a dropdown), the blocking functions `run_ps1_script` (for JSON) and `run_ps1_cmd` (for string output) should be used. These are exceptions to the rule and should only be used for quick, non-interactive tasks.
+
+---
+
 ## 2025-08-09: Adoption of a Formal UI Style Guide
 
 ### Context

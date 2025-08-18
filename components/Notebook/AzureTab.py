@@ -41,4 +41,5 @@ class AzureTab(customtkinter.CTkFrame):
         script_path = construct_path(
             self.app.current_script_dir, self.app.script_dir_relative, script_name
         )
-        run_ps1_script_async(script_path)
+        # Assuming elevation might be needed for Azure CLI operations
+        run_ps1_script_async(script_path, elevated=True)

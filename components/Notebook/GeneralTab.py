@@ -1,7 +1,5 @@
 import customtkinter
-from tkinter import messagebox
-from lib.functions import run_ps1_cmd
-from lib.exceptions import ScriptError
+from lib.functions import run_command_async
 
 
 class GeneralTab(customtkinter.CTkFrame):
@@ -19,19 +17,13 @@ class GeneralTab(customtkinter.CTkFrame):
         self.open_standard_pwsh = customtkinter.CTkButton(
             ps_frame,
             text="Open PowerShell",
-            command=lambda: self.run_command("Start-Process powershell.exe -Verb RunAs", "Open PowerShell")
+            command=lambda: run_command_async("Start-Process powershell.exe -Verb RunAs")
         )
         self.open_standard_pwsh.grid(row=0, column=0, padx=10, pady=(10, 5), sticky="ew")
 
         self.open_new_pwsh = customtkinter.CTkButton(
             ps_frame,
             text="Open PowerShell 7",
-            command=lambda: self.run_command("Start-Process pwsh.exe -Verb RunAs", "Open PowerShell 7")
+            command=lambda: run_command_async("Start-Process pwsh.exe -Verb RunAs")
         )
         self.open_new_pwsh.grid(row=1, column=0, padx=10, pady=(5, 10), sticky="ew")
-
-    def run_command(self, command, command_name):
-        try:
-            run_ps1_cmd(command)
-        except ScriptError as e:
-            messagebox.showerror(f"{command_name} Failed", f"An error occurred while trying to {command_name.lower()}:\n\n{e}")

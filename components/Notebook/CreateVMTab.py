@@ -300,8 +300,8 @@ class CreateVMTab(customtkinter.CTkFrame):
 
         script_path = construct_path(self.app.current_script_dir, self.app.script_dir_relative, r".\\Hyper-V-Automation\\create_Vm.ps1")
 
-        # Use the async (non-blocking) function
-        run_ps1_script_async(script_path, ps_args=ps_args)
+        # Use the async (non-blocking) function, with elevation
+        run_ps1_script_async(script_path, ps_args=ps_args, elevated=True)
         messagebox.showinfo(
             "VM Creation Started",
             f"The script to create VM '{vm_params['vmName']}' has been started in a new PowerShell window."

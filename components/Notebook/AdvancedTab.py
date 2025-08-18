@@ -66,4 +66,5 @@ class AdvancedTab(customtkinter.CTkFrame):
         script_path = construct_path(
             self.app.current_script_dir, self.app.script_dir_relative, script_name
         )
-        run_ps1_script_async(script_path)
+        # These scripts require elevation
+        run_ps1_script_async(script_path, elevated=True)
