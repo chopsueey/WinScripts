@@ -1,6 +1,9 @@
 import customtkinter
 from lib.functions import run_ps1_cmd
 from lib.exceptions import ScriptError
+
+
+class QuickShellTab(customtkinter.CTkFrame):
     def __init__(self, master, app):
         super().__init__(master)
         self.pack(expand=True, fill="both")
