@@ -179,6 +179,13 @@ class CreateVMTab(customtkinter.CTkFrame):
         )
 
     def on_edition_selected(self, choice):
+        print("--- DEBUG: on_edition_selected ---")
+        print(f"Argument 'choice': {choice}")
+        print(f"Type of 'choice': {type(choice)}")
+        print(f"Current value of self.selected_edition: {self.selected_edition.get()}")
+        print(f"Values in combobox: {self.edition_combobox.cget('values')}")
+        print("--- END DEBUG ---")
+
         self.edition_info_label.configure(text=f"You selected: {choice}")
         self.version_name = self._get_version_name_from_edition()
         print(f"Selected edition: {choice}", self.version_name)
@@ -190,6 +197,13 @@ class CreateVMTab(customtkinter.CTkFrame):
         )
 
     def on_vm_switch_selected(self, choice):
+        print("--- DEBUG: on_vm_switch_selected ---")
+        print(f"Argument 'choice': {choice}")
+        print(f"Type of 'choice': {type(choice)}")
+        print(f"Current value of self.selected_vm_switch: {self.selected_vm_switch.get()}")
+        print(f"Values in combobox: {self.vm_switches_combobox.cget('values')}")
+        print("--- END DEBUG ---")
+
         self.vm_switches_info_label.configure(text=f"You selected: {choice}")
         print(f"Selected switch: {choice}")
 
