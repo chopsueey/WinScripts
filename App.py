@@ -74,8 +74,37 @@ class App(customtkinter.CTk):
 
     def run(self):
         self.update_idletasks()
-        self.width = self.winfo_reqwidth()
-        self.height = self.winfo_reqheight()
+
+        # Calculate the required size based on the largest tab
+        tabs = self.notebook.get_all_tabs()
+        max_width = 0
+        max_height = 0
+        for tab in tabs:
+            max_width = max(max_width, tab.winfo_reqwidth())
+            max_height = max(max_height, tab.winfo_reqheight())
+
+        # Add padding and the height of other components
+        # Get the height of the notebook's tab bar
+        notebook_req_height = self.notebook.winfo_reqheight()
+        children = self.notebook.winfo_children()
+        if children:
+            first_child_height = children[0].winfo_reqheight()
+            notebook_tab_bar_height = notebook_req_height - first_child_height
+        else:
+            notebook_tab_bar_height = 0 # Fallback
+
+        statusbar_height = self.status_bar.winfo_reqheight()
+
+        # Total padding: 4px top, 4px between notebook and statusbar, 4px bottom
+        vertical_padding = 4 + 4 + 4
+        # Total padding: 4px left, 4px right
+        horizontal_padding = 4 + 4
+
+        width = max_width + horizontal_padding
+        height = max_height + notebook_tab_bar_height + statusbar_height + vertical_padding
+
+        self.width = width
+        self.height = height
 
         center_window(self, self.width, self.height)
         self.after(100, self._bring_to_front)

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2025-08-18] - Fix: Automatic Window Resizing
+
+### Summary of Changes
+
+- **Fix: Automatic Window Resizing:**
+  - The application window now automatically resizes at startup to be large enough to accommodate the largest tab (`Create VM` tab).
+  - This prevents UI elements from being cut off and removes the need for users to manually resize the window.
+  - The implementation calculates the required size by inspecting all tabs before the main window is drawn.
+
 ## [2025-08-18] - Refactor: UI Library and Theming Engine
 
 ### Summary of Changes
