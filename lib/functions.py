@@ -14,6 +14,50 @@ def center_window(window, width, height):
     window.geometry(f"{width}x{height}+{int(x)}+{int(y)}")
 
 
+def run_ps1_cmd(cmd: str) -> str:
+    """
+    Runs a PowerShell command string.
+
+    Args:
+        cmd: The PowerShell command to run.
+
+    Returns:
+        The script's stdout as a string.
+
+    Raises:
+        ScriptError: If the command returns a non-zero exit code.
+        FileNotFoundError: If 'powershell.exe' is not found.
+    """
+    if not cmd:
+        return ""
+
+    try:
+        process = subprocess.run(
+            ["powershell", "-Command", cmd],
+            capture_output=True,
+            text=True,
+            check=False,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+        )
+
+        stderr = process.stderr.strip()
+
+        if process.returncode != 0:
+            raise ScriptError(
+                f"PowerShell command failed with exit code {process.returncode}.",
+                stderr=stderr
+            )
+
+        return process.stdout.strip()
+
+    except FileNotFoundError as e:
+        raise FileNotFoundError(
+            f"Error: 'powershell.exe' not found. Make sure PowerShell is installed and in your system's PATH."
+        ) from e
+    except Exception as e:
+        raise ScriptError(f"An unexpected error occurred while running command.") from e
+
+
 def run_ps1_script(script_path: str, ps_args: list = None) -> list:
     """
     Runs a PowerShell script that is expected to return JSON output.
