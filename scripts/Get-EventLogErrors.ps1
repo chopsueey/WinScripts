@@ -57,14 +57,13 @@ try {
     if ($events) {
         Write-Log "Found $($events.Count) matching events."
         # Returning the object directly is more flexible than Format-Table
-        return $events | Select-Object TimeCreated, LogName, LevelDisplayName, ProviderName, Id, Message
+        $events | Select-Object TimeCreated, LogName, LevelDisplayName, ProviderName, Id, Message
     } else {
         Write-Log "No Critical, Error, or Warning events found in the specified logs within the last $HoursSince hours."
     }
 }
 catch {
     Write-ErrorLog "Failed to retrieve event log errors. ERROR: $($_.Exception.Message)"
-    exit 1
 }
 
 Read-Host -Prompt "Press Enter to exit"
