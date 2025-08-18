@@ -1,7 +1,5 @@
 import customtkinter
-from tkinter import messagebox
-from lib.functions import run_ps1_script_no_json
-from lib.exceptions import ScriptError
+from lib.functions import run_ps1_script_async
 from lib.utils import construct_path
 
 
@@ -21,21 +19,21 @@ class AdvancedTab(customtkinter.CTkFrame):
         self.RDP_button = customtkinter.CTkButton(
             access_frame,
             text="Activate RDP",
-            command=lambda: self.run_script("activateRDP.ps1", "Activate RDP")
+            command=lambda: self.run_script("activateRDP.ps1")
         )
         self.RDP_button.grid(row=0, column=0, padx=10, pady=(10, 5), sticky="ew")
 
         self.activateAdmin = customtkinter.CTkButton(
             access_frame,
             text="Activate Admin",
-            command=lambda: self.run_script("activateAdmin.ps1", "Activate Admin")
+            command=lambda: self.run_script("activateAdmin.ps1")
         )
         self.activateAdmin.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
         self.enable_remote = customtkinter.CTkButton(
             access_frame,
             text="Enable PSRemote",
-            command=lambda: self.run_script("enableRemoting.ps1", "Enable PSRemote")
+            command=lambda: self.run_script("enableRemoting.ps1")
         )
         self.enable_remote.grid(row=2, column=0, padx=10, pady=(5, 10), sticky="ew")
 
@@ -46,30 +44,26 @@ class AdvancedTab(customtkinter.CTkFrame):
         self.setComputerName_button = customtkinter.CTkButton(
             config_frame,
             text="Set ComputerName",
-            command=lambda: self.run_script("setComputerName.ps1", "Set ComputerName")
+            command=lambda: self.run_script("setComputerName.ps1")
         )
         self.setComputerName_button.grid(row=0, column=0, padx=10, pady=(10, 5), sticky="ew")
 
         self.setIP_button = customtkinter.CTkButton(
             config_frame,
             text="Set IP",
-            command=lambda: self.run_script("setIP.ps1", "Set IP")
+            command=lambda: self.run_script("setIP.ps1")
         )
         self.setIP_button.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
         self.installBGInfo_button = customtkinter.CTkButton(
             config_frame,
             text="Install BGInfo",
-            command=lambda: self.run_script("installBGInfo.ps1", "Install BGInfo")
+            command=lambda: self.run_script("installBGInfo.ps1")
         )
         self.installBGInfo_button.grid(row=2, column=0, padx=10, pady=(5, 10), sticky="ew")
 
-    def run_script(self, script_name, command_name):
+    def run_script(self, script_name):
         script_path = construct_path(
             self.app.current_script_dir, self.app.script_dir_relative, script_name
         )
-        try:
-            output = run_ps1_script_no_json(script_path)
-            messagebox.showinfo(f"{command_name} Succeeded", f"Successfully executed {command_name}.\n\nOutput:\n{output}")
-        except ScriptError as e:
-            messagebox.showerror(f"{command_name} Failed", f"An error occurred while trying to {command_name.lower()}:\n\n{e}")
+        run_ps1_script_async(script_path)

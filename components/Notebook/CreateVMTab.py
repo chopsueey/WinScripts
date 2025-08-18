@@ -1,7 +1,7 @@
 import customtkinter
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from lib.functions import run_ps1_script_no_json, run_ps1_script
+from lib.functions import run_ps1_script_async, run_ps1_script
 from lib.exceptions import ScriptError
 from lib.utils import construct_path
 from lib import validators
@@ -261,11 +261,10 @@ class CreateVMTab(customtkinter.CTkFrame):
         return True
 
     def create_vm(self):
-        """Gathers VM parameters, confirms with the user, and runs the creation script."""
+        """Gathers VM parameters, validates them, confirms with the user, and runs the creation script asynchronously."""
         if not self._validate_form():
-            return # Stop if validation fails
+            return  # Stop if validation fails
 
-        # Note: The PowerShell script expects 'passPlainText' not 'pass'
         vm_params = {
             "isoFile": self.iso_path.get(),
             "vmName": self.vm_name_entry.get(),
@@ -286,10 +285,9 @@ class CreateVMTab(customtkinter.CTkFrame):
 
         summary = "Please confirm the VM creation with the following settings:\n\n"
         for key, value in vm_params.items():
-            # Use the correct key for password masking
             display_value = '******' if key == 'passPlainText' and value else value
             summary += f"{key}: {display_value}\n"
-        summary += "\nDo you want to proceed?"
+        summary += "\nThis will open a new PowerShell window to create the VM. The app will not freeze.\nDo you want to proceed?"
 
         if not messagebox.askyesno("Confirm VM Creation", summary):
             print("VM creation canceled by user.")
@@ -297,17 +295,14 @@ class CreateVMTab(customtkinter.CTkFrame):
 
         ps_args = []
         for key, value in vm_params.items():
-            # Skip sending empty optional parameters to avoid errors in PowerShell script
             if value:
                 ps_args.extend([f"-{key}", str(value)])
 
         script_path = construct_path(self.app.current_script_dir, self.app.script_dir_relative, r".\\Hyper-V-Automation\\create_Vm.ps1")
 
-        try:
-            print("Running VM creation script...")
-            # Use the refactored function
-            output = run_ps1_script_no_json(script_path, ps_args=ps_args)
-            print("Script output:", output)
-            messagebox.showinfo("Success", f"VM '{vm_params['vmName']}' created successfully!")
-        except ScriptError as e:
-            messagebox.showerror("VM Creation Failed", f"An error occurred during VM creation:\n\n{e}")
+        # Use the async (non-blocking) function
+        run_ps1_script_async(script_path, ps_args=ps_args)
+        messagebox.showinfo(
+            "VM Creation Started",
+            f"The script to create VM '{vm_params['vmName']}' has been started in a new PowerShell window."
+        )

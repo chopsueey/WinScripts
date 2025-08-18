@@ -24,21 +24,12 @@ def center_window(window, width, height):
 
 def run_ps1_cmd(cmd: str) -> str:
     """
-    Runs a PowerShell command string.
-
-    Args:
-        cmd: The PowerShell command to run.
-
-    Returns:
-        The script's stdout as a string.
-
-    Raises:
-        ScriptError: If the command returns a non-zero exit code.
-        FileNotFoundError: If 'powershell.exe' is not found.
+    Runs a PowerShell command string and captures its output.
+    This is a BLOCKING call and is intended for quick commands
+    like in the QuickShell tab.
     """
     if not cmd:
         return ""
-
     try:
         process = subprocess.run(
             ["powershell", "-Command", cmd],
@@ -47,17 +38,13 @@ def run_ps1_cmd(cmd: str) -> str:
             check=False,
             creationflags=subprocess.CREATE_NO_WINDOW,
         )
-
         stderr = process.stderr.strip()
-
         if process.returncode != 0:
             raise ScriptError(
                 f"PowerShell command failed with exit code {process.returncode}.",
                 stderr=stderr
             )
-
         return process.stdout.strip()
-
     except FileNotFoundError as e:
         raise FileNotFoundError(
             f"Error: 'powershell.exe' not found. Make sure PowerShell is installed and in your system's PATH."
@@ -66,21 +53,31 @@ def run_ps1_cmd(cmd: str) -> str:
         raise ScriptError(f"An unexpected error occurred while running command.") from e
 
 
+def run_ps1_script_async(script_path: str, ps_args: list = None) -> None:
+    """
+    Runs a PowerShell script in a new visible window and does NOT block the GUI.
+    This is "fire-and-forget" and does not return output or status.
+    """
+    if ps_args is None:
+        ps_args = []
+
+    command = [
+        "powershell.exe",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        script_path,
+    ] + ps_args
+
+    # Popen is non-blocking. The script will run in its own window.
+    subprocess.Popen(command)
+
+
 def run_ps1_script(script_path: str, ps_args: list = None) -> list:
     """
-    Runs a PowerShell script that is expected to return JSON output.
-
-    Args:
-        script_path: The absolute path to the .ps1 script.
-        ps_args: A list of arguments to pass to the script.
-
-    Returns:
-        A list or dictionary decoded from the script's JSON output.
-
-    Raises:
-        ScriptError: If the script returns a non-zero exit code, fails to run,
-                     or returns invalid JSON.
-        FileNotFoundError: If 'powershell.exe' is not found.
+    Runs a PowerShell script, captures its JSON output, and blocks until complete.
+    Intended for fast scripts that return data to the GUI, like populating comboboxes.
     """
     if ps_args is None:
         ps_args = []
@@ -99,7 +96,7 @@ def run_ps1_script(script_path: str, ps_args: list = None) -> list:
             command,
             capture_output=True,
             text=True,
-            check=False,  # We will check the return code manually
+            check=False,
             creationflags=subprocess.CREATE_NO_WINDOW,
         )
 
@@ -113,13 +110,12 @@ def run_ps1_script(script_path: str, ps_args: list = None) -> list:
             )
 
         if not stdout:
-            # If stderr has content, it's likely a non-terminating error message.
             if stderr:
                 raise ScriptError(
                     f"PowerShell script '{os.path.basename(script_path)}' returned no JSON output but produced errors.",
                     stderr=stderr,
                 )
-            return [] # Script ran successfully but produced no output
+            return []
 
         return json.loads(stdout)
 
@@ -128,63 +124,6 @@ def run_ps1_script(script_path: str, ps_args: list = None) -> list:
             f"Failed to decode JSON from '{os.path.basename(script_path)}'.",
             stderr=f"JSONDecodeError: {e}\nRaw Output: {stdout}",
         ) from e
-    except FileNotFoundError as e:
-        raise FileNotFoundError(
-            f"Error: 'powershell.exe' not found. Make sure PowerShell is installed and in your system's PATH."
-        ) from e
-    except Exception as e:
-        # Catch any other unexpected errors
-        raise ScriptError(f"An unexpected error occurred while running '{os.path.basename(script_path)}'.") from e
-
-
-def run_ps1_script_no_json(script_path: str, ps_args: list = None) -> str:
-    """
-    Runs a PowerShell script that does not necessarily return JSON.
-
-    Args:
-        script_path: The absolute path to the .ps1 script.
-        ps_args: A list of arguments to pass to the script.
-
-    Returns:
-        The script's stdout as a string.
-
-    Raises:
-        ScriptError: If the script returns a non-zero exit code or fails to run.
-        FileNotFoundError: If 'powershell.exe' is not found.
-    """
-    if ps_args is None:
-        ps_args = []
-
-    command = [
-        "powershell.exe",
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        script_path,
-    ] + ps_args
-
-    try:
-        # Using Popen to stream output could be an alternative for long-running scripts,
-        # but for now, 'run' is simpler and captures all output at the end.
-        process = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            check=False, # Manually check return code
-            creationflags=subprocess.CREATE_NO_WINDOW,
-        )
-
-        stderr = process.stderr.strip()
-
-        if process.returncode != 0:
-            raise ScriptError(
-                f"PowerShell script '{os.path.basename(script_path)}' failed with exit code {process.returncode}.",
-                stderr=stderr
-            )
-
-        return process.stdout.strip()
-
     except FileNotFoundError as e:
         raise FileNotFoundError(
             f"Error: 'powershell.exe' not found. Make sure PowerShell is installed and in your system's PATH."
