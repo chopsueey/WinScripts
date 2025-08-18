@@ -5,6 +5,14 @@ import os
 from .exceptions import ScriptError # Use explicit relative import
 
 
+def increment(var: tk.IntVar):
+    var.set(var.get() + 1)
+
+
+def decrement(var: tk.IntVar):
+    var.set(var.get() - 1)
+
+
 def center_window(window, width, height):
     """Centers a tkinter window on the screen."""
     screen_width = window.winfo_screenwidth()
